@@ -1,0 +1,3 @@
+logging:
+  file:
+    name: /var/log/control-pi-audio-multiroom.log

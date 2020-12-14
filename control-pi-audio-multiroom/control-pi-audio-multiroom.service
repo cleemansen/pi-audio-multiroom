@@ -1,0 +1,11 @@
+[Unit]
+Description=Control Pi Audio Multiroom Java Service
+After=network.target
+
+[Service]
+ExecStart=java -jar /usr/local/bin/control-pi-audio-multiroom-1.0.0.jar --spring.profiles.active=pi
+Restart=always
+User=pi
+
+[Install]
+WantedBy=multi-user.target

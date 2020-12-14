@@ -10,7 +10,7 @@
     </parent>
     <groupId>org.unividuell</groupId>
     <artifactId>control-pi-audio-multiroom</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>control-pi-audio-multiroom</name>
     <description>Control over Audio Mutliroom Raspberry Pi</description>
 
