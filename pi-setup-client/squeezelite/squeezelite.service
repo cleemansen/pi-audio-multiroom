@@ -1,0 +1,12 @@
+[Unit]
+Description=Squeezelite LMS player
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/etc/init.d/squeezelite start
+ExecStop=/etc/init.d/squeezelite stop
+PIDFile=/var/run/squeezelite-armv6hf.pid
+
+[Install]
+WantedBy=multi-user.target
