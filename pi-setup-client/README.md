@@ -44,12 +44,12 @@ http://www.gerrelt.nl/RaspberryPi/wordpress/tutorial-installing-squeezelite-play
 mkdir /tmp/squeezelite
 cd /tmp/squeezelite
 # find newest version on https://sourceforge.net/projects/lmsclients/files/squeezelite/linux/
-wget -O squeezelite-armhf.tar.gz https://sourceforge.net/projects/lmsclients/files/squeezelite/linux/squeezelite-1.9.8.1294-armhf.tar.gz
-tar -xvzf squeezelite-armhf.tar.gz
-mv squeezelite squeezelite-armhf
+wget -O squeezelite-armv6hf.tar.gz https://sourceforge.net/projects/lmsclients/files/squeezelite/linux/squeezelite-1.9.8.1294-armhf.tar.gz
+tar -xvzf squeezelite-armv6hf.tar.gz
+mv squeezelite squeezelite-armv6hf
 
-sudo mv squeezelite-armhf /usr/bin
-sudo chmod a+x /usr/bin/squeezelite-armhf
+sudo mv squeezelite-armv6hf /usr/bin
+sudo chmod a+x /usr/bin/squeezelite-armv6hf
 ```
 
 ### configure soundcard for squeezelite
@@ -58,5 +58,5 @@ sudo chmod a+x /usr/bin/squeezelite-armhf
 # inspect available soundcards
 sudo /usr/bin/squeezelite-armv6hf -l
 # start session
-sudo /usr/bin/squeezelite-armhf -o front:CARD=Device,DEV=0 -s 192.168.0.100 -n lab.local -d all=info -f /var/log/squeezelite.log
+sudo /usr/bin/squeezelite-armv6hf -o front:CARD=Device,DEV=0 -s 192.168.0.100 -n lab.local -d all=info -f /var/log/squeezelite.log
 ```
