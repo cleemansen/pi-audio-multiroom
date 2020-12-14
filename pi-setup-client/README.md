@@ -1,4 +1,4 @@
-# Setup for Multiroom Client
+# Setup for Multiroom Audio Client
 
 ## Image
 
@@ -25,7 +25,7 @@ ssh-copy-id -i id_rsa.pub pi@lab.local # execute from local machine
 passwd
 
 
-# configure soundcard
+# configure soundcard (check for devices: aplay -l)
 sudo alsamixer
 ```
 
