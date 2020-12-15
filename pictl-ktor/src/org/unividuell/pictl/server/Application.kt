@@ -104,6 +104,8 @@ fun Application.module(testing: Boolean = false) {
         exitCodeSupplier = { 0 } // ApplicationCall.() -> Int
     }
 
+    environment.log.info("current environment is $envKind")
+
     routing {
         get("/") {
             call.respondText("HELLO WORLD!", contentType = ContentType.Text.Plain)

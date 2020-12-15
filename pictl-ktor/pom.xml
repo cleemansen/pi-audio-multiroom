@@ -112,6 +112,11 @@
             <version>${ktor_version}</version>
         </dependency>
         <dependency>
+            <groupId>org.codehaus.janino</groupId>
+            <artifactId>janino</artifactId>
+            <version>3.1.2</version>
+        </dependency>
+        <dependency>
             <groupId>io.ktor</groupId>
             <artifactId>ktor-server-tests</artifactId>
             <version>${ktor_version}</version>
