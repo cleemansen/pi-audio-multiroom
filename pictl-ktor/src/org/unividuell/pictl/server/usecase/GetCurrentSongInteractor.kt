@@ -9,7 +9,9 @@ class GetCurrentSongInteractor(di: DI) {
 
     interface DataSource {
         data class CurrentSong(
-            val title: String
+            val artist: String?,
+            val title: String?,
+            val album: String?
         )
         fun getCurrentSong(): CurrentSong?
     }
