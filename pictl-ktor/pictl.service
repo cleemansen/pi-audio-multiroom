@@ -3,6 +3,7 @@ Description=Control Pi Audio Multiroom Java Service (Ktor)
 After=network.target
 
 [Service]
+Environment="KTOR_ENV=pi"
 ExecStart=java -jar /home/pi/pictl.jar
 Restart=always
 User=pi
