@@ -2,10 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.unividuell</groupId>
-    <artifactId>pictrl-ktor</artifactId>
+    <artifactId>pictl-ktor</artifactId>
     <version>1.0.0</version>
-    <name>pictrl-ktor</name>
-    <description>pictrl-ktor</description>
+    <name>pictl-ktor</name>
+    <description>pictl-ktor</description>
     <properties>
         <logback_version>1.2.1</logback_version>
         <ktor_version>1.4.2</ktor_version>
