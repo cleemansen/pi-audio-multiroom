@@ -1,0 +1,11 @@
+[Unit]
+Description=Control Pi Audio Multiroom Java Service (Ktor)
+After=network.target
+
+[Service]
+ExecStart=java -jar /home/pi/pictl.jar
+Restart=always
+User=pi
+
+[Install]
+WantedBy=multi-user.target
