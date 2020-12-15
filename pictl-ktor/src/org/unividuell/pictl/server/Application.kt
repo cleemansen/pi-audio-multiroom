@@ -1,38 +1,32 @@
 package org.unividuell.pictl.server
 
+import com.fasterxml.jackson.databind.SerializationFeature
 import io.ktor.application.*
-import io.ktor.response.*
-import io.ktor.request.*
 import io.ktor.client.*
+import io.ktor.client.engine.cio.*
 import io.ktor.client.features.*
 import io.ktor.client.features.json.*
-import io.ktor.client.request.*
-import kotlinx.coroutines.*
-import io.ktor.routing.*
-import io.ktor.http.*
-import io.ktor.websocket.*
-import io.ktor.http.cio.websocket.*
-import java.time.*
-import io.ktor.client.features.websocket.*
-import io.ktor.client.features.websocket.WebSockets
-import io.ktor.http.cio.websocket.Frame
-import kotlinx.coroutines.channels.*
 import io.ktor.client.features.logging.*
-import io.ktor.content.*
-import io.ktor.http.content.*
-import com.fasterxml.jackson.databind.*
-import io.ktor.client.engine.cio.*
-import io.ktor.jackson.*
 import io.ktor.features.*
-import org.slf4j.event.*
-import io.ktor.util.date.*
+import io.ktor.http.*
+import io.ktor.http.cio.websocket.*
+import io.ktor.http.cio.websocket.Frame
+import io.ktor.http.content.*
+import io.ktor.jackson.*
+import io.ktor.request.*
+import io.ktor.response.*
+import io.ktor.routing.*
 import io.ktor.server.engine.*
+import io.ktor.util.date.*
+import io.ktor.websocket.*
 import org.kodein.di.bind
 import org.kodein.di.ktor.di
 import org.kodein.di.singleton
+import org.slf4j.event.Level
 import org.unividuell.pictl.server.controller.audioRoutes
 import org.unividuell.pictl.server.repository.SlimboxRepository
 import org.unividuell.pictl.server.usecase.GetCurrentSongInteractor
+import java.time.Duration
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -46,22 +40,13 @@ fun Application.module(testing: Boolean = false) {
             serializer = GsonSerializer()
         }
         install(Logging) {
-            level = LogLevel.HEADERS
+            level = LogLevel.ALL
         }
-    }
-    runBlocking {
-        // Sample for making a HTTP Client request
-        /*
-        val message = client.post<JsonSampleClass> {
-            url("http://127.0.0.1:8080/path/to/endpoint")
-            contentType(ContentType.Application.Json)
-            body = JsonSampleClass(hello = "world")
-        }
-        */
     }
 
     di {
-        bind<GetCurrentSongInteractor.DataSource>() with singleton { SlimboxRepository() }
+        bind() from singleton { client }
+        bind<GetCurrentSongInteractor.DataSource>() with singleton { SlimboxRepository(di) }
         bind() from singleton { GetCurrentSongInteractor(di) }
     }
 
