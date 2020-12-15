@@ -27,6 +27,12 @@ import io.ktor.features.*
 import org.slf4j.event.*
 import io.ktor.util.date.*
 import io.ktor.server.engine.*
+import org.kodein.di.bind
+import org.kodein.di.ktor.di
+import org.kodein.di.singleton
+import org.unividuell.pictl.server.controller.audioRoutes
+import org.unividuell.pictl.server.repository.SlimboxRepository
+import org.unividuell.pictl.server.usecase.GetCurrentSongInteractor
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -52,6 +58,11 @@ fun Application.module(testing: Boolean = false) {
             body = JsonSampleClass(hello = "world")
         }
         */
+    }
+
+    di {
+        bind<GetCurrentSongInteractor.DataSource>() with singleton { SlimboxRepository() }
+        bind() from singleton { GetCurrentSongInteractor(di) }
     }
 
     install(io.ktor.websocket.WebSockets) {
@@ -129,6 +140,8 @@ fun Application.module(testing: Boolean = false) {
         get("/json/jackson") {
             call.respond(mapOf("hello" to "world"))
         }
+
+        audioRoutes()
     }
 }
 

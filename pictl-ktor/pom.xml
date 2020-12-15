@@ -117,6 +117,11 @@
             <version>3.1.2</version>
         </dependency>
         <dependency>
+            <groupId>org.kodein.di</groupId>
+            <artifactId>kodein-di-framework-ktor-server-jvm</artifactId>
+            <version>7.1.0</version>
+        </dependency>
+        <dependency>
             <groupId>io.ktor</groupId>
             <artifactId>ktor-server-tests</artifactId>
             <version>${ktor_version}</version>
@@ -144,6 +149,9 @@
                 <artifactId>kotlin-maven-plugin</artifactId>
                 <groupId>org.jetbrains.kotlin</groupId>
                 <version>${kotlin_version}</version>
+                <configuration>
+                    <jvmTarget>11</jvmTarget>
+                </configuration>
                 <executions>
                     <execution>
                         <id>compile</id>
