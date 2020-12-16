@@ -25,7 +25,7 @@ import org.kodein.di.ktor.di
 import org.kodein.di.singleton
 import org.slf4j.event.Level
 import org.unividuell.pictl.server.controller.audioRoutes
-import org.unividuell.pictl.server.repository.SlimboxCometdRepository
+import org.unividuell.pictl.server.repository.SlimboxCometLongPollingRepository
 import org.unividuell.pictl.server.repository.SlimboxJsonRpcRepository
 import org.unividuell.pictl.server.usecase.GetCurrentSongInteractor
 import java.time.Duration
@@ -50,7 +50,7 @@ fun Application.module(testing: Boolean = false) {
         bind() from singleton { client }
         bind<GetCurrentSongInteractor.DataSource>() with singleton { SlimboxJsonRpcRepository(di) }
         bind() from singleton { GetCurrentSongInteractor(di) }
-        bind() from singleton { SlimboxCometdRepository(di) }
+        bind() from singleton { SlimboxCometLongPollingRepository(di) }
     }
 
     install(io.ktor.websocket.WebSockets) {
@@ -130,7 +130,7 @@ fun Application.module(testing: Boolean = false) {
         }
 
         audioRoutes()
-        val cometD: SlimboxCometdRepository by di().instance()
+        val cometD: SlimboxCometLongPollingRepository by di().instance()
         cometD.play()
     }
 }

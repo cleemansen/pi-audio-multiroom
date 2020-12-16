@@ -32,3 +32,6 @@ sudo systemctl enable pictl.service
 ### cometd
 
 - [Backend source code](https://github.com/Logitech/slimserver/blob/public/8.0/Slim/Web/Cometd.pm)
+- [CometD documentation](https://docs.cometd.org/current/reference/)
+- Debugging backend
+  - [logging](https://wiki.slimdevices.com/index.php/Logitech_Media_Server_log_file.html)
