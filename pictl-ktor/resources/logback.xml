@@ -31,6 +31,7 @@
     </root>
     <logger name="org.eclipse.jetty" level="INFO"/>
     <logger name="io.netty" level="INFO"/>
+    <logger name="org.cometd" level="INFO"/>
     <logger name="org.unividuell.pictl.server.repository.SlimboxCometLongPollingRepository$MyOkHttpLogger"
             level="WARN"/>
 </configuration>

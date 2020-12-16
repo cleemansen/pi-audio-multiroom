@@ -8,11 +8,10 @@ import org.cometd.bayeux.client.ClientSessionChannel
 import org.cometd.client.BayeuxClient
 import org.cometd.client.http.okhttp.OkHttpClientTransport
 import org.cometd.client.transport.HttpClientTransport
-import org.cometd.client.websocket.okhttp.OkHttpWebSocketTransport
 import org.kodein.di.DI
 import org.kodein.di.instance
 import org.slf4j.LoggerFactory
-import kotlin.concurrent.fixedRateTimer
+import org.unividuell.pictl.server.network.cometd.SqueezeboxCometConnectPatchInterceptor
 
 class SlimboxCometLongPollingRepository(di: DI) {
 
@@ -24,19 +23,17 @@ class SlimboxCometLongPollingRepository(di: DI) {
     fun play() {
         val logging = HttpLoggingInterceptor(MyOkHttpLogger())
         logging.setLevel(HttpLoggingInterceptor.Level.BODY)
-        val httpClient = OkHttpClient.Builder().addNetworkInterceptor(logging).build()
-        val wsTransport = OkHttpWebSocketTransport(null, httpClient)
+        val httpClient = OkHttpClient.Builder()
+            .addNetworkInterceptor(logging)
+            .addInterceptor(SqueezeboxCometConnectPatchInterceptor())
+            .build()
 
         val options = mutableMapOf<String, Any>()
         options[HttpClientTransport.MAX_NETWORK_DELAY_OPTION] = LONG_POLLING_TIMEOUT
-        options[HttpClientTransport.MAX_NETWORK_DELAY_OPTION] = LONG_POLLING_TIMEOUT
         val httpTransport = OkHttpClientTransport(options, httpClient)
 
-        val bayeuxClient = BayeuxClient("http://localhost:9000/cometd", httpTransport)
+        val bayeuxClient = BayeuxClient("http://white.local:9000/cometd", httpTransport)
 
-        bayeuxClient.getChannel("/meta/connect").subscribe { channel, message ->
-            application.log.info("Something happen on the META_CONNECT channel: $message")
-        }
         bayeuxClient.getChannel(Channel.META_HANDSHAKE)
             .addListener(ClientSessionChannel.MessageListener { channel, message ->
                 if (message.isSuccessful) {
@@ -50,36 +47,35 @@ class SlimboxCometLongPollingRepository(di: DI) {
     }
 
     private fun establishSubscriptions(bayeuxClient: BayeuxClient) {
-        application.log.info("establish subscriptions..")
+        application.log.info("establishing subscriptions..")
 
-        bayeuxClient.getChannel("/meta/connect").subscribe { channel, message ->
+        bayeuxClient.getChannel(Channel.META_CONNECT).subscribe { channel, message ->
             application.log.info("received on ${channel.channelId}: $message [$channel]")
         }
-        bayeuxClient.getChannel("/${bayeuxClient.id}/slim/serverstatus").subscribe { channel, message ->
+        bayeuxClient.getChannel(Channel.META_SUBSCRIBE).subscribe { channel, message ->
+            application.log.info("received on ${channel.channelId}: $message [$channel]")
+        }
+        bayeuxClient.getChannel(Channel.META_UNSUBSCRIBE).subscribe { channel, message ->
             application.log.info("received on ${channel.channelId}: $message [$channel]")
         }
         bayeuxClient.getChannel("/${bayeuxClient.id}/slim/playerstatus/myplayer").subscribe { channel, message ->
             application.log.info("received on ${channel.channelId}: $message [$channel]")
         }
 
-        val serverStatusReq = mapOf(
-            "request" to listOf(
-                "",
-                listOf(
-                    "serverstatus",
-                    "0",
-                    "255",
-                    "playerprefs:playtrackalbum,defeatDestructiveTouchToPlay",
-                    "prefs:mediadirs, defeatDestructiveTouchToPlay",
-                    "subscribe:30"
-                )
-            ),
-            "response" to "/${bayeuxClient.id}/slim/serverstatus"
-        )
-        bayeuxClient
-            .getChannel("/slim/subscribe")
-            .publish(serverStatusReq) { application.log.info("I REQUESTED the serverstatus: $it") }
-
+//        val serverStatusReq = mapOf(
+//            "request" to listOf(
+//                "",
+//                listOf(
+//                    "serverstatus",
+//                    "0",
+//                    "255",
+//                    "playerprefs:playtrackalbum,defeatDestructiveTouchToPlay",
+//                    "prefs:mediadirs, defeatDestructiveTouchToPlay",
+//                    "subscribe:30"
+//                )
+//            ),
+//            "response" to "/${bayeuxClient.id}/slim/serverstatus"
+//        )
 
         val playerStatusReq = mapOf(
             "request" to listOf(
@@ -91,22 +87,6 @@ class SlimboxCometLongPollingRepository(di: DI) {
         bayeuxClient
             .getChannel("/slim/subscribe")
             .publish(playerStatusReq) { application.log.info("I REQUESTED the playerstatus: $it") }
-
-
-        fixedRateTimer(
-            name = "heartbeat",
-            initialDelay = 0,
-            period = 60_000
-        ) {
-            bayeuxClient
-                .getChannel("/meta/connect")
-                .publish(
-                    mapOf(
-                        "request" to emptyList<String>()
-                    )
-                ) { application.log.info("HEARTBEAT response: $it") }
-        }
-        // END
     }
 
     class MyOkHttpLogger : HttpLoggingInterceptor.Logger {
@@ -114,7 +94,6 @@ class SlimboxCometLongPollingRepository(di: DI) {
         override fun log(message: String) {
             logger.info(message)
         }
-
     }
 
 
