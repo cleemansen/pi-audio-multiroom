@@ -78,6 +78,11 @@
         </dependency>
         <dependency>
             <groupId>io.ktor</groupId>
+            <artifactId>ktor-client-jetty</artifactId>
+            <version>${ktor_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.ktor</groupId>
             <artifactId>ktor-server-core</artifactId>
             <version>${ktor_version}</version>
         </dependency>
@@ -120,6 +125,21 @@
             <groupId>org.kodein.di</groupId>
             <artifactId>kodein-di-framework-ktor-server-jvm</artifactId>
             <version>7.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.cometd.java</groupId>
+            <artifactId>cometd-java-client-http-okhttp</artifactId>
+            <version>5.0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>logging-interceptor</artifactId>
+            <version>4.9.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.cometd.java</groupId>
+            <artifactId>cometd-java-client-websocket-okhttp</artifactId>
+            <version>5.0.2</version>
         </dependency>
         <dependency>
             <groupId>io.ktor</groupId>

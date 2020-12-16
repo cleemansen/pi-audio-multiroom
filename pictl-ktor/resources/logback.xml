@@ -31,4 +31,5 @@
     </root>
     <logger name="org.eclipse.jetty" level="INFO"/>
     <logger name="io.netty" level="INFO"/>
+    <logger name="org.unividuell.pictl.server.repository.SlimboxCometdRepository$MyOkHttpLogger" level="WARN"/>
 </configuration>

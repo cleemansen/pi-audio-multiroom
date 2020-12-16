@@ -4,7 +4,6 @@ import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.response.*
 import io.ktor.routing.*
-import org.kodein.di.DI
 import org.kodein.di.instance
 import org.kodein.di.ktor.di
 import org.unividuell.pictl.server.usecase.GetCurrentSongInteractor
@@ -12,6 +11,7 @@ import org.unividuell.pictl.server.usecase.GetCurrentSongInteractor
 fun Route.audioRoutes() {
 
     val getCurrentSongInteractor: GetCurrentSongInteractor by di().instance()
+
 
     route("/audio") {
         get("/current") {
