@@ -1,6 +1,6 @@
 package org.unividuell.pictl.server.network.cometd
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import okhttp3.Interceptor
 import okhttp3.Response
@@ -23,7 +23,7 @@ import java.nio.charset.StandardCharsets
  */
 class SqueezeboxCometConnectPatchInterceptor : Interceptor {
 
-    private val mapper = ObjectMapper()
+    private val mapper = jacksonObjectMapper()
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request()
