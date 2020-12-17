@@ -10,7 +10,7 @@ import org.cometd.client.http.okhttp.OkHttpClientTransport
 import org.cometd.client.transport.HttpClientTransport
 import org.kodein.di.DI
 import org.kodein.di.instance
-import org.slf4j.LoggerFactory
+import org.unividuell.pictl.server.network.cometd.CometOkHttpLogger
 import org.unividuell.pictl.server.network.cometd.SqueezeboxCometConnectPatchInterceptor
 
 class SlimboxCometLongPollingRepository(di: DI) {
@@ -21,7 +21,7 @@ class SlimboxCometLongPollingRepository(di: DI) {
     private val LONG_POLLING_TIMEOUT = 120000
 
     fun play() {
-        val logging = HttpLoggingInterceptor(MyOkHttpLogger())
+        val logging = HttpLoggingInterceptor(CometOkHttpLogger())
         logging.setLevel(HttpLoggingInterceptor.Level.BODY)
         val httpClient = OkHttpClient.Builder()
             .addNetworkInterceptor(logging)
@@ -87,13 +87,6 @@ class SlimboxCometLongPollingRepository(di: DI) {
         bayeuxClient
             .getChannel("/slim/subscribe")
             .publish(playerStatusReq) { application.log.info("I REQUESTED the playerstatus: $it") }
-    }
-
-    class MyOkHttpLogger : HttpLoggingInterceptor.Logger {
-        private val logger = LoggerFactory.getLogger(MyOkHttpLogger::class.java)
-        override fun log(message: String) {
-            logger.info(message)
-        }
     }
 
 
