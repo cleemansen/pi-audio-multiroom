@@ -8,6 +8,7 @@ import io.ktor.application.*
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.cometd.bayeux.Channel
+import org.cometd.bayeux.ChannelId
 import org.cometd.bayeux.client.ClientSessionChannel
 import org.cometd.client.BayeuxClient
 import org.cometd.client.http.okhttp.OkHttpClientTransport
@@ -17,6 +18,7 @@ import org.kodein.di.DI
 import org.kodein.di.instance
 import org.unividuell.pictl.server.network.cometd.CometOkHttpLogger
 import org.unividuell.pictl.server.network.cometd.SqueezeboxCometConnectPatchInterceptor
+import java.time.Instant
 
 class SlimboxCometLongPollingRepository(di: DI) {
 
@@ -24,8 +26,20 @@ class SlimboxCometLongPollingRepository(di: DI) {
 
     private val bayeuxClient = buildBayeuxClient()
 
-    val obejctMapper = jacksonObjectMapper()
+    private val objectMapper = jacksonObjectMapper()
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+
+    private val playerSubscriptionStatus = mutableMapOf<String, PlayerSubscriptionStatus>()
+
+    data class PlayerSubscriptionStatus(
+        val bayeuxClientId: String,
+        val playerSubscriptions: MutableList<PlayerSubscription> = mutableListOf()
+    ) {
+        data class PlayerSubscription(
+            val playerId: String,
+            val since: Instant = Instant.now()
+        )
+    }
 
     fun bye() {
         bayeuxClient.disconnect {
@@ -70,57 +84,112 @@ class SlimboxCometLongPollingRepository(di: DI) {
     private fun establishSubscriptions(bayeuxClient: BayeuxClient) {
         application.log.info("establishing subscriptions..")
 
-//        val serverStatusReq = mapOf(
-//            "request" to listOf(
-//                "",
-//                listOf(
-//                    "serverstatus",
-//                    "0",
-//                    "255",
-//                    "playerprefs:playtrackalbum,defeatDestructiveTouchToPlay",
-//                    "prefs:mediadirs, defeatDestructiveTouchToPlay",
-//                    "subscribe:30"
-//                )
-//            ),
-//            "response" to "/${bayeuxClient.id}/slim/serverstatus"
-//        )
-
         subscribeForPlayers(bayeuxClient)
+//        subscribeForServerStatus(bayeuxClient)
     }
 
     private fun subscribeForPlayers(bayeuxClient: BayeuxClient) {
-        bayeuxClient.getChannel("/${bayeuxClient.id}/pictl/players").subscribe { channel, message ->
-//            application.log.info("received on ${channel.channelId}: $message [$channel]")
+        val channelId = ChannelId("/${bayeuxClient.id}/pictl/players")
+        bayeuxClient.getChannel(channelId).subscribe { channel, message ->
+//            application.log.info("received on ${channel.channelId}: ${objectMapper.writeValueAsString(message.dataAsMap)}")
             val actual = mapPlayersResponse(message.dataAsMap)
             application.log.info(actual.toString())
+            actual.players.forEach { player ->
+                if (playerSubscriptionStatus[bayeuxClient.id]?.playerSubscriptions?.any { it.playerId == player.playerId } != true) {
+                    subscribeForPlayerStatus(bayeuxClient = bayeuxClient, playerId = player.playerId)
+                    val currentState = playerSubscriptionStatus[bayeuxClient.id]
+                    if (currentState != null) {
+                        playerSubscriptionStatus[bayeuxClient.id]!!.playerSubscriptions
+                            .add(PlayerSubscriptionStatus.PlayerSubscription(playerId = player.playerId))
+                    } else {
+                        playerSubscriptionStatus[bayeuxClient.id] = PlayerSubscriptionStatus(
+                            bayeuxClientId = bayeuxClient.id,
+                            playerSubscriptions = mutableListOf(PlayerSubscriptionStatus.PlayerSubscription(playerId = player.playerId))
+                        )
+                    }
+                }
+            }
         }
         val playersSubscriptionRequest = slimSubscriptionRequestData(
-            responseChannel = "/${bayeuxClient.id}/pictl/players",
+            responseChannel = channelId.toString(),
             playerId = "",
             command = "players",
             args = emptyList()
         )
         bayeuxClient
             .getChannel("/slim/subscribe")
-            .publish(playersSubscriptionRequest) { application.log.info("I REQUESTED the playerstatus: $it") }
+            .publish(playersSubscriptionRequest) { application.log.debug("I REQUESTED the playerstatus: $it") }
+    }
+
+    private fun subscribeForPlayerStatus(bayeuxClient: BayeuxClient, playerId: String) {
+        val channelId = ChannelId("/${bayeuxClient.id}/pictl/player/${playerId.replace(oldChar = ':', newChar = '-')}")
+        bayeuxClient.getChannel(channelId).subscribe { channel, message ->
+//            application.log.info("received on ${channel.channelId}: ${objectMapper.writeValueAsString(message.dataAsMap)}")
+            val actual = mapPlayerResponse(message.dataAsMap)
+            application.log.info(actual.toString())
+        }
+        val serverStatusSubscriptionRequest = slimSubscriptionRequestData(
+            responseChannel = channelId.toString(),
+            playerId = playerId,
+            command = "status",
+            // g: Genre
+            // a: Artist
+            // l: Album
+            // K: artwork_url
+            // L:  info_link
+            // m: bpm
+            // N: Title of the internet radio station.
+            // r: bitrate
+            args = listOf("tags:galKLmNr")
+        )
+        bayeuxClient
+            .getChannel("/slim/subscribe")
+            .publish(serverStatusSubscriptionRequest) { application.log.debug("I REQUESTED the playerstatus: $it") }
     }
 
     private fun mapPlayersResponse(data: Map<String, Any>): PlayersResponse {
         return (data["players_loop"] as List<Any>).map {
-            obejctMapper.convertValue<PlayersResponse.Player>(it)
+            objectMapper.convertValue<PlayersResponse.Player>(it)
         }.let {
             PlayersResponse(players = it)
         }
+    }
+
+    private fun mapPlayerResponse(data: Map<String, Any>): PlayerResponse {
+        return objectMapper.convertValue<PlayerResponse>(data)
     }
 
     data class PlayersResponse(
         val players: List<Player>
     ) {
         data class Player(
-            val power: Boolean,
+            val power: Int,
             val name: String,
             @JsonProperty("playerid")
             val playerId: String
+        )
+    }
+
+    data class PlayerResponse(
+        @JsonProperty("player_name")
+        val playerName: String? = null,
+        @JsonProperty("sync_master")
+        val syncMaster: String? = null,
+        @JsonProperty("sync_slaves")
+        val syncSlaves: String? = null,
+        @JsonProperty("current_title")
+        val currentTitle: String? = null,
+        val remoteMeta: RemoteMeta? = null,
+        val mode: String? = null
+    ) {
+        data class RemoteMeta(
+            val title: String? = null,
+            val artist: String? = null,
+            @JsonProperty("remote_title")
+            val remoteTitle: String? = null,
+            @JsonProperty("artwork_url")
+            val artworkUrl: String? = null,
+            val bitrate: String? = null
         )
     }
 
