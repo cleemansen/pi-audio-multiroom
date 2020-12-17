@@ -12,7 +12,7 @@ npm run serve
 
 ### Compiles and minifies for production
 ```
-npm run build
+./node_modules/.bin/vue-cli-service build --dest ../pictl-ktor/resources/pictl-vue/
 ```
 
 ### Lints and fixes files
