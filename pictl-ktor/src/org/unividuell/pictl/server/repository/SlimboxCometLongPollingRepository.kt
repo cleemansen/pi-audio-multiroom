@@ -20,6 +20,11 @@ import org.unividuell.pictl.server.network.cometd.CometOkHttpLogger
 import org.unividuell.pictl.server.network.cometd.SqueezeboxCometConnectPatchInterceptor
 import java.time.Instant
 
+/*
+NOTES:
+- get Favorites: [{"clientId":"9ddb7286","data":{"request":["24:05:0f:95:46:70",["favorites","items","0","50","menu:favorites","useContextMenu:1"]],"response":"/9ddb7286/slim/request/1"},"channel":"/slim/request","id":"34"}]
+ */
+
 class SlimboxCometLongPollingRepository(di: DI) {
 
     private val application: Application by di.instance()
@@ -139,8 +144,10 @@ class SlimboxCometLongPollingRepository(di: DI) {
             // L:  info_link
             // m: bpm
             // N: Title of the internet radio station.
+            // T: samplerate Song sample rate (in KHz)
             // r: bitrate
-            args = listOf("tags:galKLmNr")
+            // u: Song file url.
+            args = listOf("tags:galKLmNrLT")
         )
         bayeuxClient
             .getChannel("/slim/subscribe")
@@ -187,6 +194,7 @@ class SlimboxCometLongPollingRepository(di: DI) {
             val artist: String? = null,
             @JsonProperty("remote_title")
             val remoteTitle: String? = null,
+            // GET /plugins/AppGallery/html/images/icon.png HTTP/1.1
             @JsonProperty("artwork_url")
             val artworkUrl: String? = null,
             val bitrate: String? = null
