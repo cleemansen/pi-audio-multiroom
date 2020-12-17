@@ -56,7 +56,7 @@ class SlimboxCometLongPollingRepository(di: DI) {
             .addInterceptor(SqueezeboxCometConnectPatchInterceptor())
             .build()
 
-        /** The maximum number of milliseconds to wait before considering a request to the LMS failed  */
+        // The maximum number of milliseconds to wait before considering a request to the LMS failed
         val longPollingTimeout = 30_000
         val options = mutableMapOf<String, Any>()
         options[HttpClientTransport.MAX_NETWORK_DELAY_OPTION] = longPollingTimeout
@@ -69,17 +69,6 @@ class SlimboxCometLongPollingRepository(di: DI) {
 
     private fun establishSubscriptions(bayeuxClient: BayeuxClient) {
         application.log.info("establishing subscriptions..")
-
-//        bayeuxClient.getChannel(Channel.META_CONNECT).subscribe { channel, message ->
-//            application.log.info("received on ${channel.channelId}: $message [$channel]")
-//        }
-//        bayeuxClient.getChannel(Channel.META_SUBSCRIBE).subscribe { channel, message ->
-//            application.log.info("received on ${channel.channelId}: $message [$channel]")
-//        }
-//        bayeuxClient.getChannel(Channel.META_UNSUBSCRIBE).subscribe { channel, message ->
-//            application.log.info("received on ${channel.channelId}: $message [$channel]")
-//        }
-
 
 //        val serverStatusReq = mapOf(
 //            "request" to listOf(
@@ -94,14 +83,6 @@ class SlimboxCometLongPollingRepository(di: DI) {
 //                )
 //            ),
 //            "response" to "/${bayeuxClient.id}/slim/serverstatus"
-//        )
-
-//        val playerStatusReq = mapOf(
-//            "request" to listOf(
-//                "b8:27:eb:44:2f:38",
-//                listOf("status", "-", "1", "useContextMenu:1", "subscribe:10", "menu:menu")
-//            ),
-//            "response" to "/${bayeuxClient.id}/slim/playerstatus/myplayer"
 //        )
 
         subscribeForPlayers(bayeuxClient)
@@ -172,6 +153,8 @@ class SlimboxCometLongPollingRepository(di: DI) {
         // [https://github.com/Logitech/slimserver/blob/b7d9ed8e7356981cb9d5ce2cea67bd5f1d7b6ee3/Slim/Web/Cometd.pm#L766]
         val confirmedArgs = if (!args.any { it.startsWith(prefix = "subscribe") }) {
             args.toMutableList().apply {
+                // The number indicates the time interval in seconds between automatic generations
+                // in case nothing happened to the player in the interval.
                 add("subscribe:10")
             }.toList()
         } else {
