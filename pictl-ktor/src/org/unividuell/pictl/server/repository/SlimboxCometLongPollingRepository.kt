@@ -17,23 +17,17 @@ class SlimboxCometLongPollingRepository(di: DI) {
 
     private val application: Application by di.instance()
 
-    /** The maximum number of milliseconds to wait before considering a request to the LMS failed  */
-    private val LONG_POLLING_TIMEOUT = 120000
+    private val bayeuxClient = buildBayeuxClient()
+
+    fun bye() {
+        bayeuxClient.disconnect {
+            application.log.info("Server precessed the disconnect request.")
+        }
+        bayeuxClient.waitFor(10_000, BayeuxClient.State.DISCONNECTED)
+        application.log.info("Disconnected from CometD..")
+    }
 
     fun play() {
-        val logging = HttpLoggingInterceptor(CometOkHttpLogger())
-        logging.setLevel(HttpLoggingInterceptor.Level.BODY)
-        val httpClient = OkHttpClient.Builder()
-            .addNetworkInterceptor(logging)
-            .addInterceptor(SqueezeboxCometConnectPatchInterceptor())
-            .build()
-
-        val options = mutableMapOf<String, Any>()
-        options[HttpClientTransport.MAX_NETWORK_DELAY_OPTION] = LONG_POLLING_TIMEOUT
-        val httpTransport = OkHttpClientTransport(options, httpClient)
-
-        val bayeuxClient = BayeuxClient("http://white.local:9000/cometd", httpTransport)
-
         bayeuxClient.getChannel(Channel.META_HANDSHAKE)
             .addListener(ClientSessionChannel.MessageListener { channel, message ->
                 if (message.isSuccessful) {
@@ -44,6 +38,23 @@ class SlimboxCometLongPollingRepository(di: DI) {
             })
 
         bayeuxClient.handshake()
+    }
+
+    private fun buildBayeuxClient(): BayeuxClient {
+        val logging = HttpLoggingInterceptor(CometOkHttpLogger())
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY)
+        val httpClient = OkHttpClient.Builder()
+            .addNetworkInterceptor(logging)
+            .addInterceptor(SqueezeboxCometConnectPatchInterceptor())
+            .build()
+
+        /** The maximum number of milliseconds to wait before considering a request to the LMS failed  */
+        val longPollingTimeout = 30_000
+        val options = mutableMapOf<String, Any>()
+        options[HttpClientTransport.MAX_NETWORK_DELAY_OPTION] = longPollingTimeout
+        val httpTransport = OkHttpClientTransport(options, httpClient)
+
+        return BayeuxClient("http://white.local:9000/cometd", httpTransport)
     }
 
     private fun establishSubscriptions(bayeuxClient: BayeuxClient) {

@@ -53,6 +53,8 @@ fun Application.module(testing: Boolean = false) {
         bind() from singleton { SlimboxCometLongPollingRepository(di) }
     }
 
+    lifecycleMonitor()
+
     install(io.ktor.websocket.WebSockets) {
         pingPeriod = Duration.ofSeconds(15)
         timeout = Duration.ofSeconds(15)
