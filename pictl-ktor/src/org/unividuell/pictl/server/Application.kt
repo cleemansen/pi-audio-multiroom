@@ -108,7 +108,7 @@ fun Application.module(testing: Boolean = false) {
     environment.log.info("current environment is $envKind")
 
     routing {
-        get("/") {
+        get("/hello") {
             call.respondText("HELLO WORLD!", contentType = ContentType.Text.Plain)
         }
 
@@ -123,8 +123,8 @@ fun Application.module(testing: Boolean = false) {
         }
 
         // Static feature. Try to access `/static/ktor_logo.svg`
-        static("/static") {
-            resources("static")
+        static("/") {
+            resources("pictl-vue")
         }
 
         get("/json/jackson") {
