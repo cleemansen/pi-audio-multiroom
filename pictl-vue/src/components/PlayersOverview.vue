@@ -2,9 +2,14 @@
   <v-container>
     <v-row>
       <v-col cols="12">
-        <v-card>
-          <v-card-title>{{ currentTitle }}</v-card-title>
-
+        <v-card v-for="player in players" v-bind:key="player.playerId" class="mb-6">
+          <v-img :src="player.artworkUrl">
+          </v-img>
+          <v-card-text>
+            <div>{{ player.playerName }}</div>
+            <p class="display-1 text--primary">{{ currentSong(player) }}</p>
+            <p class="display-2 text--primary">{{ player.remoteTitle }}</p>
+          </v-card-text>
           <v-card-actions>
             <v-btn @click="send">send</v-btn>
           </v-card-actions>
@@ -18,7 +23,7 @@
 export default {
   name: "PlayersOverview",
   data: () => ({
-    currentTitle: ''
+    playersMap: {}
   }),
   mounted() {
     this.connect()
@@ -26,12 +31,32 @@ export default {
   methods: {
     connect() {
       this.$webSocketsConnect('/ctl-audio/ws', event => {
-        this.currentTitle = event.data
+        let playerEvent = JSON.parse(event.data)
+        console.log(playerEvent)
+        this.$set(this.playersMap, playerEvent.playerId, playerEvent)
       })
     },
     send() {
       let d = new Date() + ' hello'
       this.$webSocketsSend(d)
+    },
+    currentSong(player) {
+      let currentSong = ""
+      if (player.artist) {
+        currentSong += player.artist
+      }
+      if (player.title) {
+        if (currentSong !== "") {
+          currentSong += " — "
+        }
+        currentSong += player.title
+      }
+      return currentSong
+    }
+  },
+  computed: {
+    players() {
+      return this.playersMap
     }
   }
 }
