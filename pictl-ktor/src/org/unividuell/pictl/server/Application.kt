@@ -55,13 +55,6 @@ fun Application.piCtl(testing: Boolean = false) {
 
     lifecycleMonitor()
 
-    install(io.ktor.websocket.WebSockets) {
-        pingPeriod = Duration.ofSeconds(15)
-        timeout = Duration.ofSeconds(15)
-        maxFrameSize = Long.MAX_VALUE
-        masking = false
-    }
-
     install(ContentNegotiation) {
         jackson {
             enable(SerializationFeature.INDENT_OUTPUT)
@@ -110,16 +103,6 @@ fun Application.piCtl(testing: Boolean = false) {
     routing {
         get("/hello") {
             call.respondText("HELLO WORLD!", contentType = ContentType.Text.Plain)
-        }
-
-        webSocket("/myws/echo") {
-            send(Frame.Text("Hi from server"))
-            while (true) {
-                val frame = incoming.receive()
-                if (frame is Frame.Text) {
-                    send(Frame.Text("Client said: " + frame.readText()))
-                }
-            }
         }
 
         // Static feature. Try to access `/static/ktor_logo.svg`
