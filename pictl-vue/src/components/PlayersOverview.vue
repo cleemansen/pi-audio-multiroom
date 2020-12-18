@@ -1,8 +1,8 @@
 <template>
   <v-container>
     <v-row>
-      <v-col cols="12">
-        <v-card v-for="player in players" v-bind:key="player.playerId" class="mb-6">
+      <v-col cols="12" sm="6" md="6" v-for="player in players" v-bind:key="player.playerId">
+        <v-card class="mb-6">
           <v-img :src="player.artworkUrl">
           </v-img>
           <v-card-text>
