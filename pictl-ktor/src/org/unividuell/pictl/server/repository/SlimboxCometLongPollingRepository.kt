@@ -33,6 +33,8 @@ class SlimboxCometLongPollingRepository(di: DI) {
 
     private val application: Application by di.instance()
 
+    private val slimserverHost = application.environment.config.property("ktor.application.slimserver.host").getString()
+
     private val bayeuxClient = buildBayeuxClient()
 
     private val objectMapper = jacksonObjectMapper()
@@ -87,7 +89,7 @@ class SlimboxCometLongPollingRepository(di: DI) {
         options[HttpClientTransport.JSON_CONTEXT_OPTION] = jsonContext
         val httpTransport = OkHttpClientTransport(options, httpClient)
 
-        return BayeuxClient("http://white.local:9000/cometd", httpTransport)
+        return BayeuxClient("$slimserverHost/cometd", httpTransport)
     }
 
     private fun establishSubscriptions(bayeuxClient: BayeuxClient) {
@@ -138,9 +140,15 @@ class SlimboxCometLongPollingRepository(di: DI) {
             application.log.info(actual.toString())
             val playerId = channelId.getSegment(channelId.depth() - 1).replace(oldChar = '-', newChar = ':')
             val cleanedArtworkUrl = try {
-                URLDecoder.decode(actual.remoteMeta?.artworkUrl?.removePrefix("/imageproxy/"), Charset.defaultCharset())
+                URLDecoder.decode(actual.remoteMeta?.artworkUrl, Charset.defaultCharset())
             } catch (e: UnsupportedEncodingException) {
                 actual.remoteMeta?.artworkUrl
+            }.let {
+                if (it?.startsWith("/imageproxy/") == true) {
+                    slimserverHost + it
+                } else {
+                    it
+                }
             }
             application.environment.monitor.raise(
                 PlayerEvent,
@@ -151,7 +159,8 @@ class SlimboxCometLongPollingRepository(di: DI) {
                     artist = actual.remoteMeta?.artist,
                     remoteTitle = actual.remoteMeta?.remoteTitle,
                     artworkUrl = cleanedArtworkUrl,
-                    isMaster = actual.syncMaster == playerId
+                    syncMaster = actual.syncMaster,
+                    syncSlaves = actual.syncSlaves
                 )
             )
         }

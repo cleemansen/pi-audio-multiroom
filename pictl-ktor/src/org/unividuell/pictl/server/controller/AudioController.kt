@@ -67,14 +67,10 @@ fun Route.audioRoutes() {
     }
 
     application.environment.monitor.subscribe(SlimboxCometLongPollingRepository.PlayerEvent) { player ->
-        if (player.isMaster) {
-            GlobalScope.launch {
-                audioWsConnections.forEach {
-                    it.send(player.toJson())
-                }
+        GlobalScope.launch {
+            audioWsConnections.forEach {
+                it.send(player.toJson())
             }
-        } else {
-            application.log.debug("Skipping slave player event")
         }
     }
 
@@ -87,7 +83,8 @@ data class PlayerStatusViewModel(
     val artist: String? = null,
     val remoteTitle: String? = null,
     val artworkUrl: String? = null,
-    val isMaster: Boolean = false
+    val syncMaster: String? = null,
+    val syncSlaves: String? = null
 ) {
     fun toJson() = jacksonObjectMapper().writeValueAsString(this)
 }

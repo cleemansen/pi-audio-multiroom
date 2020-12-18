@@ -33,7 +33,13 @@ export default {
       this.$webSocketsConnect('/ctl-audio/ws', event => {
         let playerEvent = JSON.parse(event.data)
         console.log(playerEvent)
-        this.$set(this.playersMap, playerEvent.playerId, playerEvent)
+        if (playerEvent.playerId === playerEvent.syncMaster || playerEvent.syncMaster === null) {
+          this.$set(this.playersMap, playerEvent.playerId, playerEvent)
+        }
+        if (playerEvent.syncMaster !== null && playerEvent.syncMaster !== playerEvent.playerId) {
+          // synchronized with somebody else > clean-up
+          this.$delete(this.playersMap, playerEvent.playerId)
+        }
       })
     },
     send() {
