@@ -16,8 +16,12 @@ import org.cometd.client.transport.HttpClientTransport
 import org.cometd.common.JacksonJSONContextClient
 import org.kodein.di.DI
 import org.kodein.di.instance
+import org.unividuell.pictl.server.controller.PlayerStatusViewModel
 import org.unividuell.pictl.server.network.cometd.CometOkHttpLogger
 import org.unividuell.pictl.server.network.cometd.SqueezeboxCometConnectPatchInterceptor
+import java.io.UnsupportedEncodingException
+import java.net.URLDecoder
+import java.nio.charset.Charset
 import java.time.Instant
 
 /*
@@ -132,7 +136,24 @@ class SlimboxCometLongPollingRepository(di: DI) {
 //            application.log.info("received on ${channel.channelId}: ${objectMapper.writeValueAsString(message.dataAsMap)}")
             val actual = mapPlayerResponse(message.dataAsMap)
             application.log.info(actual.toString())
-            application.environment.monitor.raise(PlayerEvent, actual)
+            val playerId = channelId.getSegment(channelId.depth() - 1).replace(oldChar = '-', newChar = ':')
+            val cleanedArtworkUrl = try {
+                URLDecoder.decode(actual.remoteMeta?.artworkUrl?.removePrefix("/imageproxy/"), Charset.defaultCharset())
+            } catch (e: UnsupportedEncodingException) {
+                actual.remoteMeta?.artworkUrl
+            }
+            application.environment.monitor.raise(
+                PlayerEvent,
+                PlayerStatusViewModel(
+                    playerId = playerId,
+                    playerName = actual.playerName,
+                    title = actual.remoteMeta?.title,
+                    artist = actual.remoteMeta?.artist,
+                    remoteTitle = actual.remoteMeta?.remoteTitle,
+                    artworkUrl = cleanedArtworkUrl,
+                    isMaster = actual.syncMaster == playerId
+                )
+            )
         }
         val serverStatusSubscriptionRequest = slimSubscriptionRequestData(
             responseChannel = channelId.toString(),
@@ -163,8 +184,8 @@ class SlimboxCometLongPollingRepository(di: DI) {
         }
     }
 
-    private fun mapPlayerResponse(data: Map<String, Any>): PlayerResponse {
-        return objectMapper.convertValue<PlayerResponse>(data)
+    private fun mapPlayerResponse(data: Map<String, Any>): PlayerCometdResponse {
+        return objectMapper.convertValue<PlayerCometdResponse>(data)
     }
 
     data class PlayersResponse(
@@ -178,7 +199,7 @@ class SlimboxCometLongPollingRepository(di: DI) {
         )
     }
 
-    data class PlayerResponse(
+    data class PlayerCometdResponse(
         @JsonProperty("player_name")
         val playerName: String? = null,
         @JsonProperty("sync_master")
@@ -203,7 +224,7 @@ class SlimboxCometLongPollingRepository(di: DI) {
     }
 
     companion object {
-        public val PlayerEvent: EventDefinition<PlayerResponse> = EventDefinition()
+        val PlayerEvent: EventDefinition<PlayerStatusViewModel> = EventDefinition()
     }
 
     /**

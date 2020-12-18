@@ -1,5 +1,6 @@
 package org.unividuell.pictl.server.controller
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.http.cio.websocket.*
@@ -66,9 +67,27 @@ fun Route.audioRoutes() {
     }
 
     application.environment.monitor.subscribe(SlimboxCometLongPollingRepository.PlayerEvent) { player ->
-        GlobalScope.launch {
-            audioWsConnections.forEach { it.send(player.remoteMeta?.title ?: player.currentTitle ?: "null") }
+        if (player.isMaster) {
+            GlobalScope.launch {
+                audioWsConnections.forEach {
+                    it.send(player.toJson())
+                }
+            }
+        } else {
+            application.log.debug("Skipping slave player event")
         }
     }
 
+}
+
+data class PlayerStatusViewModel(
+    val playerId: String,
+    val playerName: String? = null,
+    val title: String? = null,
+    val artist: String? = null,
+    val remoteTitle: String? = null,
+    val artworkUrl: String? = null,
+    val isMaster: Boolean = false
+) {
+    fun toJson() = jacksonObjectMapper().writeValueAsString(this)
 }
