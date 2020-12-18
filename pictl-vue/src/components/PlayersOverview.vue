@@ -6,7 +6,7 @@
           <v-img :src="player.artworkUrl">
           </v-img>
           <v-card-text>
-            <div>{{ player.playerName }}</div>
+            <div>{{ playerName(player) }}</div>
             <p class="display-1 text--primary">{{ currentSong(player) }}</p>
             <p class="display-2 text--primary">{{ player.remoteTitle }}</p>
           </v-card-text>
@@ -23,7 +23,8 @@
 export default {
   name: "PlayersOverview",
   data: () => ({
-    playersMap: {}
+    playersMap: {},
+    syncSlaves: []
   }),
   mounted() {
     this.connect()
@@ -35,10 +36,18 @@ export default {
         console.log(playerEvent)
         if (playerEvent.playerId === playerEvent.syncMaster || playerEvent.syncMaster === null) {
           this.$set(this.playersMap, playerEvent.playerId, playerEvent)
+          if (this.syncSlaves.includes(playerEvent.playerName)) {
+            // not a slave anymore
+            this.syncSlaves.splice(this.syncSlaves.indexOf(playerEvent.playerName, 1))
+          }
         }
         if (playerEvent.syncMaster !== null && playerEvent.syncMaster !== playerEvent.playerId) {
           // synchronized with somebody else > clean-up
           this.$delete(this.playersMap, playerEvent.playerId)
+          // but notice UI about this participation
+          if (!this.syncSlaves.includes(playerEvent.playerName)) {
+            this.syncSlaves.push(playerEvent.playerName)
+          }
         }
       })
     },
@@ -58,6 +67,13 @@ export default {
         currentSong += player.title
       }
       return currentSong
+    },
+    playerName(player) {
+      let buffer = [player.playerName]
+      if (this.syncSlaves.length >= 1) {
+        buffer.push(this.syncSlaves)
+      }
+      return buffer.join(' & ')
     }
   },
   computed: {
