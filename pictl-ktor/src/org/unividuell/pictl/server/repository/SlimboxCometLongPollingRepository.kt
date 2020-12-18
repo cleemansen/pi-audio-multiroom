@@ -132,6 +132,7 @@ class SlimboxCometLongPollingRepository(di: DI) {
 //            application.log.info("received on ${channel.channelId}: ${objectMapper.writeValueAsString(message.dataAsMap)}")
             val actual = mapPlayerResponse(message.dataAsMap)
             application.log.info(actual.toString())
+            application.environment.monitor.raise(PlayerEvent, actual)
         }
         val serverStatusSubscriptionRequest = slimSubscriptionRequestData(
             responseChannel = channelId.toString(),
@@ -199,6 +200,10 @@ class SlimboxCometLongPollingRepository(di: DI) {
             val artworkUrl: String? = null,
             val bitrate: String? = null
         )
+    }
+
+    companion object {
+        public val PlayerEvent: EventDefinition<PlayerResponse> = EventDefinition()
     }
 
     /**

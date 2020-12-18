@@ -3,7 +3,8 @@
     <v-row>
       <v-col cols="12">
         <v-card>
-          <v-card-title>Hello</v-card-title>
+          <v-card-title>{{ currentTitle }}</v-card-title>
+
           <v-card-actions>
             <v-btn @click="send">send</v-btn>
           </v-card-actions>
@@ -17,7 +18,7 @@
 export default {
   name: "PlayersOverview",
   data: () => ({
-    //
+    currentTitle: ''
   }),
   mounted() {
     this.connect()
@@ -25,7 +26,7 @@ export default {
   methods: {
     connect() {
       this.$webSocketsConnect('/ctl-audio/ws', event => {
-        console.log(event)
+        this.currentTitle = event.data
       })
     },
     send() {

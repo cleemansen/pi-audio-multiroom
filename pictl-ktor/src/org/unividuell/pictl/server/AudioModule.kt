@@ -3,7 +3,6 @@ package org.unividuell.pictl.server
 import io.ktor.application.*
 import io.ktor.http.cio.websocket.*
 import io.ktor.routing.*
-import io.ktor.websocket.*
 import org.kodein.di.instance
 import org.kodein.di.ktor.di
 import org.unividuell.pictl.server.controller.audioRoutes
@@ -21,7 +20,7 @@ fun Application.audioModule(testing: Boolean = false) {
 
     routing {
         audioRoutes()
-//        val cometD: SlimboxCometLongPollingRepository by di().instance()
-        // cometD.play()
+        val cometD: SlimboxCometLongPollingRepository by di().instance()
+        cometD.play()
     }
 }
