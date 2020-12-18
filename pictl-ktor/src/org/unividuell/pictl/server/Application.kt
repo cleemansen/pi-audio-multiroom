@@ -34,7 +34,7 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
-fun Application.module(testing: Boolean = false) {
+fun Application.piCtl(testing: Boolean = false) {
     val client = HttpClient(CIO) {
         install(HttpTimeout) {
         }
@@ -130,10 +130,6 @@ fun Application.module(testing: Boolean = false) {
         get("/json/jackson") {
             call.respond(mapOf("hello" to "world"))
         }
-
-        audioRoutes()
-        val cometD: SlimboxCometLongPollingRepository by di().instance()
-        cometD.play()
     }
 }
 
