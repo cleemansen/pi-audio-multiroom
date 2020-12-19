@@ -105,7 +105,7 @@ class SlimboxCometLongPollingRepository(di: DI) {
 //            application.log.info("received on ${channel.channelId}: ${objectMapper.writeValueAsString(message.dataAsMap)}")
             val actual = mapPlayersResponse(message.dataAsMap)
             application.log.info(actual.toString())
-            actual.players.forEach { player ->
+            actual?.players?.forEach { player ->
                 if (playerSubscriptionStatus[bayeuxClient.id]?.playerSubscriptions?.any { it.playerId == player.playerId } != true) {
                     subscribeForPlayerStatus(bayeuxClient = bayeuxClient, playerId = player.playerId)
                     val currentState = playerSubscriptionStatus[bayeuxClient.id]
@@ -185,7 +185,11 @@ class SlimboxCometLongPollingRepository(di: DI) {
             .publish(serverStatusSubscriptionRequest) { application.log.debug("I REQUESTED the playerstatus: $it") }
     }
 
-    private fun mapPlayersResponse(data: Map<String, Any>): PlayersResponse {
+    private fun mapPlayersResponse(data: Map<String, Any>): PlayersResponse? {
+        if (data["count"] == 0) {
+            application.log.warn("no players available!")
+            return null
+        }
         return (data["players_loop"] as List<Any>).map {
             objectMapper.convertValue<PlayersResponse.Player>(it)
         }.let {
