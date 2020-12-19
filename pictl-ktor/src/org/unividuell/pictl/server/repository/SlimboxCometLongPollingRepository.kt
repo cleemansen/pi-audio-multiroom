@@ -160,7 +160,7 @@ class SlimboxCometLongPollingRepository(di: DI) {
                     remoteTitle = actual.remoteMeta?.remoteTitle,
                     artworkUrl = cleanedArtworkUrl,
                     syncMaster = actual.syncMaster,
-                    syncSlaves = actual.syncSlaves
+                    syncSlaves = actual.syncSlaves?.split(',') ?: emptyList()
                 )
             )
         }

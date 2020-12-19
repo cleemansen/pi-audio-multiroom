@@ -71,7 +71,7 @@ export default {
     playerName(player) {
       let buffer = [player.playerName]
       if (this.syncSlaves.length >= 1) {
-        buffer.push(this.syncSlaves)
+        this.syncSlaves.forEach(node => buffer.push(node))
       }
       return buffer.join(' & ')
     }
