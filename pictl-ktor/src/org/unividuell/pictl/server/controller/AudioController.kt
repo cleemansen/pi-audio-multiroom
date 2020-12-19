@@ -83,8 +83,8 @@ data class PlayerStatusViewModel(
     val artist: String? = null,
     val remoteTitle: String? = null,
     val artworkUrl: String? = null,
-    val syncMaster: String? = null,
-    val syncSlaves: List<String> = emptyList()
+    val syncController: String? = null,
+    val syncNodes: List<String> = emptyList()
 ) {
     fun toJson() = jacksonObjectMapper().writeValueAsString(this)
 }

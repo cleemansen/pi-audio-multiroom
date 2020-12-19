@@ -24,7 +24,7 @@ export default {
   name: "PlayersOverview",
   data: () => ({
     playersMap: {},
-    syncSlaves: []
+    syncNodes: []
   }),
   mounted() {
     this.connect()
@@ -34,19 +34,19 @@ export default {
       this.$webSocketsConnect('/ctl-audio/ws', event => {
         let playerEvent = JSON.parse(event.data)
         console.log(playerEvent)
-        if (playerEvent.playerId === playerEvent.syncMaster || playerEvent.syncMaster === null) {
+        if (playerEvent.playerId === playerEvent.syncController || playerEvent.syncController === null) {
           this.$set(this.playersMap, playerEvent.playerId, playerEvent)
-          if (this.syncSlaves.includes(playerEvent.playerName)) {
-            // not a slave anymore
-            this.syncSlaves.splice(this.syncSlaves.indexOf(playerEvent.playerName, 1))
+          if (this.syncNodes.includes(playerEvent.playerName)) {
+            // not a node anymore
+            this.syncNodes.splice(this.syncNodes.indexOf(playerEvent.playerName, 1))
           }
         }
-        if (playerEvent.syncMaster !== null && playerEvent.syncMaster !== playerEvent.playerId) {
+        if (playerEvent.syncController !== null && playerEvent.syncController !== playerEvent.playerId) {
           // synchronized with somebody else > clean-up
           this.$delete(this.playersMap, playerEvent.playerId)
           // but notice UI about this participation
-          if (!this.syncSlaves.includes(playerEvent.playerName)) {
-            this.syncSlaves.push(playerEvent.playerName)
+          if (!this.syncNodes.includes(playerEvent.playerName)) {
+            this.syncNodes.push(playerEvent.playerName)
           }
         }
       })
@@ -70,8 +70,8 @@ export default {
     },
     playerName(player) {
       let buffer = [player.playerName]
-      if (this.syncSlaves.length >= 1) {
-        this.syncSlaves.forEach(node => buffer.push(node))
+      if (this.syncNodes.length >= 1) {
+        this.syncNodes.forEach(node => buffer.push(node))
       }
       return buffer.join(' & ')
     }
