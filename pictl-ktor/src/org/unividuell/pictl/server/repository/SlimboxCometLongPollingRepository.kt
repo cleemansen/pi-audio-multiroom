@@ -144,7 +144,7 @@ class SlimboxCometLongPollingRepository(di: DI) {
             } catch (e: UnsupportedEncodingException) {
                 actual.remoteMeta?.artworkUrl
             }.let {
-                if (it?.startsWith("/imageproxy/") == true) {
+                if (it?.startsWith("/imageproxy/") == true || it?.startsWith("/plugins/") == true) {
                     slimserverHost + it
                 } else {
                     it
