@@ -1,0 +1,18 @@
+<configuration>
+    <property name="PATTERN" value="%d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
+    <property name="LOG_LEVEL_APP" value="${LOG_LEVEL_APP:-INFO}"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <root level="${LOG_LEVEL_APP}">
+        <appender-ref ref="STDOUT"/>
+    </root>
+    <logger name="org.eclipse.jetty" level="INFO"/>
+    <logger name="io.netty" level="INFO"/>
+    <logger name="org.cometd" level="INFO"/>
+    <logger name="CometOkHttpLogger" level="${LOG_LEVEL_HTTP:-WARN}"/>
+</configuration>
