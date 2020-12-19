@@ -19,6 +19,7 @@ import org.kodein.di.instance
 import org.unividuell.pictl.server.controller.PlayerStatusViewModel
 import org.unividuell.pictl.server.network.cometd.CometOkHttpLogger
 import org.unividuell.pictl.server.network.cometd.SqueezeboxCometConnectPatchInterceptor
+import org.unividuell.pictl.server.network.cometd.SqueezeboxCometGzipPatchInterceptor
 import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.nio.charset.Charset
@@ -77,8 +78,9 @@ class SlimboxCometLongPollingRepository(di: DI) {
         val logging = HttpLoggingInterceptor(CometOkHttpLogger())
         logging.setLevel(HttpLoggingInterceptor.Level.BODY)
         val httpClient = OkHttpClient.Builder()
-            .addNetworkInterceptor(logging)
             .addInterceptor(SqueezeboxCometConnectPatchInterceptor())
+            .addNetworkInterceptor(SqueezeboxCometGzipPatchInterceptor())
+            .addNetworkInterceptor(logging)
             .build()
 
         // The maximum number of milliseconds to wait before considering a request to the LMS failed
