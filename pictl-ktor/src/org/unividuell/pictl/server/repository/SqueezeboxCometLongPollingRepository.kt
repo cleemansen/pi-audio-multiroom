@@ -5,21 +5,13 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.application.*
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import org.cometd.bayeux.Channel
 import org.cometd.bayeux.ChannelId
 import org.cometd.bayeux.client.ClientSessionChannel
 import org.cometd.client.BayeuxClient
-import org.cometd.client.http.okhttp.OkHttpClientTransport
-import org.cometd.client.transport.HttpClientTransport
-import org.cometd.common.JacksonJSONContextClient
 import org.kodein.di.DI
 import org.kodein.di.instance
 import org.unividuell.pictl.server.controller.PlayerStatusViewModel
-import org.unividuell.pictl.server.network.cometd.CometOkHttpLogger
-import org.unividuell.pictl.server.network.cometd.SqueezeboxCometConnectPatchInterceptor
-import org.unividuell.pictl.server.network.cometd.SqueezeboxCometGzipPatchInterceptor
 import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.nio.charset.Charset
@@ -36,7 +28,7 @@ class SqueezeboxCometLongPollingRepository(di: DI) {
 
     private val slimserverHost = application.environment.config.property("ktor.application.slimserver.host").getString()
 
-    private val bayeuxClient = buildBayeuxClient()
+    private val bayeuxClient: BayeuxClient by di.instance()
 
     private val objectMapper = jacksonObjectMapper()
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -74,25 +66,7 @@ class SqueezeboxCometLongPollingRepository(di: DI) {
         bayeuxClient.handshake()
     }
 
-    private fun buildBayeuxClient(): BayeuxClient {
-        val logging = HttpLoggingInterceptor(CometOkHttpLogger())
-        logging.setLevel(HttpLoggingInterceptor.Level.BODY)
-        val httpClient = OkHttpClient.Builder()
-            .addInterceptor(SqueezeboxCometConnectPatchInterceptor())
-            .addNetworkInterceptor(SqueezeboxCometGzipPatchInterceptor())
-            .addNetworkInterceptor(logging)
-            .build()
 
-        // The maximum number of milliseconds to wait before considering a request to the LMS failed
-        val longPollingTimeout = 30_000
-        val options = mutableMapOf<String, Any>()
-        options[HttpClientTransport.MAX_NETWORK_DELAY_OPTION] = longPollingTimeout
-        val jsonContext = JacksonJSONContextClient()
-        options[HttpClientTransport.JSON_CONTEXT_OPTION] = jsonContext
-        val httpTransport = OkHttpClientTransport(options, httpClient)
-
-        return BayeuxClient("$slimserverHost/cometd", httpTransport)
-    }
 
     private fun establishSubscriptions(bayeuxClient: BayeuxClient) {
         application.log.info("establishing subscriptions..")

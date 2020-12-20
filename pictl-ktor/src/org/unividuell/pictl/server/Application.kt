@@ -16,10 +16,12 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.util.date.*
+import org.cometd.client.BayeuxClient
 import org.kodein.di.bind
 import org.kodein.di.ktor.di
 import org.kodein.di.singleton
 import org.slf4j.event.Level
+import org.unividuell.pictl.server.network.cometd.SqueezeboxBayeuxClient
 import org.unividuell.pictl.server.repository.SqueezeboxCometLongPollingRepository
 import org.unividuell.pictl.server.repository.SqueezeboxJsonRpcRepository
 import org.unividuell.pictl.server.usecase.GetCurrentSongInteractor
@@ -41,10 +43,11 @@ fun Application.piCtl(testing: Boolean = false) {
     }
 
     di {
-        bind() from singleton { client }
+        bind<HttpClient>() with singleton { client }
         bind<GetCurrentSongInteractor.DataSource>() with singleton { SqueezeboxJsonRpcRepository(di) }
         bind() from singleton { GetCurrentSongInteractor(di) }
         bind() from singleton { SqueezeboxCometLongPollingRepository(di) }
+        bind<BayeuxClient>() with singleton { SqueezeboxBayeuxClient(di).buildBayeuxClient() }
     }
 
     lifecycleMonitor()
