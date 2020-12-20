@@ -1,6 +1,5 @@
 package org.unividuell.pictl.server.repository
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -12,10 +11,13 @@ import org.cometd.client.BayeuxClient
 import org.kodein.di.DI
 import org.kodein.di.instance
 import org.unividuell.pictl.server.controller.PlayerStatusViewModel
+import org.unividuell.pictl.server.repository.cometd.model.PlayerCometdResponse
+import org.unividuell.pictl.server.repository.cometd.model.PlayerSubscriptionStatus
+import org.unividuell.pictl.server.repository.cometd.model.PlayersCometResponse
+import org.unividuell.pictl.server.repository.cometd.model.SubscribeCometRequest
 import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.nio.charset.Charset
-import java.time.Instant
 
 /*
 NOTES:
@@ -35,14 +37,8 @@ class SqueezeboxCometLongPollingRepository(di: DI) {
 
     private val playerSubscriptionStatus = mutableMapOf<String, PlayerSubscriptionStatus>()
 
-    data class PlayerSubscriptionStatus(
-        val bayeuxClientId: String,
-        val playerSubscriptions: MutableList<PlayerSubscription> = mutableListOf()
-    ) {
-        data class PlayerSubscription(
-            val playerId: String,
-            val since: Instant = Instant.now()
-        )
+    companion object {
+        val PlayerEvent: EventDefinition<PlayerStatusViewModel> = EventDefinition()
     }
 
     fun bye() {
@@ -114,31 +110,7 @@ class SqueezeboxCometLongPollingRepository(di: DI) {
 //            application.log.info("received on ${channel.channelId}: ${objectMapper.writeValueAsString(message.dataAsMap)}")
             val actual = mapPlayerResponse(message.dataAsMap)
             application.log.info(actual.toString())
-            val playerId = channelId.getSegment(channelId.depth() - 1).replace(oldChar = '-', newChar = ':')
-            val cleanedArtworkUrl = try {
-                URLDecoder.decode(actual.remoteMeta?.artworkUrl, Charset.defaultCharset())
-            } catch (e: UnsupportedEncodingException) {
-                actual.remoteMeta?.artworkUrl
-            }.let {
-                if (it?.startsWith("/imageproxy/") == true || it?.startsWith("/plugins/") == true) {
-                    slimserverHost + it
-                } else {
-                    it
-                }
-            }
-            application.environment.monitor.raise(
-                PlayerEvent,
-                PlayerStatusViewModel(
-                    playerId = playerId,
-                    playerName = actual.playerName,
-                    title = actual.remoteMeta?.title,
-                    artist = actual.remoteMeta?.artist,
-                    remoteTitle = actual.remoteMeta?.remoteTitle,
-                    artworkUrl = cleanedArtworkUrl,
-                    syncController = actual.syncMaster,
-                    syncNodes = actual.syncSlaves?.split(',') ?: emptyList()
-                )
-            )
+            raisePlayerStatusUpdateEvent(channelId, actual)
         }
         val serverStatusSubscriptionRequest = slimSubscriptionRequestData(
             responseChannel = channelId.toString(),
@@ -159,61 +131,6 @@ class SqueezeboxCometLongPollingRepository(di: DI) {
         bayeuxClient
             .getChannel("/slim/subscribe")
             .publish(serverStatusSubscriptionRequest) { application.log.debug("I REQUESTED the playerstatus: $it") }
-    }
-
-    private fun mapPlayersResponse(data: Map<String, Any>): PlayersResponse? {
-        if (data["count"] == 0) {
-            application.log.warn("no players available!")
-            return null
-        }
-        return (data["players_loop"] as List<Any>).map {
-            objectMapper.convertValue<PlayersResponse.Player>(it)
-        }.let {
-            PlayersResponse(players = it)
-        }
-    }
-
-    private fun mapPlayerResponse(data: Map<String, Any>): PlayerCometdResponse {
-        return objectMapper.convertValue<PlayerCometdResponse>(data)
-    }
-
-    data class PlayersResponse(
-        val players: List<Player>
-    ) {
-        data class Player(
-            val power: Int,
-            val name: String,
-            @JsonProperty("playerid")
-            val playerId: String
-        )
-    }
-
-    data class PlayerCometdResponse(
-        @JsonProperty("player_name")
-        val playerName: String? = null,
-        @JsonProperty("sync_master")
-        val syncMaster: String? = null,
-        @JsonProperty("sync_slaves")
-        val syncSlaves: String? = null,
-        @JsonProperty("current_title")
-        val currentTitle: String? = null,
-        val remoteMeta: RemoteMeta? = null,
-        val mode: String? = null
-    ) {
-        data class RemoteMeta(
-            val title: String? = null,
-            val artist: String? = null,
-            @JsonProperty("remote_title")
-            val remoteTitle: String? = null,
-            // GET /plugins/AppGallery/html/images/icon.png HTTP/1.1
-            @JsonProperty("artwork_url")
-            val artworkUrl: String? = null,
-            val bitrate: String? = null
-        )
-    }
-
-    companion object {
-        val PlayerEvent: EventDefinition<PlayerStatusViewModel> = EventDefinition()
     }
 
     /**
@@ -240,7 +157,7 @@ class SqueezeboxCometLongPollingRepository(di: DI) {
         start: Int = 0,
         itemsPerRequest: Int = 50,
         args: List<String>
-    ): SubscribeRequestData {
+    ): SubscribeCometRequest {
         // If args doesn't contain a 'subscribe' key, treat it as a normal subscribe call and not a request + subscribe
         // [https://github.com/Logitech/slimserver/blob/b7d9ed8e7356981cb9d5ce2cea67bd5f1d7b6ee3/Slim/Web/Cometd.pm#L766]
         val confirmedArgs = if (!args.any { it.startsWith(prefix = "subscribe") }) {
@@ -255,16 +172,57 @@ class SqueezeboxCometLongPollingRepository(di: DI) {
         val query = mutableListOf(command, start, itemsPerRequest)
         query.addAll(confirmedArgs)
         val request = listOf(playerId, query)
-        return SubscribeRequestData(
+        return SubscribeCometRequest(
             response = responseChannel,
             request = request
         )
     }
 
-    data class SubscribeRequestData(
-        val response: String,
-        val request: List<Any>
-    )
+    private fun raisePlayerStatusUpdateEvent(
+        channelId: ChannelId,
+        actual: PlayerCometdResponse
+    ) {
+        val playerId = channelId.getSegment(channelId.depth() - 1).replace(oldChar = '-', newChar = ':')
+        val cleanedArtworkUrl = try {
+            URLDecoder.decode(actual.remoteMeta?.artworkUrl, Charset.defaultCharset())
+        } catch (e: UnsupportedEncodingException) {
+            actual.remoteMeta?.artworkUrl
+        }.let {
+            if (it?.startsWith("/imageproxy/") == true || it?.startsWith("/plugins/") == true) {
+                slimserverHost + it
+            } else {
+                it
+            }
+        }
+        application.environment.monitor.raise(
+            PlayerEvent,
+            PlayerStatusViewModel(
+                playerId = playerId,
+                playerName = actual.playerName,
+                title = actual.remoteMeta?.title,
+                artist = actual.remoteMeta?.artist,
+                remoteTitle = actual.remoteMeta?.remoteTitle,
+                artworkUrl = cleanedArtworkUrl,
+                syncController = actual.syncMaster,
+                syncNodes = actual.syncSlaves?.split(',') ?: emptyList()
+            )
+        )
+    }
 
+    private fun mapPlayersResponse(data: Map<String, Any>): PlayersCometResponse? {
+        if (data["count"] == 0) {
+            application.log.warn("no players available!")
+            return null
+        }
+        return (data["players_loop"] as List<Any>).map {
+            objectMapper.convertValue<PlayersCometResponse.Player>(it)
+        }.let {
+            PlayersCometResponse(players = it)
+        }
+    }
+
+    private fun mapPlayerResponse(data: Map<String, Any>): PlayerCometdResponse {
+        return objectMapper.convertValue<PlayerCometdResponse>(data)
+    }
 
 }
