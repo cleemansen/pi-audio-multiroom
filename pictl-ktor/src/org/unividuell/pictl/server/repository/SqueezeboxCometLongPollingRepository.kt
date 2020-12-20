@@ -30,7 +30,7 @@ NOTES:
 - get Favorites: [{"clientId":"9ddb7286","data":{"request":["24:05:0f:95:46:70",["favorites","items","0","50","menu:favorites","useContextMenu:1"]],"response":"/9ddb7286/slim/request/1"},"channel":"/slim/request","id":"34"}]
  */
 
-class SlimboxCometLongPollingRepository(di: DI) {
+class SqueezeboxCometLongPollingRepository(di: DI) {
 
     private val application: Application by di.instance()
 

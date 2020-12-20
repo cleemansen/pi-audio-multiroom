@@ -12,7 +12,7 @@ import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.launch
 import org.kodein.di.instance
 import org.kodein.di.ktor.di
-import org.unividuell.pictl.server.repository.SlimboxCometLongPollingRepository
+import org.unividuell.pictl.server.repository.SqueezeboxCometLongPollingRepository
 import org.unividuell.pictl.server.usecase.GetCurrentSongInteractor
 import java.util.*
 import kotlin.collections.LinkedHashSet
@@ -66,7 +66,7 @@ fun Route.audioRoutes() {
         }
     }
 
-    application.environment.monitor.subscribe(SlimboxCometLongPollingRepository.PlayerEvent) { player ->
+    application.environment.monitor.subscribe(SqueezeboxCometLongPollingRepository.PlayerEvent) { player ->
         GlobalScope.launch {
             audioWsConnections.forEach {
                 it.send(player.toJson())

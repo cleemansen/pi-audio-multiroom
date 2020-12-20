@@ -3,7 +3,7 @@ package org.unividuell.pictl.server.repository
 import kotlin.test.Test
 import kotlin.test.fail
 
-internal class SlimboxRepositoryTest {
+internal class SqueezeboxRepositoryTest {
 
     @Test
     fun `it should map the current song info`() {

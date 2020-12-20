@@ -9,8 +9,6 @@ import io.ktor.client.features.json.*
 import io.ktor.client.features.logging.*
 import io.ktor.features.*
 import io.ktor.http.*
-import io.ktor.http.cio.websocket.*
-import io.ktor.http.cio.websocket.Frame
 import io.ktor.http.content.*
 import io.ktor.jackson.*
 import io.ktor.request.*
@@ -18,17 +16,13 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.util.date.*
-import io.ktor.websocket.*
 import org.kodein.di.bind
-import org.kodein.di.instance
 import org.kodein.di.ktor.di
 import org.kodein.di.singleton
 import org.slf4j.event.Level
-import org.unividuell.pictl.server.controller.audioRoutes
-import org.unividuell.pictl.server.repository.SlimboxCometLongPollingRepository
-import org.unividuell.pictl.server.repository.SlimboxJsonRpcRepository
+import org.unividuell.pictl.server.repository.SqueezeboxCometLongPollingRepository
+import org.unividuell.pictl.server.repository.SqueezeboxJsonRpcRepository
 import org.unividuell.pictl.server.usecase.GetCurrentSongInteractor
-import java.time.Duration
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -48,9 +42,9 @@ fun Application.piCtl(testing: Boolean = false) {
 
     di {
         bind() from singleton { client }
-        bind<GetCurrentSongInteractor.DataSource>() with singleton { SlimboxJsonRpcRepository(di) }
+        bind<GetCurrentSongInteractor.DataSource>() with singleton { SqueezeboxJsonRpcRepository(di) }
         bind() from singleton { GetCurrentSongInteractor(di) }
-        bind() from singleton { SlimboxCometLongPollingRepository(di) }
+        bind() from singleton { SqueezeboxCometLongPollingRepository(di) }
     }
 
     lifecycleMonitor()

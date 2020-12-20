@@ -10,7 +10,7 @@ import org.kodein.di.DI
 import org.kodein.di.instance
 import org.unividuell.pictl.server.usecase.GetCurrentSongInteractor
 
-class SlimboxJsonRpcRepository(di: DI) : GetCurrentSongInteractor.DataSource {
+class SqueezeboxJsonRpcRepository(di: DI) : GetCurrentSongInteractor.DataSource {
 
     private val client: HttpClient by di.instance()
 
