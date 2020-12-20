@@ -3,10 +3,7 @@ package org.unividuell.pictl.server
 import io.ktor.application.*
 import io.ktor.http.cio.websocket.*
 import io.ktor.routing.*
-import org.kodein.di.instance
-import org.kodein.di.ktor.di
 import org.unividuell.pictl.server.controller.audioRoutes
-import org.unividuell.pictl.server.repository.SqueezeboxCometLongPollingRepository
 import java.time.Duration
 
 fun Application.audioModule(testing: Boolean = false) {
@@ -20,7 +17,5 @@ fun Application.audioModule(testing: Boolean = false) {
 
     routing {
         audioRoutes()
-        val cometD: SqueezeboxCometLongPollingRepository by di().instance()
-        cometD.connectAndSubscribe()
     }
 }

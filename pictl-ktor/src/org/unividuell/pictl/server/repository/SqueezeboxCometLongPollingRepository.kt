@@ -15,6 +15,7 @@ import org.unividuell.pictl.server.repository.cometd.model.PlayerCometdResponse
 import org.unividuell.pictl.server.repository.cometd.model.PlayerSubscriptionStatus
 import org.unividuell.pictl.server.repository.cometd.model.PlayersCometResponse
 import org.unividuell.pictl.server.repository.cometd.model.SubscribeCometRequest
+import org.unividuell.pictl.server.usecase.SubscribeForPlayersUpdatesInteractor
 import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.nio.charset.Charset
@@ -24,7 +25,9 @@ NOTES:
 - get Favorites: [{"clientId":"9ddb7286","data":{"request":["24:05:0f:95:46:70",["favorites","items","0","50","menu:favorites","useContextMenu:1"]],"response":"/9ddb7286/slim/request/1"},"channel":"/slim/request","id":"34"}]
  */
 
-class SqueezeboxCometLongPollingRepository(di: DI) {
+class SqueezeboxCometLongPollingRepository(
+    di: DI
+) : SubscribeForPlayersUpdatesInteractor.DataSource {
 
     private val application: Application by di.instance()
 
@@ -41,7 +44,7 @@ class SqueezeboxCometLongPollingRepository(di: DI) {
         val PlayerEvent: EventDefinition<PlayerStatusViewModel> = EventDefinition()
     }
 
-    fun disconnect() {
+    override fun disconnect() {
         bayeuxClient.disconnect {
             application.log.info("Server precessed the disconnect request.")
         }
@@ -49,7 +52,7 @@ class SqueezeboxCometLongPollingRepository(di: DI) {
         application.log.info("Disconnected from CometD..")
     }
 
-    fun connectAndSubscribe() {
+    override fun connectAndSubscribe() {
         bayeuxClient.getChannel(Channel.META_HANDSHAKE)
             .addListener(ClientSessionChannel.MessageListener { channel, message ->
                 if (message.isSuccessful) {

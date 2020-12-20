@@ -12,12 +12,14 @@ import org.kodein.di.instance
 import org.kodein.di.ktor.di
 import org.unividuell.pictl.server.repository.SqueezeboxCometLongPollingRepository
 import org.unividuell.pictl.server.usecase.GetCurrentSongInteractor
+import org.unividuell.pictl.server.usecase.SubscribeForPlayersUpdatesInteractor
 import java.util.*
 import kotlin.collections.LinkedHashSet
 
 fun Route.audioRoutes() {
 
     val getCurrentSongInteractor: GetCurrentSongInteractor by di().instance()
+    val subscribeForPlayersUpdatesInteractor: SubscribeForPlayersUpdatesInteractor by di().instance()
 
     val audioWsConnections = Collections.synchronizedSet(LinkedHashSet<DefaultWebSocketSession>())
 
@@ -32,6 +34,9 @@ fun Route.audioRoutes() {
         }
 
         webSocket("/ws") {
+            if (audioWsConnections.isEmpty()) {
+                subscribeForPlayersUpdatesInteractor.start()
+            }
             audioWsConnections += this
             try {
                 for (frame in incoming) {
@@ -43,6 +48,9 @@ fun Route.audioRoutes() {
                 }
             } finally {
                 audioWsConnections -= this
+                if (audioWsConnections.isEmpty()) {
+                    subscribeForPlayersUpdatesInteractor.stop()
+                }
             }
         }
     }

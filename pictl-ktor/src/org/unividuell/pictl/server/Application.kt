@@ -25,6 +25,7 @@ import org.unividuell.pictl.server.network.cometd.SqueezeboxBayeuxClient
 import org.unividuell.pictl.server.repository.SqueezeboxCometLongPollingRepository
 import org.unividuell.pictl.server.repository.SqueezeboxJsonRpcRepository
 import org.unividuell.pictl.server.usecase.GetCurrentSongInteractor
+import org.unividuell.pictl.server.usecase.SubscribeForPlayersUpdatesInteractor
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -43,11 +44,14 @@ fun Application.piCtl(testing: Boolean = false) {
     }
 
     di {
+        // frameworks
         bind<HttpClient>() with singleton { client }
+        bind<BayeuxClient>() with singleton { SqueezeboxBayeuxClient(di).buildBayeuxClient() }
+        // interactors
         bind<GetCurrentSongInteractor.DataSource>() with singleton { SqueezeboxJsonRpcRepository(di) }
         bind() from singleton { GetCurrentSongInteractor(di) }
-        bind() from singleton { SqueezeboxCometLongPollingRepository(di) }
-        bind<BayeuxClient>() with singleton { SqueezeboxBayeuxClient(di).buildBayeuxClient() }
+        bind<SubscribeForPlayersUpdatesInteractor.DataSource>() with singleton { SqueezeboxCometLongPollingRepository(di) }
+        bind() from singleton { SubscribeForPlayersUpdatesInteractor(di) }
     }
 
     lifecycleMonitor()
