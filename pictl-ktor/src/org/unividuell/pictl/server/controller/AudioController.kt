@@ -36,6 +36,9 @@ fun Route.audioRoutes() {
         webSocket("/ws") {
             if (audioWsConnections.isEmpty()) {
                 subscribeForPlayersUpdatesInteractor.start()
+            } else {
+                // request update from server for all connections (including this new connection)
+                subscribeForPlayersUpdatesInteractor.requestUpdate()
             }
             audioWsConnections += this
             try {

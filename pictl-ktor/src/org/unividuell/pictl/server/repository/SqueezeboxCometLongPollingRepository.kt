@@ -42,7 +42,8 @@ class SqueezeboxCometLongPollingRepository(
         companion object {
             val slimSubscribe = ChannelId("/slim/subscribe")
             val slimUnsubscribe = ChannelId("/slim/unsubscribe")
-            val activeDynamicChannels = mutableSetOf<ChannelId>()
+            val slimRequest = ChannelId("/slim/request")
+            val activeDynamicChannels = mutableMapOf<ChannelId, SlimSubscribeCometRequest>()
         }
     }
 
@@ -51,7 +52,7 @@ class SqueezeboxCometLongPollingRepository(
             name = "player-subscription-monitor",
             period = Duration.ofSeconds(30).toMillis()
         ) {
-            application.log.info(Channels.activeDynamicChannels.toString())
+            application.log.info(Channels.activeDynamicChannels.keys.toString())
         }
     }
 
@@ -87,11 +88,20 @@ class SqueezeboxCometLongPollingRepository(
         }
     }
 
+    override fun requestUpdate() {
+        Channels.activeDynamicChannels.forEach {
+            if (bayeuxClient.isConnected) {
+                bayeuxClient.getChannel(Channels.slimRequest)
+                    .publish(it.value)
+            }
+        }
+    }
+
 
     private fun establishSubscriptions(bayeuxClient: BayeuxClient) {
         application.log.info("[${bayeuxClient.id}] establishing subscriptions..")
 
-        if (!Channels.activeDynamicChannels.contains(playersStatusChannel(bayeuxClient = bayeuxClient))) {
+        if (!Channels.activeDynamicChannels.keys.contains(playersStatusChannel(bayeuxClient = bayeuxClient))) {
             subscribeForPlayers(bayeuxClient)
         }
     }
@@ -100,13 +110,19 @@ class SqueezeboxCometLongPollingRepository(
 
     private fun subscribeForPlayers(bayeuxClient: BayeuxClient) {
         val channelId = playersStatusChannel(bayeuxClient = bayeuxClient)
+        val playersSubscriptionRequest = slimSubscriptionRequestData(
+            responseChannel = channelId.toString(),
+            playerId = "",
+            command = "players",
+            args = emptyList()
+        )
         bayeuxClient.getChannel(channelId).subscribe { channel, message ->
 //            application.log.info("received on ${channel.channelId}: ${objectMapper.writeValueAsString(message.dataAsMap)}")
-            Channels.activeDynamicChannels.add(channel.channelId)
+            Channels.activeDynamicChannels[channel.channelId] = playersSubscriptionRequest
             val actual = mapPlayersResponse(message.dataAsMap)
             application.log.info("[${bayeuxClient.id}] " + actual.toString())
             actual?.players?.forEach { player ->
-                if (!Channels.activeDynamicChannels.contains(
+                if (!Channels.activeDynamicChannels.keys.contains(
                         playerStatusChannel(
                             bayeuxClient = bayeuxClient,
                             playerId = player.playerId
@@ -117,12 +133,6 @@ class SqueezeboxCometLongPollingRepository(
                 }
             }
         }
-        val playersSubscriptionRequest = slimSubscriptionRequestData(
-            responseChannel = channelId.toString(),
-            playerId = "",
-            command = "players",
-            args = emptyList()
-        )
         bayeuxClient
             .getChannel(Channels.slimSubscribe)
             .publish(playersSubscriptionRequest) {
@@ -135,14 +145,7 @@ class SqueezeboxCometLongPollingRepository(
 
     private fun subscribeForPlayerStatus(bayeuxClient: BayeuxClient, playerId: String) {
         val channelId = playerStatusChannel(bayeuxClient = bayeuxClient, playerId = playerId)
-        bayeuxClient.getChannel(channelId).subscribe { channel, message ->
-//            application.log.info("received on ${channel.channelId}: ${objectMapper.writeValueAsString(message.dataAsMap)}")
-            Channels.activeDynamicChannels.add(channel.channelId)
-            val actual = mapPlayerResponse(message.dataAsMap)
-            application.log.info("[${bayeuxClient.id}] " + actual.toString())
-            raisePlayerStatusUpdateEvent(channelId, actual)
-        }
-        val serverStatusSubscriptionRequest = slimSubscriptionRequestData(
+        val playerStatusSubscriptionRequest = slimSubscriptionRequestData(
             responseChannel = channelId.toString(),
             playerId = playerId,
             command = "status",
@@ -158,9 +161,17 @@ class SqueezeboxCometLongPollingRepository(
             // u: Song file url.
             args = listOf("tags:galKLmNrLT")
         )
+        bayeuxClient.getChannel(channelId).subscribe { channel, message ->
+//            application.log.info("received on ${channel.channelId}: ${objectMapper.writeValueAsString(message.dataAsMap)}")
+            Channels.activeDynamicChannels[channel.channelId] = playerStatusSubscriptionRequest
+            val actual = mapPlayerResponse(message.dataAsMap)
+            application.log.info("[${bayeuxClient.id}] " + actual.toString())
+            raisePlayerStatusUpdateEvent(channelId, actual)
+        }
+
         bayeuxClient
             .getChannel("/slim/subscribe")
-            .publish(serverStatusSubscriptionRequest) { application.log.debug("I REQUESTED the playerstatus: $it") }
+            .publish(playerStatusSubscriptionRequest) { application.log.debug("I REQUESTED the playerstatus: $it") }
     }
 
     /**

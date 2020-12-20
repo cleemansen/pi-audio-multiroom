@@ -9,12 +9,17 @@ class SubscribeForPlayersUpdatesInteractor(di: DI) {
 
     interface DataSource {
         fun connectAndSubscribe()
+        fun requestUpdate()
         fun unsubscribe()
         fun disconnect()
     }
 
     fun start() {
         dataSource.connectAndSubscribe()
+    }
+
+    fun requestUpdate() {
+        dataSource.requestUpdate()
     }
 
     fun stop() {
