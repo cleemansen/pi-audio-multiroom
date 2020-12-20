@@ -8,6 +8,6 @@ import org.unividuell.pictl.server.repository.SqueezeboxCometLongPollingReposito
 fun Application.lifecycleMonitor() {
     environment.monitor.subscribe(ApplicationStopped) {
         val cometd: SqueezeboxCometLongPollingRepository by di().instance()
-        cometd.bye()
+        cometd.disconnect()
     }
 }

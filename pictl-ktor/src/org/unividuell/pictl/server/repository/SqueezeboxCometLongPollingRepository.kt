@@ -10,7 +10,7 @@ import org.cometd.bayeux.client.ClientSessionChannel
 import org.cometd.client.BayeuxClient
 import org.kodein.di.DI
 import org.kodein.di.instance
-import org.unividuell.pictl.server.controller.PlayerStatusViewModel
+import org.unividuell.pictl.server.controller.model.PlayerStatusViewModel
 import org.unividuell.pictl.server.repository.cometd.model.PlayerCometdResponse
 import org.unividuell.pictl.server.repository.cometd.model.PlayerSubscriptionStatus
 import org.unividuell.pictl.server.repository.cometd.model.PlayersCometResponse
@@ -41,7 +41,7 @@ class SqueezeboxCometLongPollingRepository(di: DI) {
         val PlayerEvent: EventDefinition<PlayerStatusViewModel> = EventDefinition()
     }
 
-    fun bye() {
+    fun disconnect() {
         bayeuxClient.disconnect {
             application.log.info("Server precessed the disconnect request.")
         }
@@ -49,7 +49,7 @@ class SqueezeboxCometLongPollingRepository(di: DI) {
         application.log.info("Disconnected from CometD..")
     }
 
-    fun play() {
+    fun connectAndSubscribe() {
         bayeuxClient.getChannel(Channel.META_HANDSHAKE)
             .addListener(ClientSessionChannel.MessageListener { channel, message ->
                 if (message.isSuccessful) {

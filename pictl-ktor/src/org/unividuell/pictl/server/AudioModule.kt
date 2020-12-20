@@ -21,6 +21,6 @@ fun Application.audioModule(testing: Boolean = false) {
     routing {
         audioRoutes()
         val cometD: SqueezeboxCometLongPollingRepository by di().instance()
-        cometD.play()
+        cometD.connectAndSubscribe()
     }
 }

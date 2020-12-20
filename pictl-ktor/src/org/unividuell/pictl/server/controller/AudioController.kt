@@ -1,6 +1,5 @@
 package org.unividuell.pictl.server.controller
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.http.cio.websocket.*
@@ -8,7 +7,6 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.launch
 import org.kodein.di.instance
 import org.kodein.di.ktor.di
@@ -46,23 +44,6 @@ fun Route.audioRoutes() {
             } finally {
                 audioWsConnections -= this
             }
-
-        }
-
-        webSocket("/echo") {
-            try {
-                send(Frame.Text("Hi from server"))
-                while (true) {
-                    val frame = incoming.receive()
-                    if (frame is Frame.Text) {
-                        send(Frame.Text("Client said: " + frame.readText()))
-                    }
-                }
-            } catch (e: ClosedReceiveChannelException) {
-                // do nothing!
-            } catch (e: Throwable) {
-                e.printStackTrace()
-            }
         }
     }
 
@@ -74,17 +55,4 @@ fun Route.audioRoutes() {
         }
     }
 
-}
-
-data class PlayerStatusViewModel(
-    val playerId: String,
-    val playerName: String? = null,
-    val title: String? = null,
-    val artist: String? = null,
-    val remoteTitle: String? = null,
-    val artworkUrl: String? = null,
-    val syncController: String? = null,
-    val syncNodes: List<String> = emptyList()
-) {
-    fun toJson() = jacksonObjectMapper().writeValueAsString(this)
 }
