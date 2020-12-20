@@ -4,21 +4,21 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.application.*
-import org.cometd.bayeux.Channel
 import org.cometd.bayeux.ChannelId
-import org.cometd.bayeux.client.ClientSessionChannel
 import org.cometd.client.BayeuxClient
 import org.kodein.di.DI
 import org.kodein.di.instance
 import org.unividuell.pictl.server.controller.model.PlayerStatusViewModel
 import org.unividuell.pictl.server.repository.cometd.model.PlayerCometdResponse
-import org.unividuell.pictl.server.repository.cometd.model.PlayerSubscriptionStatus
 import org.unividuell.pictl.server.repository.cometd.model.PlayersCometResponse
-import org.unividuell.pictl.server.repository.cometd.model.SubscribeCometRequest
+import org.unividuell.pictl.server.repository.cometd.model.SlimSubscribeCometRequest
+import org.unividuell.pictl.server.repository.cometd.model.SlimUnsubscribeCometRequest
 import org.unividuell.pictl.server.usecase.SubscribeForPlayersUpdatesInteractor
 import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.nio.charset.Charset
+import java.time.Duration
+import kotlin.concurrent.fixedRateTimer
 
 /*
 NOTES:
@@ -38,10 +38,31 @@ class SqueezeboxCometLongPollingRepository(
     private val objectMapper = jacksonObjectMapper()
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-    private val playerSubscriptionStatus = mutableMapOf<String, PlayerSubscriptionStatus>()
+    class Channels {
+        companion object {
+            val slimSubscribe = ChannelId("/slim/subscribe")
+            val slimUnsubscribe = ChannelId("/slim/unsubscribe")
+            val activeDynamicChannels = mutableSetOf<ChannelId>()
+        }
+    }
+
+    init {
+        fixedRateTimer(
+            name = "player-subscription-monitor",
+            period = Duration.ofSeconds(30).toMillis()
+        ) {
+            application.log.info(Channels.activeDynamicChannels.toString())
+        }
+    }
 
     companion object {
         val PlayerEvent: EventDefinition<PlayerStatusViewModel> = EventDefinition()
+    }
+
+    override fun unsubscribe() {
+        // squeezebox will handle unsubscribe from all active subscriptions during /meta/disconnect
+        // so use this clean-up feature for now..
+        disconnect()
     }
 
     override fun disconnect() {
@@ -49,50 +70,50 @@ class SqueezeboxCometLongPollingRepository(
             application.log.info("Server precessed the disconnect request.")
         }
         bayeuxClient.waitFor(10_000, BayeuxClient.State.DISCONNECTED)
+        Channels.activeDynamicChannels.clear()
         application.log.info("Disconnected from CometD..")
+
     }
 
     override fun connectAndSubscribe() {
-        bayeuxClient.getChannel(Channel.META_HANDSHAKE)
-            .addListener(ClientSessionChannel.MessageListener { channel, message ->
-                if (message.isSuccessful) {
-                    establishSubscriptions(bayeuxClient)
-                } else {
-                    application.log.error("Could not establish HANDSHAKE: $message")
-                }
-            })
-
-        bayeuxClient.handshake()
+        if (bayeuxClient.isDisconnected) {
+            bayeuxClient.handshake()
+            val handshake = bayeuxClient.waitFor(1_000, BayeuxClient.State.CONNECTED)
+            if (handshake) {
+                establishSubscriptions(bayeuxClient)
+            }
+        } else {
+            establishSubscriptions(bayeuxClient)
+        }
     }
-
 
 
     private fun establishSubscriptions(bayeuxClient: BayeuxClient) {
-        application.log.info("establishing subscriptions..")
+        application.log.info("[${bayeuxClient.id}] establishing subscriptions..")
 
-        subscribeForPlayers(bayeuxClient)
-//        subscribeForServerStatus(bayeuxClient)
+        if (!Channels.activeDynamicChannels.contains(playersStatusChannel(bayeuxClient = bayeuxClient))) {
+            subscribeForPlayers(bayeuxClient)
+        }
     }
 
+    private fun playersStatusChannel(bayeuxClient: BayeuxClient) = ChannelId("/${bayeuxClient.id}/pictl/players")
+
     private fun subscribeForPlayers(bayeuxClient: BayeuxClient) {
-        val channelId = ChannelId("/${bayeuxClient.id}/pictl/players")
+        val channelId = playersStatusChannel(bayeuxClient = bayeuxClient)
         bayeuxClient.getChannel(channelId).subscribe { channel, message ->
 //            application.log.info("received on ${channel.channelId}: ${objectMapper.writeValueAsString(message.dataAsMap)}")
+            Channels.activeDynamicChannels.add(channel.channelId)
             val actual = mapPlayersResponse(message.dataAsMap)
-            application.log.info(actual.toString())
+            application.log.info("[${bayeuxClient.id}] " + actual.toString())
             actual?.players?.forEach { player ->
-                if (playerSubscriptionStatus[bayeuxClient.id]?.playerSubscriptions?.any { it.playerId == player.playerId } != true) {
-                    subscribeForPlayerStatus(bayeuxClient = bayeuxClient, playerId = player.playerId)
-                    val currentState = playerSubscriptionStatus[bayeuxClient.id]
-                    if (currentState != null) {
-                        playerSubscriptionStatus[bayeuxClient.id]!!.playerSubscriptions
-                            .add(PlayerSubscriptionStatus.PlayerSubscription(playerId = player.playerId))
-                    } else {
-                        playerSubscriptionStatus[bayeuxClient.id] = PlayerSubscriptionStatus(
-                            bayeuxClientId = bayeuxClient.id,
-                            playerSubscriptions = mutableListOf(PlayerSubscriptionStatus.PlayerSubscription(playerId = player.playerId))
+                if (!Channels.activeDynamicChannels.contains(
+                        playerStatusChannel(
+                            bayeuxClient = bayeuxClient,
+                            playerId = player.playerId
                         )
-                    }
+                    )
+                ) {
+                    subscribeForPlayerStatus(bayeuxClient = bayeuxClient, playerId = player.playerId)
                 }
             }
         }
@@ -103,16 +124,22 @@ class SqueezeboxCometLongPollingRepository(
             args = emptyList()
         )
         bayeuxClient
-            .getChannel("/slim/subscribe")
-            .publish(playersSubscriptionRequest) { application.log.debug("I REQUESTED the playerstatus: $it") }
+            .getChannel(Channels.slimSubscribe)
+            .publish(playersSubscriptionRequest) {
+                application.log.debug("I REQUESTED the playerstatus: $it")
+            }
     }
 
+    private fun playerStatusChannel(bayeuxClient: BayeuxClient, playerId: String) =
+        ChannelId("/${bayeuxClient.id}/pictl/player/${playerId.replace(oldChar = ':', newChar = '-')}")
+
     private fun subscribeForPlayerStatus(bayeuxClient: BayeuxClient, playerId: String) {
-        val channelId = ChannelId("/${bayeuxClient.id}/pictl/player/${playerId.replace(oldChar = ':', newChar = '-')}")
+        val channelId = playerStatusChannel(bayeuxClient = bayeuxClient, playerId = playerId)
         bayeuxClient.getChannel(channelId).subscribe { channel, message ->
 //            application.log.info("received on ${channel.channelId}: ${objectMapper.writeValueAsString(message.dataAsMap)}")
+            Channels.activeDynamicChannels.add(channel.channelId)
             val actual = mapPlayerResponse(message.dataAsMap)
-            application.log.info(actual.toString())
+            application.log.info("[${bayeuxClient.id}] " + actual.toString())
             raisePlayerStatusUpdateEvent(channelId, actual)
         }
         val serverStatusSubscriptionRequest = slimSubscriptionRequestData(
@@ -160,14 +187,14 @@ class SqueezeboxCometLongPollingRepository(
         start: Int = 0,
         itemsPerRequest: Int = 50,
         args: List<String>
-    ): SubscribeCometRequest {
+    ): SlimSubscribeCometRequest {
         // If args doesn't contain a 'subscribe' key, treat it as a normal subscribe call and not a request + subscribe
         // [https://github.com/Logitech/slimserver/blob/b7d9ed8e7356981cb9d5ce2cea67bd5f1d7b6ee3/Slim/Web/Cometd.pm#L766]
         val confirmedArgs = if (!args.any { it.startsWith(prefix = "subscribe") }) {
             args.toMutableList().apply {
                 // The number indicates the time interval in seconds between automatic generations
                 // in case nothing happened to the player in the interval.
-                add("subscribe:10")
+                add("subscribe:60")
             }.toList()
         } else {
             args
@@ -175,11 +202,26 @@ class SqueezeboxCometLongPollingRepository(
         val query = mutableListOf(command, start, itemsPerRequest)
         query.addAll(confirmedArgs)
         val request = listOf(playerId, query)
-        return SubscribeCometRequest(
+        return SlimSubscribeCometRequest(
             response = responseChannel,
             request = request
         )
     }
+
+    /**
+     * https://github.com/cleemansen/slimserver/blob/public%2F8.0/Slim/Web/Cometd.pm#L478
+     *
+     * # A valid /slim/unsubscribe message looks like this:
+     * {
+     *   channel  => '/slim/unsubscribe',
+     *   data     => {
+     *     unsubscribe => '/slim/serverstatus',
+     *   }
+     * }
+     */
+    private fun slimUnsubscribeRequestData(
+        unsubscribeChannel: String
+    ): SlimUnsubscribeCometRequest = SlimUnsubscribeCometRequest(unsubscribe = unsubscribeChannel)
 
     private fun raisePlayerStatusUpdateEvent(
         channelId: ChannelId,

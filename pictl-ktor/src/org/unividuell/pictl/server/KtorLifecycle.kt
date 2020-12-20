@@ -8,6 +8,6 @@ import org.unividuell.pictl.server.usecase.SubscribeForPlayersUpdatesInteractor
 fun Application.lifecycleMonitor() {
     environment.monitor.subscribe(ApplicationStopped) {
         val subscribeForPlayersUpdatesInteractor: SubscribeForPlayersUpdatesInteractor by di().instance()
-        subscribeForPlayersUpdatesInteractor.stop()
+        subscribeForPlayersUpdatesInteractor.bye()
     }
 }

@@ -9,6 +9,7 @@ class SubscribeForPlayersUpdatesInteractor(di: DI) {
 
     interface DataSource {
         fun connectAndSubscribe()
+        fun unsubscribe()
         fun disconnect()
     }
 
@@ -17,6 +18,10 @@ class SubscribeForPlayersUpdatesInteractor(di: DI) {
     }
 
     fun stop() {
+        dataSource.unsubscribe()
+    }
+
+    fun bye() {
         dataSource.disconnect()
     }
 

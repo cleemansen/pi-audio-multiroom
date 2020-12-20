@@ -49,9 +49,9 @@ fun Application.piCtl(testing: Boolean = false) {
         bind<BayeuxClient>() with singleton { SqueezeboxBayeuxClient(di).buildBayeuxClient() }
         // interactors
         bind<GetCurrentSongInteractor.DataSource>() with singleton { SqueezeboxJsonRpcRepository(di) }
-        bind() from singleton { GetCurrentSongInteractor(di) }
+        bind<GetCurrentSongInteractor>() with singleton { GetCurrentSongInteractor(di) }
         bind<SubscribeForPlayersUpdatesInteractor.DataSource>() with singleton { SqueezeboxCometLongPollingRepository(di) }
-        bind() from singleton { SubscribeForPlayersUpdatesInteractor(di) }
+        bind<SubscribeForPlayersUpdatesInteractor>() with singleton { SubscribeForPlayersUpdatesInteractor(di) }
     }
 
     lifecycleMonitor()
