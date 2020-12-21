@@ -21,12 +21,12 @@ class SqueezeboxBayeuxClient(di: DI) {
         logging.setLevel(HttpLoggingInterceptor.Level.BODY)
         val httpClient = OkHttpClient.Builder()
             .addInterceptor(SqueezeboxCometConnectPatchInterceptor())
-            .addNetworkInterceptor(SqueezeboxCometGzipPatchInterceptor())
+//            .addNetworkInterceptor(SqueezeboxCometGzipPatchInterceptor())
             .addNetworkInterceptor(logging)
             .build()
 
         // The maximum number of milliseconds to wait before considering a request to the LMS failed
-        val longPollingTimeout = 30_000
+        val longPollingTimeout = 30_123  // an odd number to uniquely identify timeouts by this option
         val options = mutableMapOf<String, Any>()
         options[HttpClientTransport.MAX_NETWORK_DELAY_OPTION] = longPollingTimeout
         val jsonContext = JacksonJSONContextClient()

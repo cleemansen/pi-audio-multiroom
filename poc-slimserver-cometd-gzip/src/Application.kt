@@ -9,9 +9,7 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import org.cometd.bayeux.Channel
 import org.cometd.bayeux.ChannelId
-import org.cometd.bayeux.client.ClientSessionChannel
 import org.cometd.client.BayeuxClient
 import org.cometd.client.http.okhttp.OkHttpClientTransport
 import org.cometd.client.transport.HttpClientTransport
@@ -144,7 +142,7 @@ private fun buildBayeuxClient(slimserverHost: String, gzip: Boolean): BayeuxClie
     val httpClient = httpClientBuilder.build()
 
     // The maximum number of milliseconds to wait before considering a request to the LMS failed
-    val longPollingTimeout = 30_000
+    val longPollingTimeout = 33_345 // an odd number to uniquely identify timeouts by this option
     val options = mutableMapOf<String, Any>()
     options[HttpClientTransport.MAX_NETWORK_DELAY_OPTION] = longPollingTimeout
     val jsonContext = JacksonJSONContextClient()

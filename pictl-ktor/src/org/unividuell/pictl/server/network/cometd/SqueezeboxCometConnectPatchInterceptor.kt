@@ -43,22 +43,26 @@ class SqueezeboxCometConnectPatchInterceptor : Interceptor {
         val response = chain.proceed(request)
 
         if (isMetaConnect(pathSegments = request.url.pathSegments)) {
-            val responseBody = response.body!!
-            val buffer = responseBody.source().buffer
+            val contentLength = response.body!!.contentLength()
+            val source = response.body!!.source()
+            source.request(Long.MAX_VALUE) // Buffer the entire body.
+            val buffer = source.buffer
 
-            val contentType = responseBody.contentType()
+            val contentType = response.body!!.contentType()
             val charset: Charset = contentType?.charset(StandardCharsets.UTF_8) ?: StandardCharsets.UTF_8
 
-            val responseBodyMapped = mapper.readValue<List<Map<String, Any>>>(buffer.clone().readString(charset))
-            // [{"channel":"/meta/connect","advice":{"interval":0},"successful":true,"timestamp":"Wed, 16 Dec 2020 18:35:43 GMT","clientId":"d8a45836"}]
-            val contentList = responseBodyMapped.toMutableList()
-            val content = contentList.get(0).toMutableMap()
-            // add the missing ID
-            content["id"] = id!!
-            contentList[0] = content
-            return response.newBuilder().body(
-                mapper.writeValueAsString(contentList).toResponseBody()
-            ).build()
+            if (contentLength != 0L) {
+                val responseBodyMapped = mapper.readValue<List<Map<String, Any>>>(buffer.clone().readString(charset))
+                // [{"channel":"/meta/connect","advice":{"interval":0},"successful":true,"timestamp":"Wed, 16 Dec 2020 18:35:43 GMT","clientId":"d8a45836"}]
+                val contentList = responseBodyMapped.toMutableList()
+                val content = contentList[0].toMutableMap()
+                // add the missing ID
+                content["id"] = id!!
+                contentList[0] = content
+                return response.newBuilder().body(
+                    mapper.writeValueAsString(contentList).toResponseBody()
+                ).build()
+            }
         }
 
         return response

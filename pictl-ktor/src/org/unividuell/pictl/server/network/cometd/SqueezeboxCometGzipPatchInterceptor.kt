@@ -4,10 +4,11 @@ import okhttp3.Interceptor
 import okhttp3.Response
 
 /**
- * It seams there is an issue in the gzip-encoding in slimserver (silent fail).
- * So disable this http-client feature here for now.
- * See https://github.com/Logitech/slimserver/issues/481
+ * Use this interceptor to disable the gzipped responses from slimserver.
+ * There WAS an issue (see https://github.com/Logitech/slimserver/issues/481),
+ * but now it seems to work as expected also with enabled accept-encoding gzip.
  */
+@Deprecated(message = "https://github.com/Logitech/slimserver/issues/481")
 class SqueezeboxCometGzipPatchInterceptor : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
