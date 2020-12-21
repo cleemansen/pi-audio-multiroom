@@ -4,6 +4,7 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/pi-multiroom.iml" filepath="$PROJECT_DIR$/.idea/pi-multiroom.iml" />
       <module fileurl="file://$PROJECT_DIR$/pictl-ktor/pictl-ktor.iml" filepath="$PROJECT_DIR$/pictl-ktor/pictl-ktor.iml" />
+      <module fileurl="file://$PROJECT_DIR$/poc-slimserver-cometd-gzip/poc-slimserver-cometd-gzip.iml" filepath="$PROJECT_DIR$/poc-slimserver-cometd-gzip/poc-slimserver-cometd-gzip.iml" />
     </modules>
   </component>
 </project>
