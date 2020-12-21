@@ -4,6 +4,7 @@ After=network.target
 
 [Service]
 Environment="KTOR_ENV=pi"
+Environment="SLIMSERVER_HOST={RASPBERRY_IP}"
 ExecStart=java -jar /home/pi/pictl.jar
 Restart=always
 User=pi

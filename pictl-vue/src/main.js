@@ -9,7 +9,7 @@ Vue.config.productionTip = false
 
 Vue.use(webSocket, {
   store,
-  host: 'ws://192.168.0.156:8080'
+  host: `ws://${window.location.hostname}:${window.location.port}`
 })
 
 new Vue({

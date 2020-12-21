@@ -109,6 +109,7 @@ fun Application.piCtl(testing: Boolean = false) {
         // Static feature. Try to access `/static/ktor_logo.svg`
         static("/") {
             resources("pictl-vue")
+            defaultResource("pictl-vue/index.html")
         }
 
         get("/json/jackson") {
