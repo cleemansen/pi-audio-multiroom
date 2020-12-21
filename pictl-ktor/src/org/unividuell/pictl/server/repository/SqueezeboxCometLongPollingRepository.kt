@@ -11,9 +11,10 @@ import org.kodein.di.instance
 import org.unividuell.pictl.server.controller.model.PlayerStatusViewModel
 import org.unividuell.pictl.server.repository.cometd.model.PlayerCometdResponse
 import org.unividuell.pictl.server.repository.cometd.model.PlayersCometResponse
-import org.unividuell.pictl.server.repository.cometd.model.SlimSubscribeCometRequest
+import org.unividuell.pictl.server.repository.cometd.model.SlimCometRequest
 import org.unividuell.pictl.server.repository.cometd.model.SlimUnsubscribeCometRequest
 import org.unividuell.pictl.server.usecase.SubscribeForPlayersUpdatesInteractor
+import org.unividuell.pictl.server.usecase.TogglePlayPausePlayerInteractor
 import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.nio.charset.Charset
@@ -27,7 +28,8 @@ NOTES:
 
 class SqueezeboxCometLongPollingRepository(
     di: DI
-) : SubscribeForPlayersUpdatesInteractor.DataSource {
+) : SubscribeForPlayersUpdatesInteractor.DataSource,
+    TogglePlayPausePlayerInteractor.DataSource {
 
     private val application: Application by di.instance()
 
@@ -43,7 +45,7 @@ class SqueezeboxCometLongPollingRepository(
             val slimSubscribe = ChannelId("/slim/subscribe")
             val slimUnsubscribe = ChannelId("/slim/unsubscribe")
             val slimRequest = ChannelId("/slim/request")
-            val activeDynamicChannels = mutableMapOf<ChannelId, SlimSubscribeCometRequest>()
+            val activeDynamicChannels = mutableMapOf<ChannelId, SlimCometRequest>()
         }
     }
 
@@ -100,6 +102,10 @@ class SqueezeboxCometLongPollingRepository(
 
     private fun establishSubscriptions(bayeuxClient: BayeuxClient) {
         application.log.info("[${bayeuxClient.id}] establishing subscriptions..")
+
+        bayeuxClient.getChannel(Channels.slimRequest).subscribe { channel, message ->
+            application.log.info("${channel.id} -> $message")
+        }
 
         if (!Channels.activeDynamicChannels.keys.contains(playersStatusChannel(bayeuxClient = bayeuxClient))) {
             subscribeForPlayers(bayeuxClient)
@@ -197,11 +203,12 @@ class SqueezeboxCometLongPollingRepository(
         command: String,
         start: Int = 0,
         itemsPerRequest: Int = 50,
-        args: List<String>
-    ): SlimSubscribeCometRequest {
+        args: List<String>,
+        isSubscription: Boolean = true
+    ): SlimCometRequest {
         // If args doesn't contain a 'subscribe' key, treat it as a normal subscribe call and not a request + subscribe
         // [https://github.com/Logitech/slimserver/blob/b7d9ed8e7356981cb9d5ce2cea67bd5f1d7b6ee3/Slim/Web/Cometd.pm#L766]
-        val confirmedArgs = if (!args.any { it.startsWith(prefix = "subscribe") }) {
+        val confirmedArgs = if (isSubscription && !args.any { it.startsWith(prefix = "subscribe") }) {
             args.toMutableList().apply {
                 // The number indicates the time interval in seconds between automatic generations
                 // in case nothing happened to the player in the interval.
@@ -213,7 +220,7 @@ class SqueezeboxCometLongPollingRepository(
         val query = mutableListOf(command, start, itemsPerRequest)
         query.addAll(confirmedArgs)
         val request = listOf(playerId, query)
-        return SlimSubscribeCometRequest(
+        return SlimCometRequest(
             response = responseChannel,
             request = request
         )
@@ -259,6 +266,7 @@ class SqueezeboxCometLongPollingRepository(
                 artist = actual.remoteMeta?.artist,
                 remoteTitle = actual.remoteMeta?.remoteTitle,
                 artworkUrl = cleanedArtworkUrl,
+                mode = actual.mode,
                 syncController = actual.syncMaster,
                 syncNodes = actual.syncSlaves?.split(',') ?: emptyList()
             )
@@ -279,6 +287,26 @@ class SqueezeboxCometLongPollingRepository(
 
     private fun mapPlayerResponse(data: Map<String, Any>): PlayerCometdResponse {
         return objectMapper.convertValue<PlayerCometdResponse>(data)
+    }
+
+    override fun togglePlayPausePlayer(playerId: String) {
+        bayeuxClient.getChannel(Channels.slimRequest)
+            .publish(
+                slimRequestData(
+                    playerId = playerId,
+                    command = listOf("pause")
+                )
+            )
+    }
+
+    private fun slimRequestData(
+        playerId: String,
+        command: List<String>
+    ): SlimCometRequest {
+        return SlimCometRequest(
+            request = listOf(playerId, command),
+            response = Channels.slimRequest.toString()
+        )
     }
 
 }

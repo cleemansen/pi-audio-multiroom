@@ -5,13 +5,26 @@
         <v-card class="mb-6">
           <v-img :src="player.artworkUrl">
           </v-img>
+          <v-card-actions class="mt-4">
+            <v-spacer></v-spacer>
+            <v-btn fab large @click="togglePlayPause(player)" class="btn-fix">
+              <v-icon>{{ playPausePlayerState(player) }}</v-icon>
+            </v-btn>
+            <v-btn fab large>
+              <v-icon>mdi-stop</v-icon>
+            </v-btn>
+            <v-spacer></v-spacer>
+          </v-card-actions>
           <v-card-text>
             <div>{{ playerName(player) }}</div>
             <p class="display-1 text--primary">{{ currentSong(player) }}</p>
             <p class="display-2 text--primary">{{ player.remoteTitle }}</p>
           </v-card-text>
-          <v-card-actions>
-            <v-btn @click="send">send</v-btn>
+          <v-card-actions class="mt-4">
+            <v-spacer></v-spacer>
+            <v-btn fab large>
+              <v-icon>mdi-power</v-icon>
+            </v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
@@ -51,8 +64,12 @@ export default {
         }
       })
     },
-    send() {
-      let d = new Date() + ' hello'
+    togglePlayPause(player) {
+      let d = {
+        type: "cmd",
+        cmd: "TOGGLE_PLAY_PAUSE",
+        playerId: player.playerId
+      }
       this.$webSocketsSend(d)
     },
     currentSong(player) {
@@ -74,6 +91,16 @@ export default {
         this.syncNodes.forEach(node => buffer.push(node))
       }
       return buffer.join(' & ')
+    },
+    playPausePlayerState(player) {
+      if (player.mode) {
+        if (player.mode === 'play') {
+          return 'mdi-pause'
+        } else if (player.mode === 'pause' || player.mode === 'stop') {
+          return 'mdi-play'
+        }
+      }
+      return 'mdi-heart-broken'
     }
   },
   computed: {
@@ -85,5 +112,15 @@ export default {
 </script>
 
 <style scoped>
+/* FAB fix highlight state after clicking START */
+/* kudos: https://github.com/vuetifyjs/vuetify/issues/3125 */
+.btn-fix:focus::before {
+  opacity: 0 !important;
+}
 
+.btn-fix:hover::before {
+  opacity: 0.08 !important;
+}
+
+/* END */
 </style>

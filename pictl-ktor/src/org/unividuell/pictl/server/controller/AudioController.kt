@@ -1,5 +1,7 @@
 package org.unividuell.pictl.server.controller
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.application.*
 import io.ktor.http.*
 import io.ktor.http.cio.websocket.*
@@ -13,6 +15,7 @@ import org.kodein.di.ktor.di
 import org.unividuell.pictl.server.repository.SqueezeboxCometLongPollingRepository
 import org.unividuell.pictl.server.usecase.GetCurrentSongInteractor
 import org.unividuell.pictl.server.usecase.SubscribeForPlayersUpdatesInteractor
+import org.unividuell.pictl.server.usecase.TogglePlayPausePlayerInteractor
 import java.util.*
 import kotlin.collections.LinkedHashSet
 
@@ -20,6 +23,7 @@ fun Route.audioRoutes() {
 
     val getCurrentSongInteractor: GetCurrentSongInteractor by di().instance()
     val subscribeForPlayersUpdatesInteractor: SubscribeForPlayersUpdatesInteractor by di().instance()
+    val togglePlayPausePlayerInteractor: TogglePlayPausePlayerInteractor by di().instance()
 
     val audioWsConnections = Collections.synchronizedSet(LinkedHashSet<DefaultWebSocketSession>())
 
@@ -46,6 +50,18 @@ fun Route.audioRoutes() {
                     when (frame) {
                         is Frame.Text -> {
                             application.log.info("<-- ws: ${frame.readText()}")
+                            val msg = jacksonObjectMapper().readValue<Map<String, Any>>(frame.readText())
+                            if (msg.containsKey("type")) {
+                                when (msg["type"]) {
+                                    "cmd" -> {
+                                        when (msg["cmd"]) {
+                                            "TOGGLE_PLAY_PAUSE" -> {
+                                                togglePlayPausePlayerInteractor.toggle(playerId = msg["playerId"] as String)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }

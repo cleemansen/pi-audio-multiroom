@@ -9,7 +9,7 @@
     <option name="MAIN_CLASS_NAME" value="org.unividuell.pictl.server.PictlApplicationKt" />
     <option name="WORKING_DIRECTORY" value="" />
     <envs>
-      <env name="SLIMSERVER_HOST" value="http://192.168.0.156:9000" />
+      <env name="SLIMSERVER_HOST" value="http://white.local:9000" />
     </envs>
     <method v="2">
       <option name="Make" enabled="true" />

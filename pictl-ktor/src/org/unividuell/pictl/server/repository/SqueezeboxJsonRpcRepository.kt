@@ -9,8 +9,12 @@ import kotlinx.coroutines.runBlocking
 import org.kodein.di.DI
 import org.kodein.di.instance
 import org.unividuell.pictl.server.usecase.GetCurrentSongInteractor
+import org.unividuell.pictl.server.usecase.TogglePlayPausePlayerInteractor
 
-class SqueezeboxJsonRpcRepository(di: DI) : GetCurrentSongInteractor.DataSource {
+class SqueezeboxJsonRpcRepository(
+    di: DI
+) : GetCurrentSongInteractor.DataSource,
+    TogglePlayPausePlayerInteractor.DataSource {
 
     private val client: HttpClient by di.instance()
 
@@ -90,6 +94,19 @@ class SqueezeboxJsonRpcRepository(di: DI) : GetCurrentSongInteractor.DataSource 
         requestBuilder.method = HttpMethod.Post
         requestBuilder.contentType(ContentType.Application.Json)
         return client.post(requestBuilder)
+    }
+
+    override fun togglePlayPausePlayer(playerId: String) {
+        runBlocking {
+            jsonRpcCall<Map<String, Any>>(
+                body = JsonRpcRequest(
+                    params = listOf(
+                        playerId,
+                        listOf("pause")
+                    )
+                )
+            )
+        }
     }
 
 }

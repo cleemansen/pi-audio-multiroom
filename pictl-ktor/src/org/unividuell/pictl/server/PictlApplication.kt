@@ -26,6 +26,7 @@ import org.unividuell.pictl.server.repository.SqueezeboxCometLongPollingReposito
 import org.unividuell.pictl.server.repository.SqueezeboxJsonRpcRepository
 import org.unividuell.pictl.server.usecase.GetCurrentSongInteractor
 import org.unividuell.pictl.server.usecase.SubscribeForPlayersUpdatesInteractor
+import org.unividuell.pictl.server.usecase.TogglePlayPausePlayerInteractor
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -52,6 +53,8 @@ fun Application.piCtl(testing: Boolean = false) {
         bind<GetCurrentSongInteractor>() with singleton { GetCurrentSongInteractor(di) }
         bind<SubscribeForPlayersUpdatesInteractor.DataSource>() with singleton { SqueezeboxCometLongPollingRepository(di) }
         bind<SubscribeForPlayersUpdatesInteractor>() with singleton { SubscribeForPlayersUpdatesInteractor(di) }
+        bind<TogglePlayPausePlayerInteractor.DataSource>() with singleton { SqueezeboxCometLongPollingRepository(di) }
+        bind<TogglePlayPausePlayerInteractor>() with singleton { TogglePlayPausePlayerInteractor(di) }
     }
 
     lifecycleMonitor()
