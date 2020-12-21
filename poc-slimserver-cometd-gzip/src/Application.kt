@@ -58,16 +58,11 @@ fun Application.module(testing: Boolean = false) {
 }
 
 fun poc(bayeuxClient: BayeuxClient, application: Application, playerId: String) {
-    bayeuxClient.getChannel(Channel.META_HANDSHAKE)
-        .addListener(ClientSessionChannel.MessageListener { channel, message ->
-            if (message.isSuccessful) {
-                subscribeForPlayerStatus(bayeuxClient, playerId, application)
-            } else {
-                application.log.error("Could not establish HANDSHAKE: $message")
-            }
-        })
-
     bayeuxClient.handshake()
+    val handshake = bayeuxClient.waitFor(3_000, BayeuxClient.State.CONNECTED)
+    if (handshake) {
+        subscribeForPlayerStatus(bayeuxClient, playerId, application)
+    }
 }
 
 private fun subscribeForPlayerStatus(bayeuxClient: BayeuxClient, playerId: String, application: Application) {
