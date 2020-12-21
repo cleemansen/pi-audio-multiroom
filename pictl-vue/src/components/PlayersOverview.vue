@@ -7,8 +7,13 @@
           </v-img>
           <v-card-actions class="mt-4">
             <v-spacer></v-spacer>
-            <v-btn fab large @click="togglePlayPause(player)" class="btn-fix">
-              <v-icon>{{ playPausePlayerState(player) }}</v-icon>
+            <v-btn
+                fab
+                large
+                @click="togglePlayPause(player)"
+                :loading="!reachedDesiredMode[player.playerId]"
+                class="btn-fix">
+              <v-icon>{{ playPauseIcon[player.playerId] }}</v-icon>
             </v-btn>
             <v-btn fab large>
               <v-icon>mdi-stop</v-icon>
@@ -37,7 +42,8 @@ export default {
   name: "PlayersOverview",
   data: () => ({
     playersMap: {},
-    syncNodes: []
+    syncNodes: [],
+    desiredState: {}
   }),
   mounted() {
     this.connect()
@@ -46,7 +52,7 @@ export default {
     connect() {
       this.$webSocketsConnect('/ctl-audio/ws', event => {
         let playerEvent = JSON.parse(event.data)
-        console.log(playerEvent)
+        // console.log(playerEvent)
         if (playerEvent.playerId === playerEvent.syncController || playerEvent.syncController === null) {
           this.$set(this.playersMap, playerEvent.playerId, playerEvent)
           if (this.syncNodes.includes(playerEvent.playerName)) {
@@ -70,7 +76,12 @@ export default {
         cmd: "TOGGLE_PLAY_PAUSE",
         playerId: player.playerId
       }
+      this.$set(this.desiredState, player.playerId, this.oppositePlayPauseState(player.mode))
       this.$webSocketsSend(d)
+    },
+    oppositePlayPauseState(currentState) {
+      if (currentState === 'play') return 'pause'
+      if (currentState === 'pause') return 'play'
     },
     currentSong(player) {
       let currentSong = ""
@@ -91,21 +102,39 @@ export default {
         this.syncNodes.forEach(node => buffer.push(node))
       }
       return buffer.join(' & ')
-    },
-    playPausePlayerState(player) {
-      if (player.mode) {
-        if (player.mode === 'play') {
-          return 'mdi-pause'
-        } else if (player.mode === 'pause' || player.mode === 'stop') {
-          return 'mdi-play'
-        }
-      }
-      return 'mdi-heart-broken'
     }
   },
   computed: {
     players() {
       return this.playersMap
+    },
+    playPauseIcon() {
+      return this.objectMap(this.playersMap, player => {
+        if (player.mode) {
+          if (player.mode === 'play') {
+            return 'mdi-pause'
+          } else if (player.mode === 'pause' || player.mode === 'stop') {
+            return 'mdi-play'
+          }
+        }
+        return 'mdi-heart-broken'
+      })
+    },
+    reachedDesiredMode() {
+      return this.objectMap(this.playersMap, player => {
+        if (this.desiredState[player.playerId] === undefined) {
+          // we are not waiting for a desired mode
+          return true
+        }
+        if (this.desiredState[player.playerId] === player.mode) {
+          this.$delete(this.desiredState, player.playerId) // clean up
+          // reached our goal
+          return true
+        } else {
+          // waiting
+          return false
+        }
+      })
     }
   }
 }
