@@ -12,7 +12,9 @@ data class PlayerCometdResponse(
     @JsonProperty("current_title")
     val currentTitle: String? = null,
     val remoteMeta: RemoteMeta? = null,
-    val mode: String? = null
+    val mode: String? = null,
+    @JsonProperty("mixer volume")
+    val mixerVolume: Int? = null
 ) {
     data class RemoteMeta(
         val title: String? = null,

@@ -247,6 +247,7 @@ class SqueezeboxCometSubscriptionRepository(di: DI) : SqueezeboxCometLongPolling
                 remoteTitle = actual.remoteMeta?.remoteTitle,
                 artworkUrl = cleanedArtworkUrl,
                 mode = actual.mode,
+                mixerVolume = actual.mixerVolume,
                 syncController = actual.syncMaster,
                 syncNodes = actual.syncSlaves?.split(',') ?: emptyList()
             )

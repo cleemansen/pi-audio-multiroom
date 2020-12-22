@@ -5,24 +5,33 @@
         <v-card class="mb-6">
           <v-img :src="player.artworkUrl">
           </v-img>
-          <v-card-actions class="mt-4">
-            <v-spacer></v-spacer>
-            <v-btn fab large @click="volumeStepDown(player)" class="btn-fix">
-              <v-icon>mdi-volume-medium</v-icon>
-            </v-btn>
-            <v-btn
-                fab
-                large
-                @click="togglePlayPause(player)"
-                :loading="!reachedDesiredMode[player.playerId]"
-                class="btn-fix">
-              <v-icon>{{ playPauseIcon[player.playerId] }}</v-icon>
-            </v-btn>
-            <v-btn fab large @click="volumeStepUp(player)" class="btn-fix">
-              <v-icon>mdi-volume-high</v-icon>
-            </v-btn>
-            <v-spacer></v-spacer>
-          </v-card-actions>
+          <v-row>
+            <v-col cols="12">
+              <v-card-actions class="mt-4">
+                <v-spacer></v-spacer>
+                <v-btn fab large @click="volumeStepDown(player)" class="btn-fix">
+                  <v-icon>mdi-volume-medium</v-icon>
+                </v-btn>
+                <v-btn
+                    fab
+                    large
+                    @click="togglePlayPause(player)"
+                    :loading="!reachedDesiredMode[player.playerId]"
+                    class="btn-fix">
+                  <v-icon>{{ playPauseIcon[player.playerId] }}</v-icon>
+                </v-btn>
+                <v-btn fab large @click="volumeStepUp(player)" class="btn-fix">
+                  <v-icon>mdi-volume-high</v-icon>
+                </v-btn>
+                <v-spacer></v-spacer>
+              </v-card-actions>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="12">
+              <v-progress-linear :value="player.mixerVolume"/>
+            </v-col>
+          </v-row>
           <v-card-text>
             <div>{{ playerName(player) }}</div>
             <p class="display-1 text--primary">{{ currentSong(player) }}</p>

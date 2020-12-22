@@ -10,6 +10,7 @@ data class PlayerStatusViewModel(
     val remoteTitle: String? = null,
     val artworkUrl: String? = null,
     val mode: String? = null,
+    val mixerVolume: Int? = null,
     val syncController: String? = null,
     val syncNodes: List<String> = emptyList()
 ) {
