@@ -95,7 +95,7 @@ export default {
         cmd: "TOGGLE_PLAY_PAUSE",
         playerId: player.playerId
       }
-      this.$set(this.desiredState, player.playerId, this.oppositePlayPauseState(player.mode))
+      this.$set(this.desiredState, player.playerId, {mode: this.oppositePlayPauseState(player.mode)})
       this.$webSocketsSend(cmdRequest)
     },
     oppositePlayPauseState(currentState) {
@@ -165,12 +165,26 @@ export default {
     },
     reachedDesiredMode() {
       return this.objectMap(this.playersMap, player => {
-        if (this.desiredState[player.playerId] === undefined) {
+        if (this.desiredState[player.playerId]?.mode === undefined) {
           // we are not waiting for a desired mode
           return true
         }
-        if (this.desiredState[player.playerId] === player.mode) {
-          this.$delete(this.desiredState, player.playerId) // clean up
+        if (this.desiredState[player.playerId].mode === player.mode) {
+          // reached our goal
+          return true
+        } else {
+          // waiting
+          return false
+        }
+      })
+    },
+    reachedDesiredVolume() {
+      return this.objectMap(this.playersMap, player => {
+        if (this.desiredState[player.playerId]?.mixerVolume === undefined) {
+          // we are not waiting for a desired mode
+          return true
+        }
+        if (this.desiredState[player.playerId].mixerVolume === player.mixerVolume) {
           // reached our goal
           return true
         } else {
