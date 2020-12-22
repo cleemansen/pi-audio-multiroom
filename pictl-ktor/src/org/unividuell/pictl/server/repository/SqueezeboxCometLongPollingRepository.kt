@@ -26,6 +26,7 @@ import kotlin.concurrent.fixedRateTimer
 /*
 NOTES:
 - get Favorites: [{"clientId":"9ddb7286","data":{"request":["24:05:0f:95:46:70",["favorites","items","0","50","menu:favorites","useContextMenu:1"]],"response":"/9ddb7286/slim/request/1"},"channel":"/slim/request","id":"34"}]
+- slimserver web-ui: {"id":1,"method":"slim.request","params":["b8:27:eb:44:2f:38",["status","-",1,"tags:cgABbehldiqtyrSuoKLNJ"]]}
  */
 
 class SqueezeboxCometLongPollingRepository(
@@ -106,7 +107,6 @@ class SqueezeboxCometLongPollingRepository(
         }
     }
 
-
     private fun establishSubscriptions(bayeuxClient: BayeuxClient) {
         application.log.info("[${bayeuxClient.id}] establishing subscriptions..")
 
@@ -143,15 +143,6 @@ class SqueezeboxCometLongPollingRepository(
                     )
                 ) {
                     subscribeForPlayerStatus(bayeuxClient = bayeuxClient, playerId = player.playerId)
-                }
-                if (!Channels.activeDynamicChannels.keys.contains(
-                        playerModeChannel(
-                            bayeuxClient = bayeuxClient,
-                            playerId = player.playerId
-                        )
-                    )
-                ) {
-                    subscribeForPlayerMode(bayeuxClient = bayeuxClient, playerId = player.playerId)
                 }
             }
         }
@@ -198,24 +189,6 @@ class SqueezeboxCometLongPollingRepository(
         bayeuxClient
             .getChannel(Channels.slimSubscribe)
             .publish(playerStatusSubscriptionRequest) { application.log.debug("I REQUESTED the playerstatus: $it") }
-    }
-
-    private fun subscribeForPlayerMode(bayeuxClient: BayeuxClient, playerId: String) {
-        val channelId = playerModeChannel(bayeuxClient = bayeuxClient, playerId = playerId)
-        val playerModeSubscriptionRequest = slimSubscriptionRequestData(
-            responseChannel = channelId.toString(),
-            playerId = playerId,
-            command = "mode ?",
-            args = emptyList()
-        )
-        bayeuxClient.getChannel(channelId).subscribe { channel, message ->
-            Channels.activeDynamicChannels[channel.channelId] = playerModeSubscriptionRequest
-            val actual = message.dataAsMap
-            application.log.info("[${bayeuxClient.id}] " + actual)
-        }
-        bayeuxClient
-            .getChannel(Channels.slimSubscribe)
-            .publish(playerModeSubscriptionRequest) { application.log.info("I REQUESTED the playermode: $it") }
     }
 
     /**
@@ -335,6 +308,8 @@ class SqueezeboxCometLongPollingRepository(
                     command = listOf("pause")
                 )
             )
+        // request instant update to get new player mode as soon as possible
+        requestUpdate()
     }
 
     private fun slimRequestData(
