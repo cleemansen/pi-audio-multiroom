@@ -7,14 +7,18 @@ class TogglePlayPausePlayerInteractor(
     di: DI
 ) {
 
+    private val subscribeForPlayersUpdatesInteractor: SubscribeForPlayersUpdatesInteractor by di.instance()
+
+    private val dataSource: DataSource by di.instance()
+
     interface DataSource {
         fun togglePlayPausePlayer(playerId: String)
     }
 
-    private val dataSource: DataSource by di.instance()
-
     fun toggle(playerId: String) {
         dataSource.togglePlayPausePlayer(playerId = playerId)
+        // request instant update to get new player mode as soon as possible
+        subscribeForPlayersUpdatesInteractor.requestUpdate()
     }
 
 }

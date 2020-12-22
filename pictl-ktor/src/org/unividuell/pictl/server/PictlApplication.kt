@@ -24,7 +24,8 @@ import org.kodein.di.ktor.di
 import org.kodein.di.singleton
 import org.slf4j.event.Level
 import org.unividuell.pictl.server.network.cometd.SqueezeboxBayeuxClient
-import org.unividuell.pictl.server.repository.SqueezeboxCometLongPollingRepository
+import org.unividuell.pictl.server.repository.SqueezeboxCometPlayerControlRepository
+import org.unividuell.pictl.server.repository.SqueezeboxCometSubscriptionRepository
 import org.unividuell.pictl.server.repository.SqueezeboxJsonRpcRepository
 import org.unividuell.pictl.server.usecase.GetCurrentSongInteractor
 import org.unividuell.pictl.server.usecase.SubscribeForPlayersUpdatesInteractor
@@ -54,9 +55,14 @@ fun Application.piCtl(testing: Boolean = false) {
         // interactors
         bind<GetCurrentSongInteractor.DataSource>() with singleton { SqueezeboxJsonRpcRepository(di) }
         bind<GetCurrentSongInteractor>() with singleton { GetCurrentSongInteractor(di) }
-        bind<SubscribeForPlayersUpdatesInteractor.DataSource>() with singleton { SqueezeboxCometLongPollingRepository(di) }
+
+        bind<SubscribeForPlayersUpdatesInteractor.DataSource>() with singleton {
+            SqueezeboxCometSubscriptionRepository(
+                di
+            )
+        }
         bind<SubscribeForPlayersUpdatesInteractor>() with singleton { SubscribeForPlayersUpdatesInteractor(di) }
-        bind<TogglePlayPausePlayerInteractor.DataSource>() with singleton { SqueezeboxCometLongPollingRepository(di) }
+        bind<TogglePlayPausePlayerInteractor.DataSource>() with singleton { SqueezeboxCometPlayerControlRepository(di) }
         bind<TogglePlayPausePlayerInteractor>() with singleton { TogglePlayPausePlayerInteractor(di) }
     }
 

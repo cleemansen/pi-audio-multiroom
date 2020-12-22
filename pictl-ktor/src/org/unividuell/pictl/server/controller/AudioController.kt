@@ -12,7 +12,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import org.kodein.di.instance
 import org.kodein.di.ktor.di
-import org.unividuell.pictl.server.repository.SqueezeboxCometLongPollingRepository
+import org.unividuell.pictl.server.repository.SqueezeboxCometSubscriptionRepository
 import org.unividuell.pictl.server.usecase.GetCurrentSongInteractor
 import org.unividuell.pictl.server.usecase.SubscribeForPlayersUpdatesInteractor
 import org.unividuell.pictl.server.usecase.TogglePlayPausePlayerInteractor
@@ -74,7 +74,7 @@ fun Route.audioRoutes() {
         }
     }
 
-    application.environment.monitor.subscribe(SqueezeboxCometLongPollingRepository.PlayerEvent) { player ->
+    application.environment.monitor.subscribe(SqueezeboxCometSubscriptionRepository.PlayerEvent) { player ->
         GlobalScope.launch {
             audioWsConnections.forEach {
                 it.send(player.toJson())
