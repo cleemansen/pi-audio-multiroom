@@ -66,6 +66,12 @@ fun Route.audioRoutes() {
                                             "VOLUME_STEP_DOWN" -> {
                                                 changeVolumeInteractor.volumeStepDown(playerId = playerId)
                                             }
+                                            "VOLUME_CHANGE" -> {
+                                                changeVolumeInteractor.volumeChange(
+                                                    playerId = playerId,
+                                                    desiredVolume = msg["desiredVolume"] as Int
+                                                )
+                                            }
                                         }
                                     }
                                 }

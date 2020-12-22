@@ -30,6 +30,16 @@ class SqueezeboxCometPlayerControlRepository(di: DI) : SqueezeboxCometLongPollin
             )
     }
 
+    override fun volumeChange(playerId: String, desiredVolume: Int) {
+        bayeuxClient.getChannel(SqueezeboxCometSubscriptionRepository.Channels.slimRequest)
+            .publish(
+                slimRequestData(
+                    playerId = playerId,
+                    command = listOf("mixer", "volume", "$desiredVolume")
+                )
+            )
+    }
+
     override fun togglePlayPausePlayer(playerId: String) {
         bayeuxClient.getChannel(SqueezeboxCometSubscriptionRepository.Channels.slimRequest)
             .publish(

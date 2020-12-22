@@ -11,6 +11,7 @@ class ChangeVolumeInteractor(di: DI) {
     interface DataSource {
         fun volumeStepUp(playerId: String)
         fun volumeStepDown(playerId: String)
+        fun volumeChange(playerId: String, desiredVolume: Int)
     }
 
     fun volumeStepUp(playerId: String) {
@@ -20,6 +21,11 @@ class ChangeVolumeInteractor(di: DI) {
 
     fun volumeStepDown(playerId: String) {
         dataSource.volumeStepDown(playerId = playerId)
+        requestPlayersUpdatesInteractor.requestUpdate()
+    }
+
+    fun volumeChange(playerId: String, desiredVolume: Int) {
+        dataSource.volumeChange(playerId = playerId, desiredVolume = desiredVolume)
         requestPlayersUpdatesInteractor.requestUpdate()
     }
 }

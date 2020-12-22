@@ -13,7 +13,22 @@
 
             <v-spacer></v-spacer>
           </v-toolbar>
-          <PlayerVolume :player="player" :nodes="nodes"/>
+          <v-row>
+            <v-col cols="12" class="pt-1 pb-1">
+              <PlayerVolume
+                  :key="player.playerId"
+                  :player-id="player.playerId"
+                  :player-name="player.playerName"
+                  :mixer-volume="player.mixerVolume"
+                  v-on:desired-volume="volumeChange"/>
+              <PlayerVolume
+                  v-for="node in nodes[player.playerId]" v-bind:key="node.playerId"
+                  :player-id="node.playerId"
+                  :player-name="node.playerName"
+                  :mixer-volume="node.mixerVolume"
+                  v-on:desired-volume="volumeChange"/>
+            </v-col>
+          </v-row>
           <v-img :src="player.artworkUrl">
           </v-img>
           <v-row>
@@ -118,6 +133,15 @@ export default {
       }
       this.$webSocketsSend(cmdRequest)
     },
+    volumeChange(playerId, desiredVolume) {
+      let cmdRequest = {
+        type: "cmd",
+        cmd: "VOLUME_CHANGE",
+        playerId: playerId,
+        desiredVolume: desiredVolume
+      }
+      this.$webSocketsSend(cmdRequest)
+    },
     currentSong(player) {
       let currentSong = ""
       if (player.artist) {
@@ -170,21 +194,6 @@ export default {
           return true
         }
         if (this.desiredState[player.playerId].mode === player.mode) {
-          // reached our goal
-          return true
-        } else {
-          // waiting
-          return false
-        }
-      })
-    },
-    reachedDesiredVolume() {
-      return this.objectMap(this.playersMap, player => {
-        if (this.desiredState[player.playerId]?.mixerVolume === undefined) {
-          // we are not waiting for a desired mode
-          return true
-        }
-        if (this.desiredState[player.playerId].mixerVolume === player.mixerVolume) {
           // reached our goal
           return true
         } else {
