@@ -27,10 +27,7 @@ import org.unividuell.pictl.server.network.cometd.SqueezeboxBayeuxClient
 import org.unividuell.pictl.server.repository.SqueezeboxCometPlayerControlRepository
 import org.unividuell.pictl.server.repository.SqueezeboxCometSubscriptionRepository
 import org.unividuell.pictl.server.repository.SqueezeboxJsonRpcRepository
-import org.unividuell.pictl.server.usecase.GetCurrentSongInteractor
-import org.unividuell.pictl.server.usecase.RequestPlayersUpdatesInteractor
-import org.unividuell.pictl.server.usecase.SubscribeForPlayersUpdatesInteractor
-import org.unividuell.pictl.server.usecase.TogglePlayPausePlayerInteractor
+import org.unividuell.pictl.server.usecase.*
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -57,11 +54,8 @@ fun Application.piCtl(testing: Boolean = false) {
         bind<GetCurrentSongInteractor.DataSource>() with singleton { SqueezeboxJsonRpcRepository(di) }
         bind<GetCurrentSongInteractor>() with singleton { GetCurrentSongInteractor(di) }
 
-        bind<SubscribeForPlayersUpdatesInteractor.DataSource>() with singleton {
-            SqueezeboxCometSubscriptionRepository(
-                di
-            )
-        }
+        bind<SubscribeForPlayersUpdatesInteractor.DataSource>() with
+                singleton { SqueezeboxCometSubscriptionRepository(di) }
         bind<SubscribeForPlayersUpdatesInteractor>() with singleton { SubscribeForPlayersUpdatesInteractor(di) }
 
         bind<RequestPlayersUpdatesInteractor.DataSource>() with singleton { SqueezeboxCometSubscriptionRepository(di) }
@@ -69,6 +63,9 @@ fun Application.piCtl(testing: Boolean = false) {
 
         bind<TogglePlayPausePlayerInteractor.DataSource>() with singleton { SqueezeboxCometPlayerControlRepository(di) }
         bind<TogglePlayPausePlayerInteractor>() with singleton { TogglePlayPausePlayerInteractor(di) }
+
+        bind<ChangeVolumeInteractor.DataSource>() with singleton { SqueezeboxCometPlayerControlRepository(di) }
+        bind<ChangeVolumeInteractor>() with singleton { ChangeVolumeInteractor(di) }
     }
 
     lifecycleMonitor()

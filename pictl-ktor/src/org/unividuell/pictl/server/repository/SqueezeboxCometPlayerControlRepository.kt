@@ -15,7 +15,7 @@ class SqueezeboxCometPlayerControlRepository(di: DI) : SqueezeboxCometLongPollin
             .publish(
                 slimRequestData(
                     playerId = playerId,
-                    command = listOf("mixer volume +$volumeStep")
+                    command = listOf("mixer", "volume", "+$volumeStep")
                 )
             )
     }
@@ -25,7 +25,7 @@ class SqueezeboxCometPlayerControlRepository(di: DI) : SqueezeboxCometLongPollin
             .publish(
                 slimRequestData(
                     playerId = playerId,
-                    command = listOf("mixer volume -$volumeStep")
+                    command = listOf("mixer", "volume", "-$volumeStep")
                 )
             )
     }

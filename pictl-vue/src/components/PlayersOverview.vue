@@ -7,6 +7,9 @@
           </v-img>
           <v-card-actions class="mt-4">
             <v-spacer></v-spacer>
+            <v-btn fab large @click="volumeStepDown(player)" class="btn-fix">
+              <v-icon>mdi-volume-medium</v-icon>
+            </v-btn>
             <v-btn
                 fab
                 large
@@ -15,8 +18,8 @@
                 class="btn-fix">
               <v-icon>{{ playPauseIcon[player.playerId] }}</v-icon>
             </v-btn>
-            <v-btn fab large>
-              <v-icon>mdi-stop</v-icon>
+            <v-btn fab large @click="volumeStepUp(player)" class="btn-fix">
+              <v-icon>mdi-volume-high</v-icon>
             </v-btn>
             <v-spacer></v-spacer>
           </v-card-actions>
@@ -71,17 +74,33 @@ export default {
       })
     },
     togglePlayPause(player) {
-      let d = {
+      let cmdRequest = {
         type: "cmd",
         cmd: "TOGGLE_PLAY_PAUSE",
         playerId: player.playerId
       }
       this.$set(this.desiredState, player.playerId, this.oppositePlayPauseState(player.mode))
-      this.$webSocketsSend(d)
+      this.$webSocketsSend(cmdRequest)
     },
     oppositePlayPauseState(currentState) {
       if (currentState === 'play') return 'pause'
       if (currentState === 'pause') return 'play'
+    },
+    volumeStepUp(player) {
+      let cmdRequest = {
+        type: "cmd",
+        cmd: "VOLUME_STEP_UP",
+        playerId: player.playerId
+      }
+      this.$webSocketsSend(cmdRequest)
+    },
+    volumeStepDown(player) {
+      let cmdRequest = {
+        type: "cmd",
+        cmd: "VOLUME_STEP_DOWN",
+        playerId: player.playerId
+      }
+      this.$webSocketsSend(cmdRequest)
     },
     currentSong(player) {
       let currentSong = ""
