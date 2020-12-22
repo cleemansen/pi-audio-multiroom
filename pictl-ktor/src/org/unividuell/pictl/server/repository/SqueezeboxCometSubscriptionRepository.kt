@@ -72,7 +72,9 @@ class SqueezeboxCometSubscriptionRepository(di: DI) : SqueezeboxCometLongPolling
 
     override fun requestUpdate() {
         Channels.activeDynamicChannels.forEach {
-            if (bayeuxClient.isConnected) {
+            if (bayeuxClient.isDisconnected) {
+                connectAndSubscribe()
+            } else {
                 bayeuxClient.getChannel(Channels.slimRequest)
                     .publish(it.value)
             }
