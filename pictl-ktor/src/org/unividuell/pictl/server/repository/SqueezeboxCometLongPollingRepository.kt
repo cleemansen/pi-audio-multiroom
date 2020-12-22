@@ -137,6 +137,15 @@ class SqueezeboxCometLongPollingRepository(
                 ) {
                     subscribeForPlayerStatus(bayeuxClient = bayeuxClient, playerId = player.playerId)
                 }
+                if (!Channels.activeDynamicChannels.keys.contains(
+                        playerModeChannel(
+                            bayeuxClient = bayeuxClient,
+                            playerId = player.playerId
+                        )
+                    )
+                ) {
+                    subscribeForPlayerMode(bayeuxClient = bayeuxClient, playerId = player.playerId)
+                }
             }
         }
         bayeuxClient
@@ -148,6 +157,9 @@ class SqueezeboxCometLongPollingRepository(
 
     private fun playerStatusChannel(bayeuxClient: BayeuxClient, playerId: String) =
         ChannelId("/${bayeuxClient.id}/pictl/player/${playerId.replace(oldChar = ':', newChar = '-')}")
+
+    private fun playerModeChannel(bayeuxClient: BayeuxClient, playerId: String) =
+        ChannelId("/${bayeuxClient.id}/pictl/player/${playerId.replace(oldChar = ':', newChar = '-')}/mode")
 
     private fun subscribeForPlayerStatus(bayeuxClient: BayeuxClient, playerId: String) {
         val channelId = playerStatusChannel(bayeuxClient = bayeuxClient, playerId = playerId)
@@ -176,8 +188,26 @@ class SqueezeboxCometLongPollingRepository(
         }
 
         bayeuxClient
-            .getChannel("/slim/subscribe")
+            .getChannel(Channels.slimSubscribe)
             .publish(playerStatusSubscriptionRequest) { application.log.debug("I REQUESTED the playerstatus: $it") }
+    }
+
+    private fun subscribeForPlayerMode(bayeuxClient: BayeuxClient, playerId: String) {
+        val channelId = playerModeChannel(bayeuxClient = bayeuxClient, playerId = playerId)
+        val playerModeSubscriptionRequest = slimSubscriptionRequestData(
+            responseChannel = channelId.toString(),
+            playerId = playerId,
+            command = "mode ?",
+            args = emptyList()
+        )
+        bayeuxClient.getChannel(channelId).subscribe { channel, message ->
+            Channels.activeDynamicChannels[channel.channelId] = playerModeSubscriptionRequest
+            val actual = message.dataAsMap
+            application.log.info("[${bayeuxClient.id}] " + actual)
+        }
+        bayeuxClient
+            .getChannel(Channels.slimSubscribe)
+            .publish(playerModeSubscriptionRequest) { application.log.info("I REQUESTED the playermode: $it") }
     }
 
     /**
