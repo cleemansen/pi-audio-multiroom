@@ -11,6 +11,7 @@ class SubscribeForPlayersUpdatesInteractor(di: DI) {
     private val requestPlayersUpdatesInteractor by di.instance<RequestPlayersUpdatesInteractor>()
 
     private var stopSubscriptionJob: Job? = null
+    private var connected = false
 
     interface DataSource {
         fun connectAndSubscribe()
@@ -19,12 +20,13 @@ class SubscribeForPlayersUpdatesInteractor(di: DI) {
     }
 
     fun start() {
-        if (stopSubscriptionJob?.isActive == true) {
+        if (connected && stopSubscriptionJob?.isActive == true) {
             // use-case browser refresh
             stopSubscriptionJob?.cancel(message = "got new subscription request")
             requestPlayersUpdatesInteractor.requestUpdate()
         } else {
             dataSource.connectAndSubscribe()
+            connected = true
         }
     }
 
@@ -33,11 +35,13 @@ class SubscribeForPlayersUpdatesInteractor(di: DI) {
             delay(timeMillis = TimeUnit.SECONDS.toMillis(30))
             dataSource.unsubscribe()
             stopSubscriptionJob = null
+            connected = false
         }
     }
 
     fun bye() {
         dataSource.disconnect()
+        connected = false
     }
 
 }
