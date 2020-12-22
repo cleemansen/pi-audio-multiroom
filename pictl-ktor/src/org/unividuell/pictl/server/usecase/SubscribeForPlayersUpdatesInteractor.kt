@@ -8,12 +8,12 @@ import java.util.concurrent.TimeUnit
 class SubscribeForPlayersUpdatesInteractor(di: DI) {
 
     private val dataSource: DataSource by di.instance()
+    private val requestPlayersUpdatesInteractor by di.instance<RequestPlayersUpdatesInteractor>()
 
     private var stopSubscriptionJob: Job? = null
 
     interface DataSource {
         fun connectAndSubscribe()
-        fun requestUpdate()
         fun unsubscribe()
         fun disconnect()
     }
@@ -22,14 +22,10 @@ class SubscribeForPlayersUpdatesInteractor(di: DI) {
         if (stopSubscriptionJob?.isActive == true) {
             // use-case browser refresh
             stopSubscriptionJob?.cancel(message = "got new subscription request")
-            requestUpdate()
+            requestPlayersUpdatesInteractor.requestUpdate()
         } else {
             dataSource.connectAndSubscribe()
         }
-    }
-
-    fun requestUpdate() {
-        dataSource.requestUpdate()
     }
 
     fun stop() {

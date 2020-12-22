@@ -13,13 +13,15 @@ import org.unividuell.pictl.server.repository.cometd.model.PlayerCometdResponse
 import org.unividuell.pictl.server.repository.cometd.model.PlayersCometResponse
 import org.unividuell.pictl.server.repository.cometd.model.SlimCometRequest
 import org.unividuell.pictl.server.repository.cometd.model.SlimUnsubscribeCometRequest
+import org.unividuell.pictl.server.usecase.RequestPlayersUpdatesInteractor
 import org.unividuell.pictl.server.usecase.SubscribeForPlayersUpdatesInteractor
 import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.nio.charset.Charset
 
 class SqueezeboxCometSubscriptionRepository(di: DI) : SqueezeboxCometLongPollingRepository(di = di),
-    SubscribeForPlayersUpdatesInteractor.DataSource {
+    SubscribeForPlayersUpdatesInteractor.DataSource,
+    RequestPlayersUpdatesInteractor.DataSource {
 
     private val registry: PrometheusMeterRegistry by di.instance()
 
@@ -59,7 +61,7 @@ class SqueezeboxCometSubscriptionRepository(di: DI) : SqueezeboxCometLongPolling
     override fun connectAndSubscribe() {
         if (bayeuxClient.isDisconnected) {
             bayeuxClient.handshake()
-            val handshake = bayeuxClient.waitFor(1_000, BayeuxClient.State.CONNECTED)
+            val handshake = bayeuxClient.waitFor(4_000, BayeuxClient.State.CONNECTED)
             if (handshake) {
                 establishSubscriptions(bayeuxClient)
             }

@@ -13,9 +13,7 @@ import kotlinx.coroutines.launch
 import org.kodein.di.instance
 import org.kodein.di.ktor.di
 import org.unividuell.pictl.server.repository.SqueezeboxCometSubscriptionRepository
-import org.unividuell.pictl.server.usecase.GetCurrentSongInteractor
-import org.unividuell.pictl.server.usecase.SubscribeForPlayersUpdatesInteractor
-import org.unividuell.pictl.server.usecase.TogglePlayPausePlayerInteractor
+import org.unividuell.pictl.server.usecase.*
 import java.util.*
 import kotlin.collections.LinkedHashSet
 
@@ -23,7 +21,9 @@ fun Route.audioRoutes() {
 
     val getCurrentSongInteractor: GetCurrentSongInteractor by di().instance()
     val subscribeForPlayersUpdatesInteractor: SubscribeForPlayersUpdatesInteractor by di().instance()
+    val requestPlayersUpdatesInteractor by di().instance<RequestPlayersUpdatesInteractor>()
     val togglePlayPausePlayerInteractor: TogglePlayPausePlayerInteractor by di().instance()
+    val changeVolumeInteractor by di().instance<ChangeVolumeInteractor>()
 
     val audioWsConnections = Collections.synchronizedSet(LinkedHashSet<DefaultWebSocketSession>())
 
@@ -42,7 +42,7 @@ fun Route.audioRoutes() {
                 subscribeForPlayersUpdatesInteractor.start()
             } else {
                 // request update from server for all connections (including this new connection)
-                subscribeForPlayersUpdatesInteractor.requestUpdate()
+                requestPlayersUpdatesInteractor.requestUpdate()
             }
             audioWsConnections += this
             try {
@@ -54,9 +54,17 @@ fun Route.audioRoutes() {
                             if (msg.containsKey("type")) {
                                 when (msg["type"]) {
                                     "cmd" -> {
+                                        val playerId = msg["playerId"] as String
+
                                         when (msg["cmd"]) {
                                             "TOGGLE_PLAY_PAUSE" -> {
-                                                togglePlayPausePlayerInteractor.toggle(playerId = msg["playerId"] as String)
+                                                togglePlayPausePlayerInteractor.toggle(playerId = playerId)
+                                            }
+                                            "VOLUME_STEP_UP" -> {
+                                                changeVolumeInteractor.volumeStepUp(playerId = playerId)
+                                            }
+                                            "VOLUME_STEP_DOWN" -> {
+                                                changeVolumeInteractor.volumeStepDown(playerId = playerId)
                                             }
                                         }
                                     }

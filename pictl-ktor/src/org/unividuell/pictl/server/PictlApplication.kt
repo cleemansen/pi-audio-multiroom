@@ -28,6 +28,7 @@ import org.unividuell.pictl.server.repository.SqueezeboxCometPlayerControlReposi
 import org.unividuell.pictl.server.repository.SqueezeboxCometSubscriptionRepository
 import org.unividuell.pictl.server.repository.SqueezeboxJsonRpcRepository
 import org.unividuell.pictl.server.usecase.GetCurrentSongInteractor
+import org.unividuell.pictl.server.usecase.RequestPlayersUpdatesInteractor
 import org.unividuell.pictl.server.usecase.SubscribeForPlayersUpdatesInteractor
 import org.unividuell.pictl.server.usecase.TogglePlayPausePlayerInteractor
 
@@ -62,6 +63,10 @@ fun Application.piCtl(testing: Boolean = false) {
             )
         }
         bind<SubscribeForPlayersUpdatesInteractor>() with singleton { SubscribeForPlayersUpdatesInteractor(di) }
+
+        bind<RequestPlayersUpdatesInteractor.DataSource>() with singleton { SqueezeboxCometSubscriptionRepository(di) }
+        bind<RequestPlayersUpdatesInteractor>() with singleton { RequestPlayersUpdatesInteractor(di) }
+
         bind<TogglePlayPausePlayerInteractor.DataSource>() with singleton { SqueezeboxCometPlayerControlRepository(di) }
         bind<TogglePlayPausePlayerInteractor>() with singleton { TogglePlayPausePlayerInteractor(di) }
     }
