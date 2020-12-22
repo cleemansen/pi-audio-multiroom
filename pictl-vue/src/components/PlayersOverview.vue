@@ -3,6 +3,21 @@
     <v-row>
       <v-col cols="12" sm="6" md="6" v-for="player in players" v-bind:key="player.playerId">
         <v-card class="mb-6">
+          <v-system-bar>
+            <span>pictl</span>
+          </v-system-bar>
+          <v-toolbar>
+            <v-app-bar-nav-icon></v-app-bar-nav-icon>
+            <v-toolbar-title>{{ playerName(player) }}</v-toolbar-title>
+            <v-progress-linear
+                :value="player.mixerVolume"
+                absolute
+                bottom
+                height="6"
+                color="amber"/>
+            <v-spacer></v-spacer>
+          </v-toolbar>
+
           <v-img :src="player.artworkUrl">
           </v-img>
           <v-row>
@@ -25,11 +40,6 @@
                 </v-btn>
                 <v-spacer></v-spacer>
               </v-card-actions>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col cols="12">
-              <v-progress-linear :value="player.mixerVolume"/>
             </v-col>
           </v-row>
           <v-card-text>
