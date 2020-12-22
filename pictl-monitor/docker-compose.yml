@@ -1,0 +1,24 @@
+# kudos: https://medium.com/@math21/how-to-monitor-a-ktor-server-using-grafana-bab54a9ac0dc
+version: '2.1'
+services:
+  # Prometheus container to query backend metrics
+  prometheus:
+    image: prom/prometheus
+    restart: always
+    ports:
+      - "3570:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+  #    links:
+  #      - backend
+
+  # Grafana container to visualize data
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - 3000:3000
+    volumes:
+      - ./monitoring/grafana:/var/lib/grafana
+    links:
+      #      - backend
+      - prometheus

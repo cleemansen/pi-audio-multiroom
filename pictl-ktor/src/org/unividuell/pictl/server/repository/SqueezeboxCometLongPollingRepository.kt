@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.convertValue
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import io.ktor.application.*
+import io.micrometer.core.instrument.Counter
+import io.micrometer.prometheus.PrometheusMeterRegistry
 import org.cometd.bayeux.ChannelId
 import org.cometd.client.BayeuxClient
 import org.kodein.di.DI
@@ -36,6 +38,11 @@ class SqueezeboxCometLongPollingRepository(
     private val slimserverHost = application.environment.config.property("ktor.application.slimserver.host").getString()
 
     private val bayeuxClient: BayeuxClient by di.instance()
+
+    private val registry: PrometheusMeterRegistry by di.instance()
+    private val playerStatusCounter = Counter.builder("player.status")
+        .description("a player status event")
+        .register(registry)
 
     private val objectMapper = jacksonObjectMapper()
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
@@ -184,6 +191,7 @@ class SqueezeboxCometLongPollingRepository(
             Channels.activeDynamicChannels[channel.channelId] = playerStatusSubscriptionRequest
             val actual = mapPlayerResponse(message.dataAsMap)
             application.log.info("[${bayeuxClient.id}] " + actual.toString())
+            playerStatusCounter.increment()
             raisePlayerStatusUpdateEvent(channelId, actual)
         }
 

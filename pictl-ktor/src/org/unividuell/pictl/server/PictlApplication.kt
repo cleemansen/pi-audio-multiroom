@@ -16,6 +16,8 @@ import io.ktor.response.*
 import io.ktor.routing.*
 import io.ktor.server.engine.*
 import io.ktor.util.date.*
+import io.micrometer.prometheus.PrometheusConfig
+import io.micrometer.prometheus.PrometheusMeterRegistry
 import org.cometd.client.BayeuxClient
 import org.kodein.di.bind
 import org.kodein.di.ktor.di
@@ -48,6 +50,7 @@ fun Application.piCtl(testing: Boolean = false) {
         // frameworks
         bind<HttpClient>() with singleton { client }
         bind<BayeuxClient>() with singleton { SqueezeboxBayeuxClient(di).buildBayeuxClient() }
+        bind<PrometheusMeterRegistry>() with singleton { PrometheusMeterRegistry(PrometheusConfig.DEFAULT) }
         // interactors
         bind<GetCurrentSongInteractor.DataSource>() with singleton { SqueezeboxJsonRpcRepository(di) }
         bind<GetCurrentSongInteractor>() with singleton { GetCurrentSongInteractor(di) }
@@ -77,7 +80,7 @@ fun Application.piCtl(testing: Boolean = false) {
 
     install(CallLogging) {
         level = Level.INFO
-        filter { call -> call.request.path().startsWith("/") }
+        filter { call -> !call.request.path().startsWith("/metrics") }
     }
 
     install(ConditionalHeaders)
