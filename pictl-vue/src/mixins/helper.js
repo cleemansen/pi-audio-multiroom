@@ -9,6 +9,9 @@ Vue.mixin({
                 Object.entries(obj).map(
                     ([k, v], i) => [k, fn(v, k, i)]
                 )
-            )
+            ),
+        // kudos: https://stackoverflow.com/a/37616104/810944
+        objectFilter: (obj, predicate) =>
+            Object.fromEntries(Object.entries(obj).filter(predicate))
     }
 })

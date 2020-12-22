@@ -4,20 +4,16 @@
       <v-col cols="12" sm="6" md="6" v-for="player in players" v-bind:key="player.playerId">
         <v-card class="mb-6">
           <v-system-bar>
+            <v-icon>mdi-cast-audio</v-icon>
             <span>pictl</span>
           </v-system-bar>
           <v-toolbar>
             <v-app-bar-nav-icon></v-app-bar-nav-icon>
             <v-toolbar-title>{{ playerName(player) }}</v-toolbar-title>
-            <v-progress-linear
-                :value="player.mixerVolume"
-                absolute
-                bottom
-                height="6"
-                color="amber"/>
+
             <v-spacer></v-spacer>
           </v-toolbar>
-
+          <PlayerVolume :player="player" :nodes="nodes"/>
           <v-img :src="player.artworkUrl">
           </v-img>
           <v-row>
@@ -60,11 +56,14 @@
 </template>
 
 <script>
+import PlayerVolume from "@/components/PlayerVolume";
+
 export default {
   name: "PlayersOverview",
+  components: {PlayerVolume},
   data: () => ({
     playersMap: {},
-    syncNodes: [],
+    syncNodes: {},
     desiredState: {}
   }),
   mounted() {
@@ -77,18 +76,16 @@ export default {
         // console.log(playerEvent)
         if (playerEvent.playerId === playerEvent.syncController || playerEvent.syncController === null) {
           this.$set(this.playersMap, playerEvent.playerId, playerEvent)
-          if (this.syncNodes.includes(playerEvent.playerName)) {
+          if (this.syncNodes[playerEvent.playerId] !== undefined) {
             // not a node anymore
-            this.syncNodes.splice(this.syncNodes.indexOf(playerEvent.playerName, 1))
+            this.$delete(this.syncNodes, playerEvent.playerId)
           }
         }
         if (playerEvent.syncController !== null && playerEvent.syncController !== playerEvent.playerId) {
           // synchronized with somebody else > clean-up
           this.$delete(this.playersMap, playerEvent.playerId)
           // but notice UI about this participation
-          if (!this.syncNodes.includes(playerEvent.playerName)) {
-            this.syncNodes.push(playerEvent.playerName)
-          }
+          this.$set(this.syncNodes, playerEvent.playerId, playerEvent)
         }
       })
     },
@@ -136,8 +133,10 @@ export default {
     },
     playerName(player) {
       let buffer = [player.playerName]
-      if (this.syncNodes.length >= 1) {
-        this.syncNodes.forEach(node => buffer.push(node))
+      let nodesOfPlayer = this.nodes[player.playerId]
+      if (nodesOfPlayer) {
+        let nodeNames = this.objectMap(nodesOfPlayer, node => node.playerName)
+        Array.prototype.push.apply(buffer, Object.values(nodeNames))
       }
       return buffer.join(' & ')
     }
@@ -145,6 +144,12 @@ export default {
   computed: {
     players() {
       return this.playersMap
+    },
+    nodes() {
+      return this.objectMap(this.playersMap, player => {
+        return this
+            .objectFilter(this.syncNodes, ([, candidate]) => candidate.syncController === player.playerId)
+      })
     },
     playPauseIcon() {
       return this.objectMap(this.playersMap, player => {
