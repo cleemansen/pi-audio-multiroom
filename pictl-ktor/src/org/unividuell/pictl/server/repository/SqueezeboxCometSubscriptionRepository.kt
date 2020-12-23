@@ -10,7 +10,7 @@ import org.kodein.di.DI
 import org.kodein.di.instance
 import org.unividuell.pictl.server.controller.model.PlayerStatusViewModel
 import org.unividuell.pictl.server.repository.cometd.model.PlayerCometdResponse
-import org.unividuell.pictl.server.repository.cometd.model.PlayersCometResponse
+import org.unividuell.pictl.server.repository.cometd.model.ServerstatusCometResponse
 import org.unividuell.pictl.server.repository.cometd.model.SlimCometRequest
 import org.unividuell.pictl.server.repository.cometd.model.SlimUnsubscribeCometRequest
 import org.unividuell.pictl.server.usecase.RequestPlayersUpdatesInteractor
@@ -88,27 +88,27 @@ class SqueezeboxCometSubscriptionRepository(di: DI) : SqueezeboxCometLongPolling
             application.log.info("${channel.id} -> $message")
         }
 
-        if (!Channels.activeDynamicChannels.keys.contains(playersStatusChannel(bayeuxClient = bayeuxClient))) {
-            subscribeForPlayers(bayeuxClient)
+        if (!Channels.activeDynamicChannels.keys.contains(serverstatusChannel(bayeuxClient = bayeuxClient))) {
+            subscribeForServerstatus(bayeuxClient)
         }
     }
 
-    private fun playersStatusChannel(bayeuxClient: BayeuxClient) = ChannelId("/${bayeuxClient.id}/pictl/players")
+    private fun serverstatusChannel(bayeuxClient: BayeuxClient) = ChannelId("/${bayeuxClient.id}/pictl/serverstatus")
 
-    private fun subscribeForPlayers(bayeuxClient: BayeuxClient) {
-        val channelId = playersStatusChannel(bayeuxClient = bayeuxClient)
-        val playersSubscriptionRequest = slimSubscriptionRequestData(
+    private fun subscribeForServerstatus(bayeuxClient: BayeuxClient) {
+        val channelId = serverstatusChannel(bayeuxClient = bayeuxClient)
+        val serverstatusSubscriptionRequest = slimSubscriptionRequestData(
             responseChannel = channelId.toString(),
             playerId = "",
-            command = "players",
+            command = "serverstatus",
             args = emptyList()
         )
         bayeuxClient.getChannel(channelId).subscribe { channel, message ->
 //            application.log.info("received on ${channel.channelId}: ${objectMapper.writeValueAsString(message.dataAsMap)}")
-            Channels.activeDynamicChannels[channel.channelId] = playersSubscriptionRequest
-            val actual = mapPlayersResponse(message.dataAsMap)
+            Channels.activeDynamicChannels[channel.channelId] = serverstatusSubscriptionRequest
+            val actual = mapServerstatusResponse(message.dataAsMap)
             application.log.info("[${bayeuxClient.id}] " + actual.toString())
-            actual?.players?.forEach { player ->
+            actual?.players?.filter { it.connected == 1 }?.forEach { player ->
                 if (!Channels.activeDynamicChannels.keys.contains(
                         playerStatusChannel(
                             bayeuxClient = bayeuxClient,
@@ -119,10 +119,11 @@ class SqueezeboxCometSubscriptionRepository(di: DI) : SqueezeboxCometLongPolling
                     subscribeForPlayerStatus(bayeuxClient = bayeuxClient, playerId = player.playerId)
                 }
             }
+            // TODO: notify about gone player
         }
         bayeuxClient
             .getChannel(Channels.slimSubscribe)
-            .publish(playersSubscriptionRequest) {
+            .publish(serverstatusSubscriptionRequest) {
                 application.log.debug("I REQUESTED the playerstatus: $it")
             }
     }
@@ -250,21 +251,22 @@ class SqueezeboxCometSubscriptionRepository(di: DI) : SqueezeboxCometLongPolling
                 artworkUrl = cleanedArtworkUrl,
                 mode = actual.mode,
                 mixerVolume = actual.mixerVolume,
+                connected = actual.playerConnected?.let { it == 1 },
                 syncController = actual.syncMaster,
                 syncNodes = actual.syncSlaves?.split(',') ?: emptyList()
             )
         )
     }
 
-    private fun mapPlayersResponse(data: Map<String, Any>): PlayersCometResponse? {
+    private fun mapServerstatusResponse(data: Map<String, Any>): ServerstatusCometResponse? {
         if (data["count"] == 0) {
             application.log.warn("no players available!")
             return null
         }
         return (data["players_loop"] as List<Any>).map {
-            objectMapper.convertValue<PlayersCometResponse.Player>(it)
+            objectMapper.convertValue<ServerstatusCometResponse.Player>(it)
         }.let {
-            PlayersCometResponse(players = it)
+            ServerstatusCometResponse(players = it)
         }
     }
 
