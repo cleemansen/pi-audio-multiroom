@@ -1,10 +1,11 @@
 [Unit]
-Description=Control Pi Audio Multiroom Java Service (Ktor)
+Description=Control Pi Audio Multiroom Service (pictl)
 After=network.target
 
 [Service]
 Environment="KTOR_ENV=pi"
 Environment="SLIMSERVER_HOST={RASPBERRY_IP}"
+Environment="MODULES=[org.unividuell.pictl.server.PictlApplicationKt.piCtl,org.unividuell.pictl.server.ModulesKt.hardwareModule]"
 ExecStart=java -jar /home/pi/pictl.jar
 Restart=always
 User=pi

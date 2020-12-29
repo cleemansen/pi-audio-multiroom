@@ -4,19 +4,20 @@
 
 ```
 # on build machine
+# rebuild pictl-vue if neccessary! 
 ./mvnw package
-scp target/pictl-ktor-1.0.0-jar-with-dependencies.jar pi@white.local:pictl.jar
-scp pictl.service pi@white.local:~/
+scp target/pictl-ktor-1.0.0-jar-with-dependencies.jar pi@lab.local:pictl.jar
+scp pictl.service pi@lab.local:~/
 
 # on execution machine
 sudo apt-get install openjdk-11-jre
 
-# sudo mv /tmp/pictl.jar /usr/local/bin/
-sudo mv /tmp/pictl.service /etc/systemd/system/
+sudo mv ~/pictl.service /etc/systemd/system/
 sudo touch /var/log/pictl.log
 sudo chown pi:pi /var/log/pictl.log
 # test service with sudo systemctl start pictl.service
 sudo systemctl enable pictl.service
+# sudo systemctl start|stop|restart pictl.service
 ```
 
 ## LMS Squeezebox API
