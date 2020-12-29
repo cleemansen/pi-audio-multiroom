@@ -24,6 +24,7 @@ import org.kodein.di.ktor.di
 import org.kodein.di.singleton
 import org.slf4j.event.Level
 import org.unividuell.pictl.server.network.cometd.SqueezeboxBayeuxClient
+import org.unividuell.pictl.server.repository.HardwareRepository
 import org.unividuell.pictl.server.repository.SqueezeboxCometPlayerControlRepository
 import org.unividuell.pictl.server.repository.SqueezeboxCometSubscriptionRepository
 import org.unividuell.pictl.server.repository.SqueezeboxJsonRpcRepository
@@ -66,6 +67,9 @@ fun Application.piCtl(testing: Boolean = false) {
 
         bind<ChangeVolumeInteractor.DataSource>() with singleton { SqueezeboxCometPlayerControlRepository(di) }
         bind<ChangeVolumeInteractor>() with singleton { ChangeVolumeInteractor(di) }
+
+        bind<ShutdownInteractor.DataSource>() with singleton { HardwareRepository(di) }
+        bind<ShutdownInteractor>() with singleton { ShutdownInteractor(di) }
     }
 
     lifecycleMonitor()

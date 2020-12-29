@@ -2,17 +2,26 @@ package org.unividuell.pictl.server.controller
 
 import io.ktor.application.*
 import io.ktor.html.*
+import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import kotlinx.html.*
 import org.kodein.di.DI
+import org.kodein.di.instance
+import org.unividuell.pictl.server.usecase.ShutdownInteractor
 import java.net.InetAddress
+import java.time.Duration
+import java.time.format.DateTimeParseException
 
 fun Routing.hardwareRoutes(
     di: DI
 ) {
 
-    route("/hardware") {
+    val shutdownInteractor: ShutdownInteractor by di.instance()
+
+    route("/ctl-hardware") {
         get("/shutdown") {
             // backup
             call.respondHtml {
@@ -21,7 +30,7 @@ fun Routing.hardwareRoutes(
                 }
                 body {
                     h1 { +"Shutdown" }
-                    form(action = "/hardware/shutdown/me", method = FormMethod.post) {
+                    form(action = "/ctl-hardware/shutdown/me", method = FormMethod.post) {
                         submitInput { value = "SHUTDOWN" }
                     }
                 }
@@ -29,18 +38,39 @@ fun Routing.hardwareRoutes(
         }
         post("/shutdown/me") {
             application.log.info("shutting down myself now")
-            call.respondText { "ok" }
-        }
-        post("/shutdown") {
-            call.request.queryParameters["delay"]
+            val delayParam = call.request.queryParameters["delay"]
+            val delay = try {
+                if (delayParam?.isNotEmpty() == true) {
+                    Duration.parse(delayParam)
+                } else {
+                    null
+                }
+            } catch (okay: DateTimeParseException) {
+                application.log.warn("ignore not parsable duration for delay: $delayParam")
+                null
+            }
+            shutdownInteractor.shutdownMe(delay = delay)
             call.respondText {
                 "ok"
             }
+
+        }
+        post("/shutdown") {
+            val body = withContext(context = Dispatchers.IO) {
+                call.receive<ShutdownViewModel>()
+            }
+            val delay = if (body.delayMillis != null) {
+                Duration.ofMillis(body.delayMillis)
+            } else {
+                null
+            }
+            shutdownInteractor.shutdownNodes(ips = body.ips, delay = delay)
+            call.respondText { "ok" }
         }
     }
 }
 
 data class ShutdownViewModel(
     val ips: List<InetAddress>,
-    val delay: Long
+    val delayMillis: Long?
 )
