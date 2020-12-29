@@ -22,7 +22,7 @@ fun Routing.hardwareRoutes(
     val shutdownInteractor: ShutdownInteractor by di.instance()
 
     route("/ctl-hardware") {
-        get("/shutdown") {
+        get("/shutdown/me") {
             // backup
             call.respondHtml {
                 head {
