@@ -125,12 +125,6 @@ fun Application.piCtl(testing: Boolean = false) {
             resources("pictl-vue")
             defaultResource("pictl-vue/index.html")
         }
-
-        get("/json/jackson") {
-            call.respond(mapOf("hello" to "world"))
-        }
     }
 }
-
-data class JsonSampleClass(val hello: String)
 
