@@ -6,7 +6,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import org.kodein.di.DI
 import org.kodein.di.instance
-import java.net.InetAddress
+import java.net.InetSocketAddress
 import java.time.Duration
 
 class ShutdownInteractor(di: DI) {
@@ -26,19 +26,19 @@ class ShutdownInteractor(di: DI) {
     // we assume that ALL pi-ctl nodes runs on the same port!
     private val piCtlPort: Int = application.environment.config.property("ktor.deployment.port").getString().toInt()
 
-    suspend fun shutdownNodes(ips: List<InetAddress>, delay: Duration? = null) {
+    suspend fun shutdownNodes(ips: List<InetSocketAddress>, delay: Duration? = null) {
         ips.forEach { node ->
             val response = httpClient.request<String> {
                 url {
                     method = HttpMethod.Post
                     protocol = URLProtocol.HTTP
-                    host = node.hostAddress
+                    host = node.hostString
                     port = piCtlPort
                     encodedPath = "ctl-hardware/shutdown/me"
                     parameters.append("delay", delay.toString())
                 }
             }
-            application.log.info("Shutdown response from $node: $response")
+            application.log.info("Shutdown response from $node: $response [request gone to ${node.hostString}]")
         }
     }
 

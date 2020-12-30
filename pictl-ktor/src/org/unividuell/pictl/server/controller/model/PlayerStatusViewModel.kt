@@ -1,6 +1,7 @@
 package org.unividuell.pictl.server.controller.model
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import java.net.InetSocketAddress
 
 data class PlayerStatusViewModel(
     val playerId: String,
@@ -12,6 +13,7 @@ data class PlayerStatusViewModel(
     val mode: String? = null,
     val mixerVolume: Int? = null,
     val connected: Boolean? = null,
+    val ipAddress: InetSocketAddress? = null,
     val syncController: String? = null,
     val syncNodes: List<String> = emptyList()
 ) {

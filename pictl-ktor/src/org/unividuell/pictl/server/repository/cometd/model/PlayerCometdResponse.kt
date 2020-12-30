@@ -1,6 +1,7 @@
 package org.unividuell.pictl.server.repository.cometd.model
 
 import com.fasterxml.jackson.annotation.JsonProperty
+import java.net.InetSocketAddress
 
 data class PlayerCometdResponse(
     @JsonProperty("player_name")
@@ -16,7 +17,9 @@ data class PlayerCometdResponse(
     @JsonProperty("mixer volume")
     val mixerVolume: Int? = null,
     @JsonProperty("player_connected")
-    val playerConnected: Int? = null
+    val playerConnected: Int? = null,
+    @JsonProperty("player_ip")
+    val playerIp: InetSocketAddress? = null
 ) {
     data class RemoteMeta(
         val title: String? = null,

@@ -252,6 +252,7 @@ class SqueezeboxCometSubscriptionRepository(di: DI) : SqueezeboxCometLongPolling
                 mode = actual.mode,
                 mixerVolume = actual.mixerVolume,
                 connected = actual.playerConnected?.let { it == 1 },
+                ipAddress = actual.playerIp,
                 syncController = actual.syncMaster,
                 syncNodes = actual.syncSlaves?.split(',') ?: emptyList()
             )

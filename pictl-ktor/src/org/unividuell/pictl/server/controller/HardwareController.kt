@@ -11,7 +11,7 @@ import kotlinx.html.*
 import org.kodein.di.DI
 import org.kodein.di.instance
 import org.unividuell.pictl.server.usecase.ShutdownInteractor
-import java.net.InetAddress
+import java.net.InetSocketAddress
 import java.time.Duration
 import java.time.format.DateTimeParseException
 
@@ -71,6 +71,6 @@ fun Routing.hardwareRoutes(
 }
 
 data class ShutdownViewModel(
-    val ips: List<InetAddress>,
+    val ips: List<InetSocketAddress>,
     val delayMillis: Long?
 )

@@ -24,7 +24,7 @@
             <v-btn icon x-large @click="volumeStepUp(player)">
               <v-icon>mdi-volume-high</v-icon>
             </v-btn>
-            <v-btn icon>
+            <v-btn icon @click="shutdown(player)">
               <v-icon>mdi-power</v-icon>
             </v-btn>
           </v-toolbar>
@@ -149,6 +149,17 @@ export default {
         Array.prototype.push.apply(buffer, Object.values(nodeNames))
       }
       return buffer.join(' & ')
+    },
+    shutdown(player) {
+      let playerIps = [player.ipAddress]
+      let nodeIps = this.objectMap(this.nodes[player.playerId], node => node.ipAddress)
+      if (nodeIps) {
+        Array.prototype.push.apply(playerIps, Object.values(nodeIps))
+      }
+      this.$http
+          .post("/ctl-hardware/shutdown", {ips: playerIps})
+          .then(response => console.log(`shutdown result for [${nodeIps}]: ${response}`))
+          .catch(err => console.log(`shutdown result for [${nodeIps}]: ${err}`))
     }
   },
   computed: {
