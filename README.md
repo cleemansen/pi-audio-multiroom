@@ -21,9 +21,9 @@ and [Squeezelite](https://github.com/ralph-irving/squeezelite).
 
 ## API
 
-The [subproject `pictl-ktor`](pictl-ktor) abstracts the LMS and provides an API for `pict-vue`. It runs on each
+The [subproject `pictl-ktor`](pictl-ktor) abstracts the LMS and provides an API for `pictl-vue`. It runs on each
 Raspberry PI in each room (with different activate modules per room).
 
 ## Monitoring
 
-By [starting `pict-monitor`](pictl-monitor) you can inspect some useful insights about running `pict-ktor` APIs.
+By [starting `pictl-monitor`](pictl-monitor) you can inspect some useful insights about running `pictl-ktor` APIs.
