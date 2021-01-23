@@ -43,10 +43,10 @@ class HardwareRepository(di: DI) : ShutdownInteractor.DataSource {
     private fun shutdownNow() {
         val processBuilder = ProcessBuilder()
         if (application.isProd) {
-            processBuilder.command("sudo shutdown -P now 'shutdown requested by pictl'")
+            processBuilder.command("sudo", "shutdown", "-P", "now")
         } else {
             // shutdown -k simulates the command, good for testing?
-            processBuilder.command("echo", "do nothing, not on PROD")
+            processBuilder.command("echo", "do nothing, we are not on PROD")
 
         }
         val process = processBuilder.start()
