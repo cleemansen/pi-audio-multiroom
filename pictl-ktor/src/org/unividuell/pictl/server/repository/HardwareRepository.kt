@@ -4,7 +4,6 @@ import io.ktor.application.*
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import org.kodein.di.DI
 import org.kodein.di.instance
 import org.unividuell.pictl.server.isProd
@@ -28,15 +27,14 @@ class HardwareRepository(di: DI) : ShutdownInteractor.DataSource {
             ) {
                 if (remaining.isZero || remaining.isNegative) {
                     application.log.info("shutdown now!")
+                    shutdownNow()
+                    application.log.info("shutdown scheduled...")
                     this.cancel()
                 } else {
                     remaining = remaining.minus(period)
                     application.log.info("shutdown in $remaining")
                 }
             }
-            delay(delay.toMillis())
-            shutdownNow()
-            application.log.info("shutdown scheduled...")
         }
     }
 
