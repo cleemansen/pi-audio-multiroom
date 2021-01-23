@@ -230,7 +230,11 @@ class SqueezeboxCometSubscriptionRepository(di: DI) : SqueezeboxCometLongPolling
     ) {
         val playerId = channelId.getSegment(channelId.depth() - 1).replace(oldChar = '-', newChar = ':')
         val cleanedArtworkUrl = try {
-            URLDecoder.decode(actual.remoteMeta?.artworkUrl, Charset.defaultCharset())
+            if (actual.remoteMeta?.artworkUrl != null) {
+                URLDecoder.decode(actual.remoteMeta.artworkUrl, Charset.defaultCharset())
+            } else {
+                null
+            }
         } catch (e: UnsupportedEncodingException) {
             actual.remoteMeta?.artworkUrl
         }.let {
