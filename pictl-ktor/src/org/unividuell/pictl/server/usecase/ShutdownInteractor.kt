@@ -4,6 +4,7 @@ import io.ktor.application.*
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import kotlinx.coroutines.Deferred
 import org.kodein.di.DI
 import org.kodein.di.instance
 import java.net.InetSocketAddress
@@ -12,7 +13,7 @@ import java.time.Duration
 class ShutdownInteractor(di: DI) {
 
     interface DataSource {
-        fun shutdown(delay: Duration)
+        fun shutdownAsync(delay: Duration): Deferred<Unit>
     }
 
     private val dataSource: DataSource by di.instance()
@@ -43,6 +44,6 @@ class ShutdownInteractor(di: DI) {
     }
 
     fun shutdownMe(delay: Duration? = null) {
-        dataSource.shutdown(delay = delay ?: shutdownDelayFallback)
+        dataSource.shutdownAsync(delay = delay ?: shutdownDelayFallback)
     }
 }

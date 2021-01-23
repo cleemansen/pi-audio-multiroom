@@ -24,10 +24,7 @@ import org.kodein.di.ktor.di
 import org.kodein.di.singleton
 import org.slf4j.event.Level
 import org.unividuell.pictl.server.network.cometd.SqueezeboxBayeuxClient
-import org.unividuell.pictl.server.repository.HardwareRepository
-import org.unividuell.pictl.server.repository.SqueezeboxCometPlayerControlRepository
-import org.unividuell.pictl.server.repository.SqueezeboxCometSubscriptionRepository
-import org.unividuell.pictl.server.repository.SqueezeboxJsonRpcRepository
+import org.unividuell.pictl.server.repository.*
 import org.unividuell.pictl.server.usecase.*
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
@@ -69,6 +66,7 @@ fun Application.piCtl(testing: Boolean = false) {
         bind<ChangeVolumeInteractor>() with singleton { ChangeVolumeInteractor(di) }
 
         bind<ShutdownInteractor.DataSource>() with singleton { HardwareRepository(di) }
+        bind<ProcessIO>() with singleton { ProcessIO() }
         bind<ShutdownInteractor>() with singleton { ShutdownInteractor(di) }
     }
 
