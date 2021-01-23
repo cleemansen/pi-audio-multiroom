@@ -32,6 +32,7 @@ fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 @Suppress("unused") // Referenced in application.conf
 @kotlin.jvm.JvmOverloads
 fun Application.piCtl(testing: Boolean = false) {
+    log.info("starting module `pi-ctl`")
     val client = HttpClient(CIO) {
         install(HttpTimeout) {
         }

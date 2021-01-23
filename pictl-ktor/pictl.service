@@ -5,9 +5,8 @@ After=network.target
 [Service]
 Environment="KTOR_ENV=pi"
 Environment="SLIMSERVER_HOST={RASPBERRY_IP}"
-Environment="MODULES=[org.unividuell.pictl.server.PictlApplicationKt.piCtl,org.unividuell.pictl.server.ModulesKt.hardwareModule]"
 Environment="LOG_LEVEL_APP=WARN"
-ExecStart=java -jar /home/pi/pictl.jar
+ExecStart=java -Dktor.application.modules.0=org.unividuell.pictl.server.PictlApplicationKt.piCtl -Dktor.application.modules.1=org.unividuell.pictl.server.ModulesKt.hardwareModule -jar /home/pi/pictl.jar
 Restart=always
 User=pi
 

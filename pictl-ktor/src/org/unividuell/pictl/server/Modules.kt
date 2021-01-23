@@ -20,7 +20,7 @@ import org.unividuell.pictl.server.controller.metricRoutes
 import java.time.Duration
 
 fun Application.audioModule(testing: Boolean = false) {
-
+    log.info("starting module `audio`")
     install(io.ktor.websocket.WebSockets) {
         pingPeriod = Duration.ofSeconds(15)
         timeout = Duration.ofSeconds(15)
@@ -34,14 +34,14 @@ fun Application.audioModule(testing: Boolean = false) {
 }
 
 fun Application.hardwareModule(testing: Boolean = false) {
-
+    log.info("starting module `hardware`")
     routing {
         hardwareRoutes(di())
     }
 }
 
 fun Application.metricsModule(testing: Boolean = false) {
-
+    log.info("starting module `metrics`")
     val prometheusMeterRegistry: PrometheusMeterRegistry by di().instance()
 
     install(MicrometerMetrics) {
