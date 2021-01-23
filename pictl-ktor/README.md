@@ -2,6 +2,25 @@
 
 ## Pi setup
 
+### Java
+
+#### ARMv7 (eg Raspberry Pi 3)
+
+```
+sudo apt-get install openjdk-11-jre
+```
+
+#### ARMv6 (eg Raspberry Pi Zero)
+
+https://webtechie.be/post/2020-08-27-azul-zulu-java-11-and-gluon-javafx-11-on-armv6-raspberry-pi/
+
+```
+sudo wget https://cdn.azul.com/zulu-embedded/bin/zulu11.43.100-ca-jdk11.0.9.1-linux_aarch32hf.tar.gz
+# follow instructions on mentioned blog-post
+```
+
+### pictl
+
 ```
 # on build machine
 # rebuild pictl-vue if neccessary! 
@@ -10,8 +29,6 @@ scp target/pictl-ktor-1.0.0-jar-with-dependencies.jar pi@lab.local:pictl.jar
 scp pictl.service pi@lab.local:~/
 
 # on execution machine
-sudo apt-get install openjdk-11-jre
-
 sudo mv ~/pictl.service /etc/systemd/system/
 sudo touch /var/log/pictl.log
 sudo chown pi:pi /var/log/pictl.log
