@@ -1,6 +1,5 @@
 package org.unividuell.pictl.server
 
-import com.fasterxml.jackson.databind.SerializationFeature
 import io.ktor.application.*
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
@@ -69,6 +68,9 @@ fun Application.piCtl(testing: Boolean = false) {
         bind<ShutdownInteractor.DataSource>() with singleton { HardwareRepository(di) }
         bind<ProcessIO>() with singleton { ProcessIO() }
         bind<ShutdownInteractor>() with singleton { ShutdownInteractor(di) }
+
+        bind<ProcessStatusInteractor.DataSource>() with singleton { LinuxRepository(di) }
+        bind<ProcessStatusInteractor>() with singleton { ProcessStatusInteractor(di) }
     }
 
     lifecycleMonitor()
