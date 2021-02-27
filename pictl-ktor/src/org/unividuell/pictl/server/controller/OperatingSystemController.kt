@@ -12,36 +12,26 @@ fun Routing.operatingSystemRoutes(di: DI) {
 
     val processStatusInteractor: ProcessStatusInteractor by di.instance()
 
-    val squeezeliteProcessName = "squeezelite"
-    val squeezeboxProcessName = "squeezeboxserve"
-    val javaProcessName = "java"
-
-    val processNamesForStatus = listOf(squeezeboxProcessName, squeezeliteProcessName, javaProcessName)
+    val services = listOf(
+        ProcessStatusInteractor.Service.Squeezelite,
+        ProcessStatusInteractor.Service.Squeezebox,
+        ProcessStatusInteractor.Service.Pictl
+    )
 
     route("/ctl-os") {
         get("/status") {
-            val processes = processNamesForStatus.map {
-                processStatusInteractor.getProcessInfo(processName = it)
+            val serviceStatus = services.map {
+                it to processStatusInteractor.getServiceStatus(service = it)
             }
             call.respondHtml {
                 head {
-                    title("Processes")
+                    title("Services")
                 }
                 body {
-                    h1 { +"Process Overview" }
-                    table {
-                        thead {
-                            tr { listOf(th { +"process" }, th { +"PID" }) }
-                        }
-                        tbody {
-                            listOf(
-                                processNamesForStatus.forEach { processName ->
-                                    processStatusInteractor.getProcessInfo(processName = processName).map { process ->
-                                        tr { listOf(td { +process.name }, td { +process.pid.toString() }) }
-                                    }
-                                }
-                            )
-                        }
+                    h1 { +"Service Overview" }
+                    serviceStatus.forEach {
+                        h2 { +it.first.serviceName }
+                        pre { +it.second }
                     }
                 }
             }

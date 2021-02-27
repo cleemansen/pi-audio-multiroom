@@ -14,11 +14,23 @@ class ProcessStatusInteractor(di: DI) {
             val name: String
         )
 
-        fun processInfo(processName: String): List<ProcessInfo>
+        fun pid(processName: String): ProcessInfo
+
+        fun serviceStatus(serviceName: String): String
     }
 
-    fun getProcessInfo(processName: String): List<DataSource.ProcessInfo> {
-        return repo.processInfo(processName = processName)
+    enum class Service(val serviceName: String, val processName: String) {
+        Pictl(serviceName = "pictl.service", processName = "java"),
+        Squeezebox(serviceName = "logitechmediaserver.service", processName = "squeezeboxserve"),
+        Squeezelite(serviceName = "squeezelite.service", processName = "squeezelite")
+    }
+
+    fun getProcessInfo(service: Service): DataSource.ProcessInfo {
+        return repo.pid(processName = service.processName)
+    }
+
+    fun getServiceStatus(service: Service): String {
+        return repo.serviceStatus(serviceName = service.serviceName)
     }
 
 }
