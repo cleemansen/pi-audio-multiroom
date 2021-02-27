@@ -84,6 +84,16 @@ fun Application.piCtl(testing: Boolean = false) {
         }
     }
 
+    install(StatusPages) {
+        exception<Throwable> { cause ->
+            application.log.warn("global exception handler!", cause)
+            val sw = StringWriter()
+            val pw = PrintWriter(sw)
+            cause.printStackTrace(pw)
+            call.respond(HttpStatusCode.InternalServerError, "Internal Server Error: $cause\n${sw}")
+        }
+    }
+
     install(Compression) {
         gzip {
             priority = 1.0
