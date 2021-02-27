@@ -25,6 +25,9 @@ import org.slf4j.event.Level
 import org.unividuell.pictl.server.network.cometd.SqueezeboxBayeuxClient
 import org.unividuell.pictl.server.repository.*
 import org.unividuell.pictl.server.usecase.*
+import java.io.PrintWriter
+import java.io.StringWriter
+
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -77,7 +80,7 @@ fun Application.piCtl(testing: Boolean = false) {
 
     install(ContentNegotiation) {
         jackson {
-            enable(SerializationFeature.INDENT_OUTPUT)
+            enable(com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT)
         }
     }
 
