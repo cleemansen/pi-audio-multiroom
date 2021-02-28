@@ -72,8 +72,8 @@ fun Application.piCtl(testing: Boolean = false) {
         bind<ProcessIO>() with singleton { ProcessIO() }
         bind<ShutdownInteractor>() with singleton { ShutdownInteractor(di) }
 
-        bind<ProcessStatusInteractor.DataSource>() with singleton { LinuxRepository(di) }
-        bind<ProcessStatusInteractor>() with singleton { ProcessStatusInteractor(di) }
+        bind<ServiceInteractor.DataSource>() with singleton { LinuxRepository(di) }
+        bind<ServiceInteractor>() with singleton { ServiceInteractor(di) }
     }
 
     lifecycleMonitor()

@@ -3,7 +3,7 @@ package org.unividuell.pictl.server.usecase
 import org.kodein.di.DI
 import org.kodein.di.instance
 
-class ProcessStatusInteractor(di: DI) {
+class ServiceInteractor(di: DI) {
 
     private val repo: DataSource by di.instance()
 

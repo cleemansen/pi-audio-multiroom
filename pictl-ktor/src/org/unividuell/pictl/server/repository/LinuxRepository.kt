@@ -4,17 +4,17 @@ import io.ktor.application.*
 import okhttp3.internal.toImmutableList
 import org.kodein.di.DI
 import org.kodein.di.instance
-import org.unividuell.pictl.server.usecase.ProcessStatusInteractor
+import org.unividuell.pictl.server.usecase.ServiceInteractor
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
-class LinuxRepository(di: DI) : ProcessStatusInteractor.DataSource {
+class LinuxRepository(di: DI) : ServiceInteractor.DataSource {
 
     protected val application: Application by di.instance()
 
-    override fun pid(processName: String): ProcessStatusInteractor.DataSource.ProcessInfo {
+    override fun pid(processName: String): ServiceInteractor.DataSource.ProcessInfo {
         return pidBySystemd(processName).let {
-            ProcessStatusInteractor.DataSource.ProcessInfo(
+            ServiceInteractor.DataSource.ProcessInfo(
                 pid = it,
                 name = processName
             )

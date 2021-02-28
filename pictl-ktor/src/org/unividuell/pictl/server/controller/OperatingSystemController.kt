@@ -6,22 +6,22 @@ import io.ktor.routing.*
 import kotlinx.html.*
 import org.kodein.di.DI
 import org.kodein.di.instance
-import org.unividuell.pictl.server.usecase.ProcessStatusInteractor
+import org.unividuell.pictl.server.usecase.ServiceInteractor
 
 fun Routing.operatingSystemRoutes(di: DI) {
 
-    val processStatusInteractor: ProcessStatusInteractor by di.instance()
+    val serviceInteractor: ServiceInteractor by di.instance()
 
     val services = listOf(
-        ProcessStatusInteractor.Service.Squeezelite,
-        ProcessStatusInteractor.Service.Squeezebox,
-        ProcessStatusInteractor.Service.Pictl
+        ServiceInteractor.Service.Squeezelite,
+        ServiceInteractor.Service.Squeezebox,
+        ServiceInteractor.Service.Pictl
     )
 
     route("/ctl-os") {
         get("/status") {
             val serviceStatus = services.map {
-                it to processStatusInteractor.getServiceStatus(service = it)
+                it to serviceInteractor.getServiceStatus(service = it)
             }
             call.respondHtml {
                 head {
