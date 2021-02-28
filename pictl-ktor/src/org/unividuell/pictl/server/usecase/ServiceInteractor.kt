@@ -17,12 +17,18 @@ class ServiceInteractor(di: DI) {
         fun pid(processName: String): ProcessInfo
 
         fun serviceStatus(serviceName: String): String
+
+        fun restartService(serviceNames: List<String>): Boolean
     }
 
     enum class Service(val serviceName: String, val processName: String) {
         Pictl(serviceName = "pictl.service", processName = "java"),
         Squeezebox(serviceName = "logitechmediaserver.service", processName = "squeezeboxserve"),
-        Squeezelite(serviceName = "squeezelite.service", processName = "squeezelite")
+        Squeezelite(serviceName = "squeezelite.service", processName = "squeezelite");
+
+        companion object {
+            fun byServiceName(name: String?): Service? = values().find { it.serviceName == name }
+        }
     }
 
     fun getProcessInfo(service: Service): DataSource.ProcessInfo {
@@ -31,6 +37,10 @@ class ServiceInteractor(di: DI) {
 
     fun getServiceStatus(service: Service): String {
         return repo.serviceStatus(serviceName = service.serviceName)
+    }
+
+    fun restartService(services: List<Service>): Boolean {
+        return repo.restartService(serviceNames = services.map { it.serviceName })
     }
 
 }

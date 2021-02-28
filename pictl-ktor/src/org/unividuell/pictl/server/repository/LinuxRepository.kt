@@ -12,6 +12,8 @@ class LinuxRepository(di: DI) : ServiceInteractor.DataSource {
 
     protected val application: Application by di.instance()
 
+    protected val processIO: ProcessIO by di.instance()
+
     override fun pid(processName: String): ServiceInteractor.DataSource.ProcessInfo {
         return pidBySystemd(processName).let {
             ServiceInteractor.DataSource.ProcessInfo(
@@ -23,6 +25,21 @@ class LinuxRepository(di: DI) : ServiceInteractor.DataSource {
 
     override fun serviceStatus(serviceName: String): String {
         return statusBySystemd(serviceName = serviceName)
+    }
+
+    override fun restartService(serviceNames: List<String>): Boolean {
+        val cmd = listOf("sudo", "systemctl", "restart").plus(serviceNames)
+        application.log.info("executing `$cmd`")
+        val process = ProcessBuilder()
+            .command(cmd)
+            .start()
+        processIO.inheritIO(src = process.inputStream, isError = false)
+        processIO.inheritIO(src = process.errorStream, isError = true)
+        val result = process.waitFor()
+        if (result != 0) {
+            application.log.warn("restart was not successful - exit code $result")
+        }
+        return result == 0
     }
 
     private fun statusBySystemd(serviceName: String): String {
