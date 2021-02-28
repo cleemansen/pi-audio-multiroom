@@ -4,6 +4,11 @@
 
 ### Java
 
+```
+# check CPU arch
+less /proc/cpuinfo
+```
+
 #### ARMv7 (eg Raspberry Pi 3)
 
 ```
