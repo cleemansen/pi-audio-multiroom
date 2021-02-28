@@ -53,6 +53,10 @@ fun Routing.operatingSystemRoutes(di: DI) {
                                 pre { +it.second }
                             }
                         }
+                        h1 { +"Shutdown" }
+                        form(action = "/ctl-hardware/shutdown/me", method = FormMethod.post) {
+                            submitInput { value = "SHUTDOWN" }
+                        }
                     }
                 }
             }
