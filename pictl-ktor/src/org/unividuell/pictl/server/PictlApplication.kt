@@ -1,6 +1,5 @@
 package org.unividuell.pictl.server
 
-import com.fasterxml.jackson.databind.SerializationFeature
 import io.ktor.application.*
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
@@ -26,6 +25,9 @@ import org.slf4j.event.Level
 import org.unividuell.pictl.server.network.cometd.SqueezeboxBayeuxClient
 import org.unividuell.pictl.server.repository.*
 import org.unividuell.pictl.server.usecase.*
+import java.io.PrintWriter
+import java.io.StringWriter
+
 
 fun main(args: Array<String>): Unit = io.ktor.server.netty.EngineMain.main(args)
 
@@ -69,13 +71,26 @@ fun Application.piCtl(testing: Boolean = false) {
         bind<ShutdownInteractor.DataSource>() with singleton { HardwareRepository(di) }
         bind<ProcessIO>() with singleton { ProcessIO() }
         bind<ShutdownInteractor>() with singleton { ShutdownInteractor(di) }
+
+        bind<ServiceInteractor.DataSource>() with singleton { LinuxRepository(di) }
+        bind<ServiceInteractor>() with singleton { ServiceInteractor(di) }
     }
 
     lifecycleMonitor()
 
     install(ContentNegotiation) {
         jackson {
-            enable(SerializationFeature.INDENT_OUTPUT)
+            enable(com.fasterxml.jackson.databind.SerializationFeature.INDENT_OUTPUT)
+        }
+    }
+
+    install(StatusPages) {
+        exception<Throwable> { cause ->
+            application.log.warn("global exception handler!", cause)
+            val sw = StringWriter()
+            val pw = PrintWriter(sw)
+            cause.printStackTrace(pw)
+            call.respond(HttpStatusCode.InternalServerError, "Internal Server Error: $cause\n${sw}")
         }
     }
 

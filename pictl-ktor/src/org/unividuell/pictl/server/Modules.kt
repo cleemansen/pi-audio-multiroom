@@ -17,6 +17,7 @@ import org.kodein.di.ktor.di
 import org.unividuell.pictl.server.controller.audioRoutes
 import org.unividuell.pictl.server.controller.hardwareRoutes
 import org.unividuell.pictl.server.controller.metricRoutes
+import org.unividuell.pictl.server.controller.operatingSystemRoutes
 import java.time.Duration
 
 fun Application.audioModule(testing: Boolean = false) {
@@ -37,6 +38,13 @@ fun Application.hardwareModule(testing: Boolean = false) {
     log.info("starting module `hardware`")
     routing {
         hardwareRoutes(di())
+    }
+}
+
+fun Application.osModule(testing: Boolean = false) {
+    log.info("starting module `OS`")
+    routing {
+        operatingSystemRoutes(di())
     }
 }
 

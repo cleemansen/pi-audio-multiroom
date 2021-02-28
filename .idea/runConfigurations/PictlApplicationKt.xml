@@ -10,6 +10,7 @@
     <option name="WORKING_DIRECTORY" value="" />
     <envs>
       <env name="SLIMSERVER_HOST" value="http://white.local:9000" />
+      <env name="LOG_LEVEL_APP" value="DEBUG" />
     </envs>
     <method v="2">
       <option name="Make" enabled="true" />
