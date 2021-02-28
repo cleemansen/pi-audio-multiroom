@@ -10,6 +10,9 @@ ExecStart=java -Dktor.application.modules.0=org.unividuell.pictl.server.PictlApp
 Restart=always
 User=pi
 PIDFile=/run/pictl.pid
+CPUAccounting=yes
+# disabled by default on raspbian: https://github.com/systemd/systemd/issues/15772#issuecomment-633082254
+MemoryAccounting=yes
 
 [Install]
 WantedBy=multi-user.target
