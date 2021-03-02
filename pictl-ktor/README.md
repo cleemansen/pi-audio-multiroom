@@ -4,6 +4,11 @@
 
 ### Java
 
+```
+# check CPU arch
+less /proc/cpuinfo
+```
+
 #### ARMv7 (eg Raspberry Pi 3)
 
 ```
@@ -15,7 +20,7 @@ sudo apt-get install openjdk-11-jre
 https://webtechie.be/post/2020-08-27-azul-zulu-java-11-and-gluon-javafx-11-on-armv6-raspberry-pi/
 
 ```
-sudo wget https://cdn.azul.com/zulu-embedded/bin/zulu11.43.100-ca-jdk11.0.9.1-linux_aarch32hf.tar.gz
+sudo wget https://cdn.azul.com/zulu-embedded/bin/zulu11.45.27-ca-jdk11.0.10-linux_aarch32hf.tar.gz
 # follow instructions on mentioned blog-post
 ```
 
