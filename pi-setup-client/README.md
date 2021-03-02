@@ -44,7 +44,7 @@ http://www.gerrelt.nl/RaspberryPi/wordpress/tutorial-installing-squeezelite-play
 mkdir /tmp/squeezelite
 cd /tmp/squeezelite
 # find newest version on https://sourceforge.net/projects/lmsclients/files/squeezelite/linux/
-wget -O squeezelite-armv6hf.tar.gz https://sourceforge.net/projects/lmsclients/files/squeezelite/linux/squeezelite-1.9.8.1294-armhf.tar.gz
+wget -O squeezelite-armv6hf.tar.gz https://sourceforge.net/projects/lmsclients/files/squeezelite/linux/squeezelite-1.9.9.1364-armhf.tar.gz
 tar -xvzf squeezelite-armv6hf.tar.gz
 mv squeezelite squeezelite-armv6hf
 
@@ -64,15 +64,15 @@ sudo /usr/bin/squeezelite-armv6hf -o front:CARD=Device,DEV=0 -s 192.168.0.100 -n
 ### squeezelite autostart
 
 ```
-sudo wget http://www.gerrelt.nl/RaspberryPi/squeezelite_settings.sh
+wget http://www.gerrelt.nl/RaspberryPi/squeezelite_settings.sh
 sudo mv squeezelite_settings.sh /usr/local/bin
 sudo chmod a+x /usr/local/bin/squeezelite_settings.sh
 
-sudo wget http://www.gerrelt.nl/RaspberryPi/squeezelitehf.sh
+wget http://www.gerrelt.nl/RaspberryPi/squeezelitehf.sh
 sudo mv squeezelitehf.sh /etc/init.d/squeezelite
 sudo chmod a+x /etc/init.d/squeezelite
 
-sudo wget http://www.gerrelt.nl/RaspberryPi/squeezelite.service
+wget http://www.gerrelt.nl/RaspberryPi/squeezelite.service
 sudo mv squeezelite.service /etc/systemd/system
 sudo systemctl enable squeezelite.service
 
