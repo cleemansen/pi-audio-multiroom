@@ -3,7 +3,5 @@
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/pictl-ktor/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/pictl-ktor/src" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/poc-slimserver-cometd-gzip/resources" charset="UTF-8" />
-    <file url="file://$PROJECT_DIR$/poc-slimserver-cometd-gzip/src" charset="UTF-8" />
   </component>
 </project>
