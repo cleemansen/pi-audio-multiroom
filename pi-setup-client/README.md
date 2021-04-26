@@ -76,7 +76,9 @@ wget http://www.gerrelt.nl/RaspberryPi/squeezelite.service
 sudo mv squeezelite.service /etc/systemd/system
 sudo systemctl enable squeezelite.service
 
-# edit `squeezelite_settings.sh` (soundcard)
+# edit `squeezelite_settings.sh` 
+# - soundcard: HDMI: `SL_SOUNDCARD="default:CARD=b1"`
+# - nmap fix:        `SL_ALSA_PARAMS="80:::0"` (https://sourceforge.net/p/lmsclients/tickets/4/)
 # test it
 sudo /etc/init.d/squeezelite start
 ```
