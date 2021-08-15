@@ -7,12 +7,12 @@ import org.cometd.client.BayeuxClient
 import org.cometd.client.http.okhttp.OkHttpClientTransport
 import org.cometd.client.transport.HttpClientTransport
 import org.cometd.common.JacksonJSONContextClient
-import org.kodein.di.DI
-import org.kodein.di.instance
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class SqueezeboxBayeuxClient(di: DI) {
+class SqueezeboxBayeuxClient : KoinComponent {
 
-    private val application: Application by di.instance()
+    private val application: Application by inject()
 
     private val slimserverHost = application.environment.config.property("ktor.application.slimserver.host").getString()
 

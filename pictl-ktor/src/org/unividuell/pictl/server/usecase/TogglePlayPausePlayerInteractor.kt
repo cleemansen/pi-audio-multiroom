@@ -1,15 +1,13 @@
 package org.unividuell.pictl.server.usecase
 
-import org.kodein.di.DI
-import org.kodein.di.instance
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class TogglePlayPausePlayerInteractor(
-    di: DI
-) {
+class TogglePlayPausePlayerInteractor : KoinComponent {
 
-    private val requestPlayersUpdatesInteractor by di.instance<RequestPlayersUpdatesInteractor>()
+    private val requestPlayersUpdatesInteractor by inject<RequestPlayersUpdatesInteractor>()
 
-    private val dataSource: DataSource by di.instance()
+    private val dataSource: DataSource by inject()
 
     interface DataSource {
         fun togglePlayPausePlayer(playerId: String)

@@ -1,11 +1,11 @@
 package org.unividuell.pictl.server.usecase
 
-import org.kodein.di.DI
-import org.kodein.di.instance
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class GetCurrentSongInteractor(di: DI) {
+class GetCurrentSongInteractor : KoinComponent {
 
-    private val repo: DataSource by di.instance()
+    private val repo: DataSource by inject()
 
     interface DataSource {
         data class CurrentSong(
@@ -13,6 +13,7 @@ class GetCurrentSongInteractor(di: DI) {
             val title: String?,
             val album: String?
         )
+
         fun getCurrentSong(): CurrentSong?
     }
 

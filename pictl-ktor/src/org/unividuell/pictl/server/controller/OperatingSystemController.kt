@@ -7,14 +7,13 @@ import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import kotlinx.html.*
-import org.kodein.di.DI
-import org.kodein.di.instance
+import org.koin.ktor.ext.inject
 import org.unividuell.pictl.server.isProd
 import org.unividuell.pictl.server.usecase.ServiceInteractor
 
-fun Routing.operatingSystemRoutes(di: DI) {
+fun Routing.operatingSystemRoutes() {
 
-    val serviceInteractor: ServiceInteractor by di.instance()
+    val serviceInteractor: ServiceInteractor by inject()
 
     val services = listOf(
         ServiceInteractor.Service.Squeezelite,

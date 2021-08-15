@@ -1,11 +1,11 @@
 package org.unividuell.pictl.server.usecase
 
-import org.kodein.di.DI
-import org.kodein.di.instance
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class RequestPlayersUpdatesInteractor(di: DI) {
+class RequestPlayersUpdatesInteractor : KoinComponent {
 
-    private val dataSource: DataSource by di.instance()
+    private val dataSource: DataSource by inject()
 
     interface DataSource {
         fun requestUpdate()
