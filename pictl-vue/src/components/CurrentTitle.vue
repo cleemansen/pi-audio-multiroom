@@ -1,7 +1,7 @@
 <template>
   <div>
     <p class="display-1 text--primary">
-      <span v-for="(word, index) in currentSong" :key="index" v-html="word"></span>
+      <span v-for="(word, index) in currentSong" :key="index" v-html="word" v-on:click="wordTouch"></span>
     </p>
   </div>
 </template>
@@ -28,12 +28,6 @@ export default {
       return this.splitter(currentSong)
     }
   },
-  mounted() {
-    document.onselectionchange = () => {
-      let selection = document.getSelection()
-      console.log(selection)
-    }
-  },
   methods: {
     splitter(context) {
       let words = context
@@ -41,12 +35,16 @@ export default {
           .match(/\b(\w+\W+)/g)
       console.log(words)
       return words
+    },
+    wordTouch(element) {
+      // kudos: https://stackoverflow.com/a/51921785/810944
+      element.target.classList.toggle('lookup')
     }
   },
   watch: {
-    selection: function (newVal) {
-      console.log("changed to " + newVal)
-    }
+    // selection: function (newVal) {
+    //   console.log("changed to " + newVal)
+    // }
   }
 }
 </script>
