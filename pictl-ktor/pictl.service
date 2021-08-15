@@ -6,6 +6,7 @@ After=network.target
 Environment="KTOR_ENV=pi"
 Environment="SLIMSERVER_HOST={RASPBERRY_IP}"
 Environment="LOG_LEVEL_APP=INFO"
+# Hint: one module is missing! This is the configuration for a non-UI instance!
 ExecStart=java -Dktor.application.modules.0=org.unividuell.pictl.server.PictlApplicationKt.piCtl -Dktor.application.modules.1=org.unividuell.pictl.server.ModulesKt.hardwareModule -Dktor.application.modules.2=org.unividuell.pictl.server.ModulesKt.osModule -jar /home/pi/pictl.jar
 Restart=always
 User=pi
