@@ -3,7 +3,8 @@
     <p ref="currentSong" class="display-1 text--primary currentSong">
       <v-icon class="lookupAction" size="200" color="#1ED760" v-if="lookupAction" v-on:click="lookup">mdi-spotify
       </v-icon>
-      <span v-for="(word, index) in currentSong" :key="index" v-html="word" v-on:click="wordTouch"></span>
+      <span v-for="(word, index) in currentSong" :key="index" v-html="word" v-on:click="wordTouch"
+            class="songWord"></span>
     </p>
   </div>
 </template>
@@ -37,16 +38,14 @@ export default {
   },
   methods: {
     splitter(context) {
-      let words = context
+      return context
           // kudos: https://stackoverflow.com/a/18473490/810944
           .replace(/([ .,;]+)/g, '$1§sep§').split('§sep§')
-      console.log(words)
-      return words
     },
     wordTouch(element) {
       // kudos: https://stackoverflow.com/a/51921785/810944
-      element.target.classList.toggle('lookup')
-      let selected = this.$refs.currentSong.querySelectorAll('.lookup')
+      element.target.classList.toggle('selectedSongWord')
+      let selected = this.$refs.currentSong.querySelectorAll('.selectedSongWord')
       // map the node-list: kudos: https://stackoverflow.com/a/32767009/810944
       this.selection = Array.from(selected, (item) => item.innerHTML).join("")
     },
@@ -68,9 +67,14 @@ export default {
   position: relative;
 }
 
-.lookup {
+.songWord {
+  cursor: zoom-in;
+}
+
+.selectedSongWord {
   background-color: #1ED760;
   color: #2941ab;
+  cursor: zoom-out;
 }
 
 .lookupAction {
