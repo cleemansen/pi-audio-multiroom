@@ -1,13 +1,16 @@
 <template>
   <div>
     <p ref="currentSong" class="display-1 text--primary currentSong">
-      <v-icon class="lookupAction" size="200" color="#1ED760" v-if="lookupAction">mdi-spotify</v-icon>
+      <v-icon class="lookupAction" size="200" color="#1ED760" v-if="lookupAction" v-on:click="lookup">mdi-spotify
+      </v-icon>
       <span v-for="(word, index) in currentSong" :key="index" v-html="word" v-on:click="wordTouch"></span>
     </p>
   </div>
 </template>
 
 <script>
+import {isMobile} from 'mobile-device-detect';
+
 export default {
   name: "CurrentTitle",
   props: ['artist', 'title'],
@@ -46,6 +49,15 @@ export default {
       let selected = this.$refs.currentSong.querySelectorAll('.lookup')
       // map the node-list: kudos: https://stackoverflow.com/a/32767009/810944
       this.selection = Array.from(selected, (item) => item.innerHTML).join("")
+    },
+    lookup() {
+      if (isMobile) {
+        // mobile
+        window.open("spotify:search:" + encodeURI(this.selection))
+      } else {
+        // browser
+        window.open("https://open.spotify.com/search/" + encodeURI(this.selection))
+      }
     }
   },
 }
