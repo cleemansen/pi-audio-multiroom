@@ -39,7 +39,7 @@ sudo touch /var/log/pictl.log
 sudo chown pi:pi /var/log/pictl.log
 # test service with sudo systemctl start pictl.service
 sudo systemctl enable pictl.service
-# sudo systemctl start|stop|restart pictl.service
+# sudo systemctl start|stop|restart|status pictl.service
 ```
 
 ## LMS Squeezebox API
