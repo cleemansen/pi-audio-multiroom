@@ -2,17 +2,17 @@ package org.unividuell.pictl.server.repository
 
 import io.ktor.application.*
 import okhttp3.internal.toImmutableList
-import org.kodein.di.DI
-import org.kodein.di.instance
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import org.unividuell.pictl.server.usecase.ServiceInteractor
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
-class LinuxRepository(di: DI) : ServiceInteractor.DataSource {
+class LinuxRepository : KoinComponent, ServiceInteractor.DataSource {
 
-    protected val application: Application by di.instance()
+    private val application: Application by inject()
 
-    protected val processIO: ProcessIO by di.instance()
+    private val processIO: ProcessIO by inject()
 
     override fun pid(processName: String): ServiceInteractor.DataSource.ProcessInfo {
         return pidBySystemd(processName).let {

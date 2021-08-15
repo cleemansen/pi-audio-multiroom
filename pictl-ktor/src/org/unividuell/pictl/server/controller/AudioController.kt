@@ -10,20 +10,18 @@ import io.ktor.routing.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import org.kodein.di.instance
-import org.kodein.di.ktor.di
+import org.koin.ktor.ext.inject
 import org.unividuell.pictl.server.repository.SqueezeboxCometSubscriptionRepository
 import org.unividuell.pictl.server.usecase.*
 import java.util.*
-import kotlin.collections.LinkedHashSet
 
 fun Route.audioRoutes() {
 
-    val getCurrentSongInteractor: GetCurrentSongInteractor by di().instance()
-    val subscribeForPlayersUpdatesInteractor: SubscribeForPlayersUpdatesInteractor by di().instance()
-    val requestPlayersUpdatesInteractor by di().instance<RequestPlayersUpdatesInteractor>()
-    val togglePlayPausePlayerInteractor: TogglePlayPausePlayerInteractor by di().instance()
-    val changeVolumeInteractor by di().instance<ChangeVolumeInteractor>()
+    val getCurrentSongInteractor: GetCurrentSongInteractor by inject()
+    val subscribeForPlayersUpdatesInteractor: SubscribeForPlayersUpdatesInteractor by inject()
+    val requestPlayersUpdatesInteractor by inject<RequestPlayersUpdatesInteractor>()
+    val togglePlayPausePlayerInteractor: TogglePlayPausePlayerInteractor by inject()
+    val changeVolumeInteractor by inject<ChangeVolumeInteractor>()
 
     val audioWsConnections = Collections.synchronizedSet(LinkedHashSet<DefaultWebSocketSession>())
 

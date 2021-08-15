@@ -1,10 +1,12 @@
 package org.unividuell.pictl.server.repository
 
-import org.kodein.di.DI
+import org.koin.core.component.KoinComponent
 import org.unividuell.pictl.server.usecase.ChangeVolumeInteractor
 import org.unividuell.pictl.server.usecase.TogglePlayPausePlayerInteractor
 
-class SqueezeboxCometPlayerControlRepository(di: DI) : SqueezeboxCometLongPollingRepository(di = di),
+class SqueezeboxCometPlayerControlRepository :
+    KoinComponent,
+    SqueezeboxCometLongPollingRepository(),
     ChangeVolumeInteractor.DataSource,
     TogglePlayPausePlayerInteractor.DataSource {
 

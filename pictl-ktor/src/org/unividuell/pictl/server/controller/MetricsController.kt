@@ -4,14 +4,11 @@ import io.ktor.application.*
 import io.ktor.response.*
 import io.ktor.routing.*
 import io.micrometer.prometheus.PrometheusMeterRegistry
-import org.kodein.di.DI
-import org.kodein.di.instance
+import org.koin.ktor.ext.inject
 
-fun Routing.metricRoutes(
-    di: DI
-) {
+fun Routing.metricRoutes() {
 
-    val registry: PrometheusMeterRegistry by di.instance()
+    val registry: PrometheusMeterRegistry by inject()
 
     get("/metrics") {
         call.respondText {

@@ -6,17 +6,17 @@ import io.ktor.http.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.runBlocking
-import org.kodein.di.DI
-import org.kodein.di.instance
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import org.unividuell.pictl.server.usecase.GetCurrentSongInteractor
 import org.unividuell.pictl.server.usecase.TogglePlayPausePlayerInteractor
 
-class SqueezeboxJsonRpcRepository(
-    di: DI
-) : GetCurrentSongInteractor.DataSource,
+class SqueezeboxJsonRpcRepository :
+    KoinComponent,
+    GetCurrentSongInteractor.DataSource,
     TogglePlayPausePlayerInteractor.DataSource {
 
-    private val client: HttpClient by di.instance()
+    private val client: HttpClient by inject()
 
     data class StatusResponse(
         val result: Result
