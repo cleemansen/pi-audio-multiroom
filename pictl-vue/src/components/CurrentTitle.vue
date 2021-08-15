@@ -31,8 +31,8 @@ export default {
   methods: {
     splitter(context) {
       let words = context
-          // kudos: https://stackoverflow.com/a/36508315/810944
-          .match(/\b(\w+\W+)/g)
+          // kudos: https://stackoverflow.com/a/18473490/810944
+          .replace(/([ .,;]+)/g, '$1§sep§').split('§sep§')
       console.log(words)
       return words
     },
