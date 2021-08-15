@@ -1,6 +1,6 @@
 <template>
   <div>
-    <p id="current-title" class="display-1 text--primary">{{ currentSong }}</p>
+    <p ref="current-title" id="current-title" class="display-1 text--primary" v-html="currentSong"></p>
   </div>
 </template>
 
@@ -23,43 +23,36 @@ export default {
         }
         currentSong += this.title
       }
-      return currentSong
+      return this.splitter(currentSong)
     }
   },
   mounted() {
     document.onselectionchange = () => {
       let selection = document.getSelection()
       console.log(selection)
-      if (selection.focusOffset != null) {
-        let context = selection.focusNode.textContent
-        let selectedWord = "";
-        // backwards to first word-splitter
-        for (let i = selection.focusOffset - 1; i >= 0; i--) {
-          let currentChar = context[i]
-          if (currentChar === ' ') {
-            break
-          }
-          selectedWord += context[i]
-        }
-        selectedWord = selectedWord.split("").reverse().join("")
-        // forwards to first word-splitter
-        for (let i = selection.focusOffset; i < context.length; i++) {
-          let currentChar = context[i]
-          if (currentChar === ' ') {
-            break
-          }
-          selectedWord += context[i]
-        }
-        console.log(selectedWord)
-
-        // let span = document.createElement("span")
-        // span.setAttribute("class", "lookup")
-        // span.appendChild(document.createTextNode(selectedWord))
-        // document.getElementById("current-title").insertBefore(span, selection.focusNode.splitText(selection.focusOffset))
-      }
+      // if (selection.focusOffset != null) {
+      //   let context = selection.focusNode.textContent
+      //
+      //   console.log(words)
+      // }
     }
   },
-  methods: {},
+  methods: {
+    splitter(context) {
+      let words = context
+          .replace(/([ .,;]+)/g, '$1§sep§')
+          .split('§sep§')
+          .map((word) => word.trim())
+          .map((word) => {
+                let span = document.createElement("span")
+                span.textContent = word
+                return span
+              }
+          );
+      console.log(words)
+      return words
+    }
+  },
   watch: {
     selection: function (newVal) {
       console.log("changed to " + newVal)
