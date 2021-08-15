@@ -1,6 +1,7 @@
 package org.unividuell.pictl.server
 
 import io.ktor.application.*
+import io.ktor.config.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import io.mockk.every
@@ -14,7 +15,12 @@ class ApplicationTest {
 
     @Test
     fun testRoot() {
-        withTestApplication({ piCtl(testing = true) }) {
+        withTestApplication({
+            piCtl(testing = true)
+            (environment.config as MapApplicationConfig).apply {
+                put("ktor.application.slimserver.host", "no://op")
+            }
+        }) {
             handleRequest(HttpMethod.Get, "/hello").apply {
                 assertEquals(HttpStatusCode.OK, response.status())
                 assertEquals("HELLO WORLD!", response.content)
