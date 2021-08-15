@@ -1,0 +1,6 @@
+GET {{host}}/hello
+Accept: application/json
+
+###
+GET {{host}}/ctl-audio/current
+Accept: application/json
