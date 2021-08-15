@@ -1,6 +1,8 @@
 <template>
   <div>
-    <p ref="current-title" id="current-title" class="display-1 text--primary" v-html="currentSong"></p>
+    <p class="display-1 text--primary">
+      <span v-for="(word, index) in currentSong" :key="index" v-html="word"></span>
+    </p>
   </div>
 </template>
 
@@ -30,25 +32,13 @@ export default {
     document.onselectionchange = () => {
       let selection = document.getSelection()
       console.log(selection)
-      // if (selection.focusOffset != null) {
-      //   let context = selection.focusNode.textContent
-      //
-      //   console.log(words)
-      // }
     }
   },
   methods: {
     splitter(context) {
       let words = context
-          .replace(/([ .,;]+)/g, '$1§sep§')
-          .split('§sep§')
-          .map((word) => word.trim())
-          .map((word) => {
-                let span = document.createElement("span")
-                span.textContent = word
-                return span
-              }
-          );
+          // kudos: https://stackoverflow.com/a/36508315/810944
+          .match(/\b(\w+\W+)/g)
       console.log(words)
       return words
     }
