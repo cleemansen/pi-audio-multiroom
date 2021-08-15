@@ -1,6 +1,7 @@
 <template>
   <div>
-    <p class="display-1 text--primary">
+    <p ref="currentSong" class="display-1 text--primary currentSong">
+      <v-icon class="lookupAction" size="200" color="#1ED760" v-if="lookupAction">mdi-spotify</v-icon>
       <span v-for="(word, index) in currentSong" :key="index" v-html="word" v-on:click="wordTouch"></span>
     </p>
   </div>
@@ -26,6 +27,9 @@ export default {
         currentSong += this.title
       }
       return this.splitter(currentSong)
+    },
+    lookupAction() {
+      return this.selection !== null && this.selection !== ""
     }
   },
   methods: {
@@ -39,18 +43,28 @@ export default {
     wordTouch(element) {
       // kudos: https://stackoverflow.com/a/51921785/810944
       element.target.classList.toggle('lookup')
+      let selected = this.$refs.currentSong.querySelectorAll('.lookup')
+      // map the node-list: kudos: https://stackoverflow.com/a/32767009/810944
+      this.selection = Array.from(selected, (item) => item.innerHTML).join("")
     }
   },
-  watch: {
-    // selection: function (newVal) {
-    //   console.log("changed to " + newVal)
-    // }
-  }
 }
 </script>
 
 <style scoped>
+.currentSong {
+  position: relative;
+}
+
 .lookup {
-  color: aquamarine;
+  background-color: #1ED760;
+  color: #2941ab;
+}
+
+.lookupAction {
+  position: fixed !important;
+  top: 20%;
+  left: -80px;
+  z-index: 20;
 }
 </style>
