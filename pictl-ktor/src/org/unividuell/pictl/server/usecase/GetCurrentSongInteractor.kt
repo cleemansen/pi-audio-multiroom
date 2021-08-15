@@ -5,7 +5,7 @@ import org.koin.core.component.inject
 
 class GetCurrentSongInteractor : KoinComponent {
 
-    private val repo: DataSource by inject()
+    private val dataSource: DataSource by inject()
 
     interface DataSource {
         data class CurrentSong(
@@ -18,7 +18,7 @@ class GetCurrentSongInteractor : KoinComponent {
     }
 
     fun getCurrentSong(): DataSource.CurrentSong? {
-        return repo.getCurrentSong()
+        return dataSource.getCurrentSong()
     }
 
 }

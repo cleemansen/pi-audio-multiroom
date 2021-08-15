@@ -1,5 +1,7 @@
 package org.unividuell.pictl.server.usecase
 
+import io.mockk.MockKAnnotations
+import org.junit.jupiter.api.BeforeEach
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
 import org.koin.core.module.Module
@@ -14,5 +16,10 @@ abstract class InteractorTestBase {
         modules(
             module
         )
+    }
+
+    @BeforeEach
+    internal fun setUp() {
+        MockKAnnotations.init(this)
     }
 }
