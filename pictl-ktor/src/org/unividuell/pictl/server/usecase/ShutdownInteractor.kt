@@ -5,22 +5,25 @@ import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.Deferred
-import org.kodein.di.DI
-import org.kodein.di.instance
+import mu.KotlinLogging
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import java.net.InetSocketAddress
 import java.time.Duration
 
-class ShutdownInteractor(di: DI) {
+class ShutdownInteractor : KoinComponent {
 
     interface DataSource {
         fun shutdownAsync(delay: Duration): Deferred<Unit>
     }
 
-    private val dataSource: DataSource by di.instance()
+    private val logger = KotlinLogging.logger { }
 
-    private val httpClient: HttpClient by di.instance()
+    private val dataSource: DataSource by inject()
 
-    private val application: Application by di.instance()
+    private val httpClient: HttpClient by inject()
+
+    private val application: Application by inject()
 
     private val shutdownDelayFallback = Duration.ofSeconds(10)
 
@@ -39,7 +42,7 @@ class ShutdownInteractor(di: DI) {
                     parameters.append("delay", delay.toString())
                 }
             }
-            application.log.info("Shutdown response from $node: $response [request gone to ${node.hostString}]")
+            logger.info("Shutdown response from $node: $response [request gone to ${node.hostString}]")
         }
     }
 

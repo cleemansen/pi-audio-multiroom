@@ -6,8 +6,8 @@ import io.micrometer.core.instrument.Counter
 import io.micrometer.prometheus.PrometheusMeterRegistry
 import org.cometd.bayeux.ChannelId
 import org.cometd.client.BayeuxClient
-import org.kodein.di.DI
-import org.kodein.di.instance
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import org.unividuell.pictl.server.controller.model.PlayerStatusViewModel
 import org.unividuell.pictl.server.repository.cometd.model.PlayerCometdResponse
 import org.unividuell.pictl.server.repository.cometd.model.ServerstatusCometResponse
@@ -19,11 +19,13 @@ import java.io.UnsupportedEncodingException
 import java.net.URLDecoder
 import java.nio.charset.Charset
 
-class SqueezeboxCometSubscriptionRepository(di: DI) : SqueezeboxCometLongPollingRepository(di = di),
+class SqueezeboxCometSubscriptionRepository :
+    KoinComponent,
+    SqueezeboxCometLongPollingRepository(),
     SubscribeForPlayersUpdatesInteractor.DataSource,
     RequestPlayersUpdatesInteractor.DataSource {
 
-    private val registry: PrometheusMeterRegistry by di.instance()
+    private val registry: PrometheusMeterRegistry by inject()
 
     private val playerStatusCounter = Counter.builder("player.status")
         .description("a player status event")

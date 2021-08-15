@@ -1,12 +1,12 @@
 package org.unividuell.pictl.server.usecase
 
-import org.kodein.di.DI
-import org.kodein.di.instance
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 
-class ChangeVolumeInteractor(di: DI) {
+class ChangeVolumeInteractor : KoinComponent {
 
-    private val dataSource by di.instance<DataSource>()
-    private val requestPlayersUpdatesInteractor by di.instance<RequestPlayersUpdatesInteractor>()
+    private val dataSource by inject<DataSource>()
+    private val requestPlayersUpdatesInteractor by inject<RequestPlayersUpdatesInteractor>()
 
     interface DataSource {
         fun volumeStepUp(playerId: String)

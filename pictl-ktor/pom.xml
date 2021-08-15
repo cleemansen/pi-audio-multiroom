@@ -11,6 +11,7 @@
         <ktor_version>1.4.2</ktor_version>
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin_version>1.4.31</kotlin_version>
+        <koin_version>3.1.2</koin_version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
         <main.class>io.ktor.server.netty.EngineMain</main.class>
@@ -137,9 +138,19 @@
             <version>3.1.2</version>
         </dependency>
         <dependency>
-            <groupId>org.kodein.di</groupId>
-            <artifactId>kodein-di-framework-ktor-server-jvm</artifactId>
-            <version>7.1.0</version>
+            <groupId>io.insert-koin</groupId>
+            <artifactId>koin-ktor</artifactId>
+            <version>${koin_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.insert-koin</groupId>
+            <artifactId>koin-logger-slf4j</artifactId>
+            <version>${koin_version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.insert-koin</groupId>
+            <artifactId>koin-test-junit5</artifactId>
+            <version>${koin_version}</version>
         </dependency>
         <dependency>
             <groupId>org.cometd.java</groupId>
@@ -157,21 +168,32 @@
             <version>5.0.2</version>
         </dependency>
         <dependency>
+            <groupId>io.github.microutils</groupId>
+            <artifactId>kotlin-logging-jvm</artifactId>
+            <version>2.0.10</version>
+        </dependency>
+        <dependency>
             <groupId>io.ktor</groupId>
             <artifactId>ktor-server-tests</artifactId>
             <version>${ktor_version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>io.ktor</groupId>
+            <artifactId>ktor-client-mock-jvm</artifactId>
+            <version>${ktor_version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.18.1</version>
+            <version>3.20.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.mockk</groupId>
             <artifactId>mockk</artifactId>
-            <version>1.9.3</version>
+            <version>1.12.0</version>
             <scope>test</scope>
         </dependency>
         <dependency>

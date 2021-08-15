@@ -4,18 +4,21 @@ import io.ktor.application.*
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.async
-import org.kodein.di.DI
-import org.kodein.di.instance
+import mu.KotlinLogging
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import org.unividuell.pictl.server.isProd
 import org.unividuell.pictl.server.usecase.ShutdownInteractor
 import java.time.Duration
 import kotlin.concurrent.timer
 
-class HardwareRepository(di: DI) : ShutdownInteractor.DataSource {
+class HardwareRepository : KoinComponent, ShutdownInteractor.DataSource {
 
-    private val application: Application by di.instance()
+    private val logger = KotlinLogging.logger { }
 
-    private val processIO: ProcessIO by di.instance()
+    private val application: Application by inject()
+
+    private val processIO: ProcessIO by inject()
 
     override fun shutdownAsync(delay: Duration): Deferred<Unit> {
         return GlobalScope.async { // launch a new coroutine in background and continue
@@ -26,13 +29,13 @@ class HardwareRepository(di: DI) : ShutdownInteractor.DataSource {
                 period = period.toMillis()
             ) {
                 if (remaining.isZero || remaining.isNegative) {
-                    application.log.info("shutdown now!")
+                    logger.info("shutdown now!")
                     shutdownNow()
-                    application.log.info("shutdown scheduled...")
+                    logger.info("shutdown scheduled...")
                     this.cancel()
                 } else {
                     remaining = remaining.minus(period)
-                    application.log.info("shutdown in $remaining")
+                    logger.info("shutdown in $remaining")
                 }
             }
         }

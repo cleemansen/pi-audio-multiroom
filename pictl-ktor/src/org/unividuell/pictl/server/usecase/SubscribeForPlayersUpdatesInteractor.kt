@@ -1,14 +1,14 @@
 package org.unividuell.pictl.server.usecase
 
 import kotlinx.coroutines.*
-import org.kodein.di.DI
-import org.kodein.di.instance
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import java.util.concurrent.TimeUnit
 
-class SubscribeForPlayersUpdatesInteractor(di: DI) {
+class SubscribeForPlayersUpdatesInteractor : KoinComponent {
 
-    private val dataSource: DataSource by di.instance()
-    private val requestPlayersUpdatesInteractor by di.instance<RequestPlayersUpdatesInteractor>()
+    private val dataSource: DataSource by inject()
+    private val requestPlayersUpdatesInteractor by inject<RequestPlayersUpdatesInteractor>()
 
     private var stopSubscriptionJob: Job? = null
     private var connected = false

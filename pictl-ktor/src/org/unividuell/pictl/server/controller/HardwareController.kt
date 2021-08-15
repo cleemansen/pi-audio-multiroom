@@ -8,18 +8,15 @@ import io.ktor.routing.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.html.*
-import org.kodein.di.DI
-import org.kodein.di.instance
+import org.koin.ktor.ext.inject
 import org.unividuell.pictl.server.usecase.ShutdownInteractor
 import java.net.InetSocketAddress
 import java.time.Duration
 import java.time.format.DateTimeParseException
 
-fun Routing.hardwareRoutes(
-    di: DI
-) {
+fun Routing.hardwareRoutes() {
 
-    val shutdownInteractor: ShutdownInteractor by di.instance()
+    val shutdownInteractor: ShutdownInteractor by inject()
 
     route("/ctl-hardware") {
         get("/shutdown/me") {
