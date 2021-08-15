@@ -52,6 +52,13 @@ sudo mv squeezelite-armv6hf /usr/bin
 sudo chmod a+x /usr/bin/squeezelite-armv6hf
 ```
 
+### update squeezelite
+
+```
+# get current installed version
+squeezelite-armv6hf -?
+```
+
 ### configure squeezelite
 
 ```
