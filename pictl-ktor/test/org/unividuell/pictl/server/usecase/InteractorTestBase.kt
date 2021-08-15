@@ -19,7 +19,7 @@ abstract class InteractorTestBase {
     }
 
     @BeforeEach
-    internal fun setUp() {
+    internal fun setUpBase() {
         MockKAnnotations.init(this)
     }
 }
