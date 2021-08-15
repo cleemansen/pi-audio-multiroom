@@ -47,7 +47,7 @@
           <v-img :src="player.artworkUrl">
           </v-img>
           <v-card-text>
-            <p class="display-1 text--primary">{{ currentSong(player) }}</p>
+            <CurrentTitle :artist="player.artist" :title="player.title"/>
             <p class="display-2 text--primary">{{ player.remoteTitle }}</p>
           </v-card-text>
         </v-card>
@@ -58,10 +58,11 @@
 
 <script>
 import PlayerVolume from "@/components/PlayerVolume";
+import CurrentTitle from "@/components/CurrentTitle";
 
 export default {
   name: "PlayersOverview",
-  components: {PlayerVolume},
+  components: {CurrentTitle, PlayerVolume},
   data: () => ({
     playersMap: {},
     syncNodes: {},
@@ -127,19 +128,6 @@ export default {
         desiredVolume: desiredVolume
       }
       this.$webSocketsSend(cmdRequest)
-    },
-    currentSong(player) {
-      let currentSong = ""
-      if (player.artist) {
-        currentSong += player.artist
-      }
-      if (player.title) {
-        if (currentSong !== "") {
-          currentSong += " — "
-        }
-        currentSong += player.title
-      }
-      return currentSong
     },
     playerName(player) {
       let buffer = [player.playerName]
