@@ -9,6 +9,10 @@ import org.cometd.client.transport.HttpClientTransport
 import org.cometd.common.JacksonJSONContextClient
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import java.security.SecureRandom
+import java.security.cert.X509Certificate
+import javax.net.ssl.SSLContext
+import javax.net.ssl.X509TrustManager
 
 class SqueezeboxBayeuxClient : KoinComponent {
 
@@ -19,10 +23,17 @@ class SqueezeboxBayeuxClient : KoinComponent {
     fun buildBayeuxClient(): BayeuxClient {
         val logging = HttpLoggingInterceptor(CometOkHttpLogger())
         logging.setLevel(HttpLoggingInterceptor.Level.BODY)
+
+        // Install the all-trusting trust manager
+        val sslContext = SSLContext.getInstance("SSL")
+        sslContext.init(null, arrayOf(trustEveryCerts), SecureRandom())
+
         val httpClient = OkHttpClient.Builder()
             .addInterceptor(SqueezeboxCometConnectPatchInterceptor())
 //            .addNetworkInterceptor(SqueezeboxCometGzipPatchInterceptor())
             .addNetworkInterceptor(logging)
+            .sslSocketFactory(sslContext.socketFactory, trustEveryCerts)
+            .hostnameVerifier { _, _ -> true }
             .build()
 
         // The maximum number of milliseconds to wait before considering a request to the LMS failed
@@ -34,5 +45,11 @@ class SqueezeboxBayeuxClient : KoinComponent {
         val httpTransport = OkHttpClientTransport(options, httpClient)
 
         return BayeuxClient("$slimserverHost/cometd", httpTransport)
+    }
+
+    private val trustEveryCerts = object : X509TrustManager {
+        override fun checkClientTrusted(p0: Array<out X509Certificate>?, p1: String?) {}
+        override fun checkServerTrusted(p0: Array<out X509Certificate>?, p1: String?) {}
+        override fun getAcceptedIssuers() = arrayOf<X509Certificate>()
     }
 }
