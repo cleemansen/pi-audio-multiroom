@@ -73,7 +73,7 @@ export default {
   },
   methods: {
     connect() {
-      this.$webSocketsConnect('/ctl-audio/ws', event => {
+      this.$webSocketsConnect('ctl-audio/ws', event => {
         let playerEvent = JSON.parse(event.data)
         // console.log(playerEvent)
         if (playerEvent.playerId === playerEvent.syncController || playerEvent.syncController === null) {
