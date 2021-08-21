@@ -6,6 +6,7 @@ import httpclient from '@/plugins/http-client'
 import vuetify from './plugins/vuetify'
 import webSocket from "@/plugins/webSocket"
 import '@/mixins/helper'
+import './registerServiceWorker'
 
 Vue.config.productionTip = false
 
