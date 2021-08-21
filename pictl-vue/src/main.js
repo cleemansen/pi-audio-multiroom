@@ -10,10 +10,9 @@ import './registerServiceWorker'
 
 Vue.config.productionTip = false
 
-let endpoint = `${window.location.hostname}:${window.location.port}`
 Vue.use(webSocket, {
   store,
-  host: `ws://${endpoint}`
+  host: `wss://ktor.pictl.localhost`
 })
 Vue.use(httpclient)
 

@@ -3,12 +3,11 @@ module.exports = {
     "vuetify"
   ],
   devServer: {
+    https: true,
     port: 8081,
-    proxy: {
-      '.*': {
-        target: 'http://localhost:8080',
-        ws: true
-      }
-    }
+    proxy: 'https://ktor.pictl.localhost',
+    allowedHosts: [
+      '.localhost'
+    ]
   }
 }
