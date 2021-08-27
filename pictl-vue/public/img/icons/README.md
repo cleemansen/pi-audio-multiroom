@@ -1,0 +1,1 @@
+kudos to `npx vue-pwa-asset-generator -a ./src/assets/maskable_icon.png -o public/img/icons/`
