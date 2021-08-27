@@ -10,10 +10,12 @@ import './registerServiceWorker'
 
 Vue.config.productionTip = false
 
+let wsHost = process.env.NODE_ENV === 'production' ? `wss://white.unividuell.org` : `ws://localhost:8080`
 Vue.use(webSocket, {
   store,
-  host: `wss://ktor.pictl.localhost`
+  host: wsHost
 })
+
 Vue.use(httpclient)
 
 new Vue({
