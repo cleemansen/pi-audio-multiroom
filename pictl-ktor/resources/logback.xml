@@ -2,6 +2,7 @@
     <property name="LOG_DIR" value="/var/log"/>
     <property name="PATTERN" value="%d{YYYY-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"/>
     <property name="LOG_LEVEL_APP" value="${LOG_LEVEL_APP:-INFO}"/>
+    <property name="LOG_LEVEL_COMETD" value="${LOG_LEVEL_COMETD:-INFO}"/>
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -31,6 +32,6 @@
     </root>
     <logger name="org.eclipse.jetty" level="INFO"/>
     <logger name="io.netty" level="INFO"/>
-    <logger name="org.cometd" level="INFO"/>
+    <logger name="org.cometd" level="${LOG_LEVEL_COMETD}"/>
     <logger name="org.unividuell.pictl.server.network.cometd.CometOkHttpLogger" level="WARN"/>
 </configuration>
