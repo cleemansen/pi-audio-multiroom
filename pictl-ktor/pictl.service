@@ -4,6 +4,8 @@ After=network.target
 
 [Service]
 Environment="KTOR_ENV=pi"
+# If this app runs on the same machine as pi-hole we can not set `lms.unividuell.org`!
+# pi-hole seems to be unable to use its own dns-rules on the own machine.
 Environment="SLIMSERVER_HOST={RASPBERRY_IP}"
 Environment="LOG_LEVEL_APP=INFO"
 # Hint: one module is missing! This is the configuration for a non-UI instance!
