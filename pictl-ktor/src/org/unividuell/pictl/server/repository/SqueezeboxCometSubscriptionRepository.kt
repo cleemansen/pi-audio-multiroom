@@ -4,6 +4,7 @@ import com.fasterxml.jackson.module.kotlin.convertValue
 import io.ktor.application.*
 import io.micrometer.core.instrument.Counter
 import io.micrometer.prometheus.PrometheusMeterRegistry
+import mu.KotlinLogging
 import org.cometd.bayeux.ChannelId
 import org.cometd.client.BayeuxClient
 import org.koin.core.component.KoinComponent
@@ -26,6 +27,8 @@ class SqueezeboxCometSubscriptionRepository :
     RequestPlayersUpdatesInteractor.DataSource {
 
     private val registry: PrometheusMeterRegistry by inject()
+
+    private val logger = KotlinLogging.logger { }
 
     private val playerStatusCounter = Counter.builder("player.status")
         .description("a player status event")
@@ -52,12 +55,11 @@ class SqueezeboxCometSubscriptionRepository :
 
     override fun disconnect() {
         bayeuxClient.disconnect {
-            application.log.info("Server precessed the disconnect request.")
+            logger.info("Server precessed the disconnect request.")
         }
         bayeuxClient.waitFor(10_000, BayeuxClient.State.DISCONNECTED)
         Channels.activeDynamicChannels.clear()
-        application.log.info("Disconnected from CometD..")
-
+        logger.info("Disconnected from CometD..")
     }
 
     override fun connectAndSubscribe() {
@@ -84,10 +86,10 @@ class SqueezeboxCometSubscriptionRepository :
     }
 
     private fun establishSubscriptions(bayeuxClient: BayeuxClient) {
-        application.log.info("[${bayeuxClient.id}] establishing subscriptions..")
+        logger.info("[${bayeuxClient.id}] establishing subscriptions..")
 
         bayeuxClient.getChannel(Channels.slimRequest).subscribe { channel, message ->
-            application.log.info("${channel.id} -> $message")
+            logger.info("${channel.id} -> $message")
         }
 
         if (!Channels.activeDynamicChannels.keys.contains(serverstatusChannel(bayeuxClient = bayeuxClient))) {
@@ -106,10 +108,10 @@ class SqueezeboxCometSubscriptionRepository :
             args = emptyList()
         )
         bayeuxClient.getChannel(channelId).subscribe { channel, message ->
-//            application.log.info("received on ${channel.channelId}: ${objectMapper.writeValueAsString(message.dataAsMap)}")
+//            logger.info("received on ${channel.channelId}: ${objectMapper.writeValueAsString(message.dataAsMap)}")
             Channels.activeDynamicChannels[channel.channelId] = serverstatusSubscriptionRequest
             val actual = mapServerstatusResponse(message.dataAsMap)
-            application.log.info("[${bayeuxClient.id}] " + actual.toString())
+            logger.debug("[${bayeuxClient.id}] " + actual.toString())
             actual?.players?.filter { it.connected == 1 }?.forEach { player ->
                 if (!Channels.activeDynamicChannels.keys.contains(
                         playerStatusChannel(
@@ -126,7 +128,7 @@ class SqueezeboxCometSubscriptionRepository :
         bayeuxClient
             .getChannel(Channels.slimSubscribe)
             .publish(serverstatusSubscriptionRequest) {
-                application.log.debug("I REQUESTED the playerstatus: $it")
+                logger.info("[${bayeuxClient.id}] I subscribed for $channelId: $it")
             }
     }
 
@@ -152,17 +154,17 @@ class SqueezeboxCometSubscriptionRepository :
             args = listOf("tags:galKLmNrLT")
         )
         bayeuxClient.getChannel(channelId).subscribe { channel, message ->
-//            application.log.info("received on ${channel.channelId}: ${objectMapper.writeValueAsString(message.dataAsMap)}")
+//            logger.info("received on ${channel.channelId}: ${objectMapper.writeValueAsString(message.dataAsMap)}")
             Channels.activeDynamicChannels[channel.channelId] = playerStatusSubscriptionRequest
             val actual = mapPlayerResponse(message.dataAsMap)
-            application.log.info("[${bayeuxClient.id}] " + actual.toString())
+            logger.debug("[${bayeuxClient.id}] " + actual.toString())
             playerStatusCounter.increment()
             raisePlayerStatusUpdateEvent(channelId, actual)
         }
 
         bayeuxClient
             .getChannel(Channels.slimSubscribe)
-            .publish(playerStatusSubscriptionRequest) { application.log.debug("I REQUESTED the playerstatus: $it") }
+            .publish(playerStatusSubscriptionRequest) { logger.info("[${bayeuxClient.id}] I subscribed for $channelId: $it") }
     }
 
     /**
@@ -267,7 +269,7 @@ class SqueezeboxCometSubscriptionRepository :
 
     private fun mapServerstatusResponse(data: Map<String, Any>): ServerstatusCometResponse? {
         if (data["count"] == 0) {
-            application.log.warn("no players available!")
+            logger.warn("no players available!")
             return null
         }
         return (data["players_loop"] as List<Any>).map {
