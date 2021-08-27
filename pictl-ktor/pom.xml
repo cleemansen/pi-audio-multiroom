@@ -151,6 +151,7 @@
             <groupId>io.insert-koin</groupId>
             <artifactId>koin-test-junit5</artifactId>
             <version>${koin_version}</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.cometd.java</groupId>
