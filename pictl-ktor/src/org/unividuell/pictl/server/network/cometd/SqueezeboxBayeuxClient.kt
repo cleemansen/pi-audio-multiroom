@@ -35,7 +35,9 @@ class SqueezeboxBayeuxDefaultClient : SqueezeboxBayeuxClient, KoinComponent {
             .build()
 
         // The maximum number of milliseconds to wait before considering a request to the LMS failed
-        val longPollingTimeout = 30_123  // an odd number to uniquely identify timeouts by this option
+        // The LMS prints this: `Slim::Web::Cometd::handler (305) Waiting 60 seconds on long-poll connection`
+        // so perhaps timout > 60s is a good choice?!
+        val longPollingTimeout = 60_123  // an odd number to uniquely identify timeouts by this option
         val options = mutableMapOf<String, Any>()
         options[HttpClientTransport.MAX_NETWORK_DELAY_OPTION] = longPollingTimeout
         val jsonContext = JacksonJSONContextClient()
@@ -72,7 +74,9 @@ class SqueezeboxBayeuxTrustEveryTlsCertClient : SqueezeboxBayeuxClient, KoinComp
             .build()
 
         // The maximum number of milliseconds to wait before considering a request to the LMS failed
-        val longPollingTimeout = 30_123  // an odd number to uniquely identify timeouts by this option
+        // The LMS prints this: `Slim::Web::Cometd::handler (305) Waiting 60 seconds on long-poll connection`
+        // so perhaps timout > 60s is a good choice?!
+        val longPollingTimeout = 60_123  // an odd number to uniquely identify timeouts by this option
         val options = mutableMapOf<String, Any>()
         options[HttpClientTransport.MAX_NETWORK_DELAY_OPTION] = longPollingTimeout
         val jsonContext = JacksonJSONContextClient()
