@@ -2,6 +2,7 @@ package org.unividuell.pictl.server.network.cometd
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import mu.KotlinLogging
 import okhttp3.Interceptor
 import okhttp3.Response
 import okhttp3.ResponseBody.Companion.toResponseBody
@@ -23,6 +24,7 @@ import java.nio.charset.StandardCharsets
  */
 class SqueezeboxCometConnectPatchInterceptor : Interceptor {
 
+    private val logger = KotlinLogging.logger { }
     private val mapper = jacksonObjectMapper()
 
     override fun intercept(chain: Interceptor.Chain): Response {
@@ -59,6 +61,7 @@ class SqueezeboxCometConnectPatchInterceptor : Interceptor {
                 // add the missing ID
                 content["id"] = id!!
                 contentList[0] = content
+                logger.debug { "I fixed the cometd/connect response by injecting the request ID '$id' into the response." }
                 return response.newBuilder().body(
                     mapper.writeValueAsString(contentList).toResponseBody()
                 ).build()
