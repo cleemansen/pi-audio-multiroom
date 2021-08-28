@@ -29,7 +29,7 @@
             </v-btn>
           </v-toolbar>
           <v-row>
-            <v-col cols="12" class="pt-1 pb-1">
+            <v-col cols="12" class="pb-4">
               <PlayerVolume
                   :key="player.playerId"
                   :player-id="player.playerId"
