@@ -18,11 +18,29 @@ interface SqueezeboxBayeuxClient {
     fun buildBayeuxClient(): BayeuxClient
 }
 
-class SqueezeboxBayeuxDefaultClient : SqueezeboxBayeuxClient, KoinComponent {
+abstract class SqueezeboxBayeuxClientBase : SqueezeboxBayeuxClient, KoinComponent {
 
     private val application: Application by inject()
 
-    private val slimserverHost = application.environment.config.property("ktor.application.slimserver.host").getString()
+    protected val slimserverHost =
+        application.environment.config.property("ktor.application.slimserver.host").getString()
+
+    protected fun transportOptions(): MutableMap<String, Any> {
+        // The maximum number of milliseconds to wait before considering a request to the LMS failed
+        // The LMS prints this: `Slim::Web::Cometd::handler (305) Waiting 60 seconds on long-poll connection`
+        // so perhaps timout > 60s is a good choice?!
+        val longPollingTimeout = 60_123  // an odd number to uniquely identify timeouts by this option
+        val options = mutableMapOf<String, Any>()
+        options[HttpClientTransport.MAX_NETWORK_DELAY_OPTION] = longPollingTimeout
+        val jsonContext = JacksonJSONContextClient()
+        options[HttpClientTransport.JSON_CONTEXT_OPTION] = jsonContext
+
+        return options
+    }
+
+}
+
+class SqueezeboxBayeuxDefaultClient : SqueezeboxBayeuxClientBase() {
 
     override fun buildBayeuxClient(): BayeuxClient {
         val logging = HttpLoggingInterceptor(CometOkHttpLogger())
@@ -34,26 +52,14 @@ class SqueezeboxBayeuxDefaultClient : SqueezeboxBayeuxClient, KoinComponent {
             .addNetworkInterceptor(logging)
             .build()
 
-        // The maximum number of milliseconds to wait before considering a request to the LMS failed
-        // The LMS prints this: `Slim::Web::Cometd::handler (305) Waiting 60 seconds on long-poll connection`
-        // so perhaps timout > 60s is a good choice?!
-        val longPollingTimeout = 60_123  // an odd number to uniquely identify timeouts by this option
-        val options = mutableMapOf<String, Any>()
-        options[HttpClientTransport.MAX_NETWORK_DELAY_OPTION] = longPollingTimeout
-        val jsonContext = JacksonJSONContextClient()
-        options[HttpClientTransport.JSON_CONTEXT_OPTION] = jsonContext
-        val httpTransport = OkHttpClientTransport(options, httpClient)
+        val httpTransport = OkHttpClientTransport(transportOptions(), httpClient)
 
         return BayeuxClient("$slimserverHost/cometd", httpTransport)
     }
 
 }
 
-class SqueezeboxBayeuxTrustEveryTlsCertClient : SqueezeboxBayeuxClient, KoinComponent {
-
-    private val application: Application by inject()
-
-    private val slimserverHost = application.environment.config.property("ktor.application.slimserver.host").getString()
+class SqueezeboxBayeuxTrustEveryTlsCertClient : SqueezeboxBayeuxClientBase() {
 
     override fun buildBayeuxClient(): BayeuxClient {
         val logging = HttpLoggingInterceptor(CometOkHttpLogger())
@@ -73,15 +79,7 @@ class SqueezeboxBayeuxTrustEveryTlsCertClient : SqueezeboxBayeuxClient, KoinComp
             // END trust all SSL/TLS certificates.
             .build()
 
-        // The maximum number of milliseconds to wait before considering a request to the LMS failed
-        // The LMS prints this: `Slim::Web::Cometd::handler (305) Waiting 60 seconds on long-poll connection`
-        // so perhaps timout > 60s is a good choice?!
-        val longPollingTimeout = 60_123  // an odd number to uniquely identify timeouts by this option
-        val options = mutableMapOf<String, Any>()
-        options[HttpClientTransport.MAX_NETWORK_DELAY_OPTION] = longPollingTimeout
-        val jsonContext = JacksonJSONContextClient()
-        options[HttpClientTransport.JSON_CONTEXT_OPTION] = jsonContext
-        val httpTransport = OkHttpClientTransport(options, httpClient)
+        val httpTransport = OkHttpClientTransport(transportOptions(), httpClient)
 
         return BayeuxClient("$slimserverHost/cometd", httpTransport)
     }
