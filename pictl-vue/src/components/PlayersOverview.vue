@@ -48,7 +48,6 @@
           </v-img>
           <v-card-text>
             <CurrentTitle :artist="player.artist" :title="player.title"/>
-            <p class="display-2 text--primary">{{ player.remoteTitle }}</p>
           </v-card-text>
         </v-card>
       </v-col>
