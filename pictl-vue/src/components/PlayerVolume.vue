@@ -4,10 +4,10 @@
       v-model="vol"
       :stream="desiredVolume !== null"
       height="14"
-      color="purple"
+      color="indigo"
       class="mt-1 elevation-4">
     <template v-slot:default="{ value }">
-      {{ playerName }} {{ Math.ceil(value) }}
+      <div class="pt-2 pb-2" style="color: white; font-size: 14px">{{ playerName }} {{ Math.ceil(value) }}</div>
     </template>
   </v-progress-linear>
 </template>
