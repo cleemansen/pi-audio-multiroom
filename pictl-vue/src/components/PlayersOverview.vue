@@ -5,13 +5,12 @@
         <v-card class="mb-6">
           <v-system-bar>
             <v-icon>mdi-cast-audio</v-icon>
-            <span>pictl</span>
+            <span>pictl for {{ playerName(player) }}</span>
           </v-system-bar>
           <v-toolbar>
             <v-app-bar-nav-icon></v-app-bar-nav-icon>
-            <v-toolbar-title>{{ playerName(player) }}</v-toolbar-title>
-
             <v-spacer></v-spacer>
+
             <v-btn icon x-large @click="volumeStepDown(player)">
               <v-icon>mdi-volume-medium</v-icon>
             </v-btn>
