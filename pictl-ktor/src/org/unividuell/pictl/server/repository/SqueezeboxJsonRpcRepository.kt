@@ -1,5 +1,6 @@
 package org.unividuell.pictl.server.repository
 
+import io.ktor.application.*
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.http.*
@@ -15,6 +16,11 @@ class SqueezeboxJsonRpcRepository :
     KoinComponent,
     GetCurrentSongInteractor.DataSource,
     TogglePlayPausePlayerInteractor.DataSource {
+
+    private val application: Application by inject()
+
+    private val slimserverHost =
+        application.environment.config.property("ktor.application.slimserver.host").getString()
 
     private val client: HttpClient by inject()
 
@@ -90,7 +96,7 @@ class SqueezeboxJsonRpcRepository :
     private suspend inline fun <reified RESPONSE> jsonRpcCall(body: JsonRpcRequest): RESPONSE {
         val requestBuilder = HttpRequestBuilder()
         requestBuilder.body = body
-        requestBuilder.url("http://white.local:9000/jsonrpc.js")
+        requestBuilder.url("$slimserverHost/jsonrpc.js")
         requestBuilder.method = HttpMethod.Post
         requestBuilder.contentType(ContentType.Application.Json)
         return client.post(requestBuilder)
