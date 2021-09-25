@@ -1,0 +1,21 @@
+[Unit]
+Description=Control Pi Audio Multiroom Service (pictl)
+After=network.target
+
+[Service]
+Environment="KTOR_ENV=pi"
+# If this app runs on the same machine as pi-hole we can not set `lms.unividuell.org`!
+# pi-hole seems to be unable to use its own dns-rules on the own machine.
+Environment="SLIMSERVER_HOST=http://192.168.0.100:9000"
+Environment="LOG_LEVEL_APP=INFO"
+Environment="LOG_LEVEL_COMETD=WARN"
+ExecStart=java -jar /home/pi/pictl.jar
+Restart=always
+User=pi
+PIDFile=/run/pictl.pid
+CPUAccounting=yes
+# disabled by default on raspbian: https://github.com/systemd/systemd/issues/15772#issuecomment-633082254
+MemoryAccounting=yes
+
+[Install]
+WantedBy=multi-user.target
