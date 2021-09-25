@@ -6,11 +6,10 @@ After=network.target
 Environment="KTOR_ENV=pi"
 # If this app runs on the same machine as pi-hole we can not set `lms.unividuell.org`!
 # pi-hole seems to be unable to use its own dns-rules on the own machine.
-Environment="SLIMSERVER_HOST={RASPBERRY_IP}"
+Environment="SLIMSERVER_HOST=http://192.168.0.100:9000"
 Environment="LOG_LEVEL_APP=INFO"
 Environment="LOG_LEVEL_COMETD=WARN"
-# Hint: one module is missing! This is the configuration for a non-UI instance!
-ExecStart=java -Dktor.application.modules.0=org.unividuell.pictl.server.PictlApplicationKt.piCtl -Dktor.application.modules.1=org.unividuell.pictl.server.ModulesKt.hardwareModule -Dktor.application.modules.2=org.unividuell.pictl.server.ModulesKt.osModule -jar /home/pi/pictl.jar
+ExecStart=java -jar /home/pi/pictl.jar
 Restart=always
 User=pi
 PIDFile=/run/pictl.pid

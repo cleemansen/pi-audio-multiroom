@@ -6,14 +6,20 @@ import httpclient from '@/plugins/http-client'
 import vuetify from './plugins/vuetify'
 import webSocket from "@/plugins/webSocket"
 import '@/mixins/helper'
+import './registerServiceWorker'
 
 Vue.config.productionTip = false
 
-let endpoint = `${window.location.hostname}:${window.location.port}`
+let wsHost = process.env.NODE_ENV === 'production'
+    ? (window.location.protocol === 'https'
+        ? `wss://${window.location.hostname}:${window.location.port}`
+        : `ws://${window.location.hostname}:${window.location.port}`)
+    : `ws://${window.location.hostname}:${window.location.port}`
 Vue.use(webSocket, {
   store,
-  host: `ws://${endpoint}`
+  host: wsHost
 })
+
 Vue.use(httpclient)
 
 new Vue({

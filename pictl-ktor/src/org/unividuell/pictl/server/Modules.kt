@@ -25,7 +25,7 @@ import org.unividuell.pictl.server.controller.audioRoutes
 import org.unividuell.pictl.server.controller.hardwareRoutes
 import org.unividuell.pictl.server.controller.metricRoutes
 import org.unividuell.pictl.server.controller.operatingSystemRoutes
-import org.unividuell.pictl.server.network.cometd.SqueezeboxBayeuxClient
+import org.unividuell.pictl.server.network.cometd.SqueezeboxBayeuxDefaultClient
 import org.unividuell.pictl.server.repository.*
 import org.unividuell.pictl.server.usecase.*
 import java.time.Duration
@@ -93,7 +93,7 @@ val applicationModule = module {
         }
     }
     single<HttpClient> { client }
-    single<BayeuxClient> { SqueezeboxBayeuxClient().buildBayeuxClient() }
+    single<BayeuxClient> { SqueezeboxBayeuxDefaultClient().buildBayeuxClient() }
     single<PrometheusMeterRegistry> { PrometheusMeterRegistry(PrometheusConfig.DEFAULT) }
 }
 val useCaseModule = module {

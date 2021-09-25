@@ -5,13 +5,12 @@
         <v-card class="mb-6">
           <v-system-bar>
             <v-icon>mdi-cast-audio</v-icon>
-            <span>pictl</span>
+            <span>pictl for {{ playerName(player) }}</span>
           </v-system-bar>
           <v-toolbar>
             <v-app-bar-nav-icon></v-app-bar-nav-icon>
-            <v-toolbar-title>{{ playerName(player) }}</v-toolbar-title>
-
             <v-spacer></v-spacer>
+
             <v-btn icon x-large @click="volumeStepDown(player)">
               <v-icon>mdi-volume-medium</v-icon>
             </v-btn>
@@ -29,7 +28,7 @@
             </v-btn>
           </v-toolbar>
           <v-row>
-            <v-col cols="12" class="pt-1 pb-1">
+            <v-col cols="12" class="pb-4">
               <PlayerVolume
                   :key="player.playerId"
                   :player-id="player.playerId"
@@ -48,7 +47,6 @@
           </v-img>
           <v-card-text>
             <CurrentTitle :artist="player.artist" :title="player.title"/>
-            <p class="display-2 text--primary">{{ player.remoteTitle }}</p>
           </v-card-text>
         </v-card>
       </v-col>
@@ -73,7 +71,7 @@ export default {
   },
   methods: {
     connect() {
-      this.$webSocketsConnect('/ctl-audio/ws', event => {
+      this.$webSocketsConnect('ctl-audio/ws', event => {
         let playerEvent = JSON.parse(event.data)
         // console.log(playerEvent)
         if (playerEvent.playerId === playerEvent.syncController || playerEvent.syncController === null) {

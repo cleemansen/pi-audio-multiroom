@@ -23,7 +23,7 @@ fun Routing.operatingSystemRoutes() {
 
     route("/ctl-os") {
         route("/services") {
-            get("/") {
+            get("") {
                 val serviceStatus = services.map {
                     it to if (application.isProd) {
                         serviceInteractor.getServiceStatus(service = it)

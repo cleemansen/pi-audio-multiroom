@@ -10,12 +10,15 @@ import io.ktor.routing.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+import mu.KotlinLogging
 import org.koin.ktor.ext.inject
 import org.unividuell.pictl.server.repository.SqueezeboxCometSubscriptionRepository
 import org.unividuell.pictl.server.usecase.*
 import java.util.*
 
 fun Route.audioRoutes() {
+
+    val logger = KotlinLogging.logger { }
 
     val getCurrentSongInteractor: GetCurrentSongInteractor by inject()
     val subscribeForPlayersUpdatesInteractor: SubscribeForPlayersUpdatesInteractor by inject()
@@ -37,12 +40,14 @@ fun Route.audioRoutes() {
 
         webSocket("/ws") {
             if (audioWsConnections.isEmpty()) {
+                audioWsConnections += this
+                logger.info { "the first ws-connection, starting cometd-subscription." }
                 subscribeForPlayersUpdatesInteractor.start()
             } else {
+                audioWsConnections += this
                 // request update from server for all connections (including this new connection)
                 requestPlayersUpdatesInteractor.requestUpdate()
             }
-            audioWsConnections += this
             try {
                 for (frame in incoming) {
                     when (frame) {
