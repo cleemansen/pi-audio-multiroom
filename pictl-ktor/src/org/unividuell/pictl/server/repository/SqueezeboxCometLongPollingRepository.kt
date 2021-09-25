@@ -46,7 +46,8 @@ abstract class SqueezeboxCometLongPollingRepository : KoinComponent {
     ): SlimCometRequest {
         return SlimCometRequest(
             request = listOf(playerId, command),
-            response = SqueezeboxCometSubscriptionRepository.Channels.slimRequest.toString()
+            response = SqueezeboxCometSubscriptionRepository.Channels.slimRequestResponse(clientId = bayeuxClient.id)
+                .toString()
         )
     }
 

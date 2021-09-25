@@ -52,6 +52,9 @@ class SqueezeboxCometSubscriptionRepository :
              * A request to execute a one-time Logitech Media Server event
              */
             val slimRequest = ChannelId("/slim/request")
+
+            // We expect the clientId to be part of the response channel
+            fun slimRequestResponse(clientId: String) = ChannelId("/$clientId/request")
             val activeDynamicChannels = mutableMapOf<ChannelId, SlimCometRequest>()
         }
     }
@@ -76,10 +79,10 @@ class SqueezeboxCometSubscriptionRepository :
             bayeuxClient.handshake()
             val handshake = bayeuxClient.waitFor(4_000, BayeuxClient.State.CONNECTED)
             if (handshake) {
-                establishSubscriptions(bayeuxClient)
+                establishSubscriptions()
             }
         } else {
-            establishSubscriptions(bayeuxClient)
+            establishSubscriptions()
         }
     }
 
@@ -94,7 +97,7 @@ class SqueezeboxCometSubscriptionRepository :
         }
     }
 
-    private fun establishSubscriptions(bayeuxClient: BayeuxClient) {
+    private fun establishSubscriptions() {
         logger.info("[${bayeuxClient.id}] establishing subscriptions..")
 
         bayeuxClient.getChannel(Channels.slimRequest).subscribe { channel, message ->
@@ -102,15 +105,15 @@ class SqueezeboxCometSubscriptionRepository :
             logger.warn { "I'm ignoring this message! ${channel.id} -> $message" }
         }
 
-        if (!Channels.activeDynamicChannels.keys.contains(serverstatusChannel(bayeuxClient = bayeuxClient))) {
+        if (!Channels.activeDynamicChannels.keys.contains(serverstatusChannel())) {
             subscribeForServerstatus(bayeuxClient)
         }
     }
 
-    private fun serverstatusChannel(bayeuxClient: BayeuxClient) = ChannelId("/${bayeuxClient.id}/pictl/serverstatus")
+    private fun serverstatusChannel() = ChannelId("/${bayeuxClient.id}/pictl/serverstatus")
 
     private fun subscribeForServerstatus(bayeuxClient: BayeuxClient) {
-        val channelId = serverstatusChannel(bayeuxClient = bayeuxClient)
+        val channelId = serverstatusChannel()
         val serverstatusSubscriptionRequest = slimSubscriptionRequestData(
             responseChannel = channelId.toString(),
             playerId = "",
