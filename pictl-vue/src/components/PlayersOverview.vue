@@ -9,7 +9,7 @@
           </v-system-bar>
           <v-toolbar>
             <v-app-bar-nav-icon></v-app-bar-nav-icon>
-            <v-spacer></v-spacer>
+            <v-spacer/>
 
             <v-btn icon x-large @click="volumeStepDown(player)">
               <v-icon>mdi-volume-medium</v-icon>
@@ -23,6 +23,8 @@
             <v-btn icon x-large @click="volumeStepUp(player)">
               <v-icon>mdi-volume-high</v-icon>
             </v-btn>
+
+            <v-spacer/>
             <v-btn icon @click="shutdown(player)">
               <v-icon>mdi-power</v-icon>
             </v-btn>
