@@ -40,8 +40,17 @@ class SqueezeboxCometSubscriptionRepository :
 
     class Channels {
         companion object {
+            /**
+             * https://github.com/Logitech/slimserver/blob/public/8.3/Slim/Web/Cometd.pm#L375
+             * A request to execute & subscribe to some Logitech Media Server event
+             */
             val slimSubscribe = ChannelId("/slim/subscribe")
             val slimUnsubscribe = ChannelId("/slim/unsubscribe")
+
+            /**
+             * https://github.com/Logitech/slimserver/blob/public/8.3/Slim/Web/Cometd.pm#L512
+             * A request to execute a one-time Logitech Media Server event
+             */
             val slimRequest = ChannelId("/slim/request")
             val activeDynamicChannels = mutableMapOf<ChannelId, SlimCometRequest>()
         }
@@ -133,6 +142,7 @@ class SqueezeboxCometSubscriptionRepository :
     }
 
     private fun playerStatusChannel(bayeuxClient: BayeuxClient, playerId: String) =
+        // We expect the clientId to be part of the response channel
         ChannelId("/${bayeuxClient.id}/pictl/player/${playerId.replace(oldChar = ':', newChar = '-')}")
 
     private fun subscribeForPlayerStatus(bayeuxClient: BayeuxClient, playerId: String) {
@@ -169,6 +179,7 @@ class SqueezeboxCometSubscriptionRepository :
 
     /**
      * https://github.com/Logitech/slimserver/blob/b7d9ed8e7356981cb9d5ce2cea67bd5f1d7b6ee3/Slim/Web/Cometd.pm#L374
+     * A request to execute & subscribe to some Logitech Media Server event
      *
      * A valid /slim/subscribe message looks like this:
      * {
@@ -180,6 +191,9 @@ class SqueezeboxCometSubscriptionRepository :
      *     priority => <value>, # optional priority value, is passed-through with the response
      *   }
      * }
+     *
+     * If the request array doesn't contain 'subscribe:foo' the request will be treated
+     * as a normal subscription using Request::subscribe()
      */
     // request  => [ '',      [ 'serverstatus', 0,       50,               'subscribe:60' ]
     //             [<playerid>] <command>       <start> <itemsPerResponse> <p3>           ... <pN> <LF>
