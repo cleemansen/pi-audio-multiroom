@@ -26,13 +26,28 @@ abstract class SqueezeboxCometLongPollingRepository : KoinComponent {
     protected val objectMapper = jacksonObjectMapper()
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
+    /**
+     * https://github.com/Logitech/slimserver/blob/public/8.3/Slim/Web/Cometd.pm#L512
+     *
+     * A valid /slim/request message looks like this:
+     * {
+     *   channel  => '/slim/request',
+     *   id       => <unique id>, (optional)
+     *   data     => {
+     *     response => '/slim/<clientId>/request',
+     *     request  => [ '', [ 'menu', 0, 100, ],
+     *     priority => <value>, # optional priority value, is passed-through with the response
+     *   }
+     * }
+     */
     protected fun slimRequestData(
         playerId: String,
         command: List<String>
     ): SlimCometRequest {
         return SlimCometRequest(
             request = listOf(playerId, command),
-            response = SqueezeboxCometSubscriptionRepository.Channels.slimRequest.toString()
+            response = SqueezeboxCometSubscriptionRepository.Channels.slimRequestResponse(clientId = bayeuxClient.id)
+                .toString()
         )
     }
 

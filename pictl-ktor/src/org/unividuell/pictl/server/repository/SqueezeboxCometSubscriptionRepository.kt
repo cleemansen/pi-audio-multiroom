@@ -40,9 +40,21 @@ class SqueezeboxCometSubscriptionRepository :
 
     class Channels {
         companion object {
+            /**
+             * https://github.com/Logitech/slimserver/blob/public/8.3/Slim/Web/Cometd.pm#L375
+             * A request to execute & subscribe to some Logitech Media Server event
+             */
             val slimSubscribe = ChannelId("/slim/subscribe")
             val slimUnsubscribe = ChannelId("/slim/unsubscribe")
+
+            /**
+             * https://github.com/Logitech/slimserver/blob/public/8.3/Slim/Web/Cometd.pm#L512
+             * A request to execute a one-time Logitech Media Server event
+             */
             val slimRequest = ChannelId("/slim/request")
+
+            // We expect the clientId to be part of the response channel
+            fun slimRequestResponse(clientId: String) = ChannelId("/$clientId/request")
             val activeDynamicChannels = mutableMapOf<ChannelId, SlimCometRequest>()
         }
     }
@@ -67,10 +79,10 @@ class SqueezeboxCometSubscriptionRepository :
             bayeuxClient.handshake()
             val handshake = bayeuxClient.waitFor(4_000, BayeuxClient.State.CONNECTED)
             if (handshake) {
-                establishSubscriptions(bayeuxClient)
+                establishSubscriptions()
             }
         } else {
-            establishSubscriptions(bayeuxClient)
+            establishSubscriptions()
         }
     }
 
@@ -85,22 +97,23 @@ class SqueezeboxCometSubscriptionRepository :
         }
     }
 
-    private fun establishSubscriptions(bayeuxClient: BayeuxClient) {
+    private fun establishSubscriptions() {
         logger.info("[${bayeuxClient.id}] establishing subscriptions..")
 
         bayeuxClient.getChannel(Channels.slimRequest).subscribe { channel, message ->
             logger.info("${channel.id} -> $message")
+            logger.warn { "I'm ignoring this message! ${channel.id} -> $message" }
         }
 
-        if (!Channels.activeDynamicChannels.keys.contains(serverstatusChannel(bayeuxClient = bayeuxClient))) {
+        if (!Channels.activeDynamicChannels.keys.contains(serverstatusChannel())) {
             subscribeForServerstatus(bayeuxClient)
         }
     }
 
-    private fun serverstatusChannel(bayeuxClient: BayeuxClient) = ChannelId("/${bayeuxClient.id}/pictl/serverstatus")
+    private fun serverstatusChannel() = ChannelId("/${bayeuxClient.id}/pictl/serverstatus")
 
     private fun subscribeForServerstatus(bayeuxClient: BayeuxClient) {
-        val channelId = serverstatusChannel(bayeuxClient = bayeuxClient)
+        val channelId = serverstatusChannel()
         val serverstatusSubscriptionRequest = slimSubscriptionRequestData(
             responseChannel = channelId.toString(),
             playerId = "",
@@ -111,7 +124,7 @@ class SqueezeboxCometSubscriptionRepository :
 //            logger.info("received on ${channel.channelId}: ${objectMapper.writeValueAsString(message.dataAsMap)}")
             Channels.activeDynamicChannels[channel.channelId] = serverstatusSubscriptionRequest
             val actual = mapServerstatusResponse(message.dataAsMap)
-            logger.debug("[${bayeuxClient.id}] " + actual.toString())
+            logger.debug("[${bayeuxClient.id}|${message.id} on ${channel.channelId}] " + actual.toString())
             actual?.players?.filter { it.connected == 1 }?.forEach { player ->
                 if (!Channels.activeDynamicChannels.keys.contains(
                         playerStatusChannel(
@@ -133,6 +146,7 @@ class SqueezeboxCometSubscriptionRepository :
     }
 
     private fun playerStatusChannel(bayeuxClient: BayeuxClient, playerId: String) =
+        // We expect the clientId to be part of the response channel
         ChannelId("/${bayeuxClient.id}/pictl/player/${playerId.replace(oldChar = ':', newChar = '-')}")
 
     private fun subscribeForPlayerStatus(bayeuxClient: BayeuxClient, playerId: String) {
@@ -157,7 +171,7 @@ class SqueezeboxCometSubscriptionRepository :
 //            logger.info("received on ${channel.channelId}: ${objectMapper.writeValueAsString(message.dataAsMap)}")
             Channels.activeDynamicChannels[channel.channelId] = playerStatusSubscriptionRequest
             val actual = mapPlayerResponse(message.dataAsMap)
-            logger.debug("[${bayeuxClient.id}] " + actual.toString())
+            logger.debug("[${bayeuxClient.id}|${message.id} on ${channel.channelId}] " + actual.toString())
             playerStatusCounter.increment()
             raisePlayerStatusUpdateEvent(channelId, actual)
         }
@@ -169,6 +183,7 @@ class SqueezeboxCometSubscriptionRepository :
 
     /**
      * https://github.com/Logitech/slimserver/blob/b7d9ed8e7356981cb9d5ce2cea67bd5f1d7b6ee3/Slim/Web/Cometd.pm#L374
+     * A request to execute & subscribe to some Logitech Media Server event
      *
      * A valid /slim/subscribe message looks like this:
      * {
@@ -180,6 +195,9 @@ class SqueezeboxCometSubscriptionRepository :
      *     priority => <value>, # optional priority value, is passed-through with the response
      *   }
      * }
+     *
+     * If the request array doesn't contain 'subscribe:foo' the request will be treated
+     * as a normal subscription using Request::subscribe()
      */
     // request  => [ '',      [ 'serverstatus', 0,       50,               'subscribe:60' ]
     //             [<playerid>] <command>       <start> <itemsPerResponse> <p3>           ... <pN> <LF>
