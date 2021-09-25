@@ -18,7 +18,9 @@ die () {
 target="${1}"
 
 echo "build frontend"
-(cd pictl-vue && npx browserslist@latest --update-db && ./node_modules/.bin/vue-cli-service build --dest ../pictl-ktor/resources/pictl-vue/)
+frontend_dest="pictl-ktor/resources/pictl-vue/"
+rm -rf $frontend_dest
+(cd pictl-vue && npx browserslist@latest --update-db && ./node_modules/.bin/vue-cli-service build --dest ../$frontend_dest)
 echo "bundle backend (with bundled frontend)"
 (cd pictl-ktor && ./mvnw clean package)
 echo "deploy to $target"
