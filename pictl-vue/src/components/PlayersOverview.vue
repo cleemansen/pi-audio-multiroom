@@ -1,6 +1,7 @@
 <template>
   <v-container>
-    <v-row>
+    <PlayersOverviewEmptyState v-if="this.emptyState"/>
+    <v-row v-else>
       <v-col cols="12" sm="6" md="6" v-for="player in players" v-bind:key="player.playerId">
         <v-card class="mb-6">
           <v-system-bar>
@@ -59,10 +60,11 @@
 <script>
 import PlayerVolume from "@/components/PlayerVolume";
 import CurrentTitle from "@/components/CurrentTitle";
+import PlayersOverviewEmptyState from "@/components/PlayersOverviewEmptyState";
 
 export default {
   name: "PlayersOverview",
-  components: {CurrentTitle, PlayerVolume},
+  components: {PlayersOverviewEmptyState, CurrentTitle, PlayerVolume},
   data: () => ({
     playersMap: {},
     syncNodes: {},
@@ -153,6 +155,12 @@ export default {
   computed: {
     players() {
       return this.playersMap
+    },
+    emptyState() {
+      // kudos: https://stackoverflow.com/a/32108184/810944
+      return this.players
+          && Object.keys(this.playersMap).length === 0
+          && Object.getPrototypeOf(this.playersMap) === Object.prototype
     },
     nodes() {
       return this.objectMap(this.playersMap, player => {
