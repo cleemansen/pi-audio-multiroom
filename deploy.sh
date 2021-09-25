@@ -6,6 +6,14 @@
 set -o errexit
 # exit when your script tries to use undeclared variables
 set -o nounset
+# exit when no argument is given
+die () {
+    echo >&2 "$@"
+    exit 1
+}
+# exit when not exactly 1 argument is given
+[ "$#" -eq 1 ] || die "1 argument required, $# provided. Set the hostname of the target (like white.unividuell.org)"
+
 
 target="${1}"
 
