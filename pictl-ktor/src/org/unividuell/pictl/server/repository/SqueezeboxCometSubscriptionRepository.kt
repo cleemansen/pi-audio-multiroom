@@ -99,6 +99,7 @@ class SqueezeboxCometSubscriptionRepository :
 
         bayeuxClient.getChannel(Channels.slimRequest).subscribe { channel, message ->
             logger.info("${channel.id} -> $message")
+            logger.warn { "I'm ignoring this message! ${channel.id} -> $message" }
         }
 
         if (!Channels.activeDynamicChannels.keys.contains(serverstatusChannel(bayeuxClient = bayeuxClient))) {
@@ -120,7 +121,7 @@ class SqueezeboxCometSubscriptionRepository :
 //            logger.info("received on ${channel.channelId}: ${objectMapper.writeValueAsString(message.dataAsMap)}")
             Channels.activeDynamicChannels[channel.channelId] = serverstatusSubscriptionRequest
             val actual = mapServerstatusResponse(message.dataAsMap)
-            logger.debug("[${bayeuxClient.id}] " + actual.toString())
+            logger.debug("[${bayeuxClient.id}|${message.id} on ${channel.channelId}] " + actual.toString())
             actual?.players?.filter { it.connected == 1 }?.forEach { player ->
                 if (!Channels.activeDynamicChannels.keys.contains(
                         playerStatusChannel(
@@ -167,7 +168,7 @@ class SqueezeboxCometSubscriptionRepository :
 //            logger.info("received on ${channel.channelId}: ${objectMapper.writeValueAsString(message.dataAsMap)}")
             Channels.activeDynamicChannels[channel.channelId] = playerStatusSubscriptionRequest
             val actual = mapPlayerResponse(message.dataAsMap)
-            logger.debug("[${bayeuxClient.id}] " + actual.toString())
+            logger.debug("[${bayeuxClient.id}|${message.id} on ${channel.channelId}] " + actual.toString())
             playerStatusCounter.increment()
             raisePlayerStatusUpdateEvent(channelId, actual)
         }
