@@ -7,10 +7,11 @@ webSocketsService.install = function (Vue, options) {
     let ws = null // new WebSocket(options.url)
     let reconnectInterval = options.reconnectInterval || 1000
 
-    Vue.prototype.$webSocketsConnect = (path, callback, errorCallback) => {
+    Vue.prototype.$webSocketsConnect = (path, callback) => {
         ws = new WebSocket(`${options.host}/${path}`)
 
         ws.onopen = () => {
+            options.store.commit('players/wsState', "connecting")
             // Restart reconnect interval
             reconnectInterval = options.reconnectInterval || 1000
         }
@@ -30,16 +31,16 @@ webSocketsService.install = function (Vue, options) {
                             // Reconnect interval can't be > x seconds
                             reconnectInterval += 1000
                         }
-                        Vue.prototype.$webSocketsConnect(path, callback, errorCallback)
+                        options.store.commit('players/wsReconnect', event)
+                        Vue.prototype.$webSocketsConnect(path, callback)
                     }, reconnectInterval)
                 }
             }
         }
 
         ws.onerror = (error) => {
-            // console.log(error)
-            // ws.close()
-            errorCallback(error, ws)
+            console.log(error)
+            ws.close()
         }
     }
 

@@ -4,7 +4,11 @@ import {Mixin} from '../../mixins/helper'
 // initial state
 const state = () => ({
     playersMap: {},
-    syncNodes: {}
+    syncNodes: {},
+    wsAudio: {
+        state: 'disconnected',
+        error: null
+    }
 })
 
 // getters
@@ -19,16 +23,12 @@ const getters = {
 
 // actions
 const actions = {
-    subscribeAudioChange({dispatch}) {
+    subscribeAudioChange({commit, dispatch}) {
         Vue.prototype.$webSocketsConnect(
             'ctl-audio/ws',
             event => {
-                // this.playerUpdate({ commit, state }, event)
+                commit('wsState', 'connected')
                 dispatch("playerUpdate", event)
-            },
-            (error, ws) => {
-                console.log(error)
-                ws.close()
             })
     },
     playerUpdate({commit, state}, wsEvent) {
@@ -61,6 +61,13 @@ const mutations = {
     },
     updateSyncNodes(state, playerEvent) {
         Vue.set(state.syncNodes, playerEvent.playerId, playerEvent)
+    },
+    wsState(state, newState) {
+        Vue.set(state.wsAudio, 'state', newState)
+        if (newState === 'connected') Vue.set(state.wsAudio, 'error', null)
+    },
+    wsReconnect(state, closeEvent) {
+        state.wsAudio = {state: 'reconnecting', error: closeEvent.code}
     }
 }
 

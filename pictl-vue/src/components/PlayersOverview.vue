@@ -2,7 +2,7 @@
   <v-container>
     <PlayersOverviewEmptyState v-if="this.emptyState"/>
     <v-row v-else>
-      <v-col cols="12" sm="6" md="6" v-for="player in playersMap" v-bind:key="player.playerId">
+      <v-col cols="12" sm="6" md="6" v-for="player in this.playersMap" v-bind:key="player.playerId">
         <v-card class="mb-6">
           <v-system-bar>
             <v-icon>mdi-cast-audio</v-icon>
