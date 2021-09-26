@@ -2,7 +2,7 @@
   <v-container>
     <PlayersOverviewEmptyState v-if="this.emptyState"/>
     <v-row v-else>
-      <v-col cols="12" sm="6" md="6" v-for="player in players" v-bind:key="player.playerId">
+      <v-col cols="12" sm="6" md="6" v-for="player in playersMap" v-bind:key="player.playerId">
         <v-card class="mb-6">
           <v-system-bar>
             <v-icon>mdi-cast-audio</v-icon>
@@ -61,13 +61,12 @@
 import PlayerVolume from "@/components/PlayerVolume";
 import CurrentTitle from "@/components/CurrentTitle";
 import PlayersOverviewEmptyState from "@/components/PlayersOverviewEmptyState";
+import {mapGetters, mapState} from 'vuex'
 
 export default {
   name: "PlayersOverview",
   components: {PlayersOverviewEmptyState, CurrentTitle, PlayerVolume},
   data: () => ({
-    playersMap: {},
-    syncNodes: {},
     desiredState: {}
   }),
   mounted() {
@@ -75,23 +74,7 @@ export default {
   },
   methods: {
     connect() {
-      this.$webSocketsConnect('ctl-audio/ws', event => {
-        let playerEvent = JSON.parse(event.data)
-        // console.log(playerEvent)
-        if (playerEvent.playerId === playerEvent.syncController || playerEvent.syncController === null) {
-          this.$set(this.playersMap, playerEvent.playerId, playerEvent)
-          if (this.syncNodes[playerEvent.playerId] !== undefined) {
-            // not a node anymore
-            this.$delete(this.syncNodes, playerEvent.playerId)
-          }
-        }
-        if (playerEvent.syncController !== null && playerEvent.syncController !== playerEvent.playerId) {
-          // synchronized with somebody else > clean-up
-          this.$delete(this.playersMap, playerEvent.playerId)
-          // but notice UI about this participation
-          this.$set(this.syncNodes, playerEvent.playerId, playerEvent)
-        }
-      })
+      this.$store.dispatch('players/subscribeAudioChange')
     },
     togglePlayPause(player) {
       let cmdRequest = {
@@ -153,20 +136,13 @@ export default {
     }
   },
   computed: {
-    players() {
-      return this.playersMap
-    },
+    ...mapState('players', ['playersMap', 'syncNodes']),
+    ...mapGetters('players', ['nodes']),
     emptyState() {
       // kudos: https://stackoverflow.com/a/32108184/810944
-      return this.players
+      return this.playersMap
           && Object.keys(this.playersMap).length === 0
           && Object.getPrototypeOf(this.playersMap) === Object.prototype
-    },
-    nodes() {
-      return this.objectMap(this.playersMap, player => {
-        return this
-            .objectFilter(this.syncNodes, ([, candidate]) => candidate.syncController === player.playerId)
-      })
     },
     playPauseIcon() {
       return this.objectMap(this.playersMap, player => {

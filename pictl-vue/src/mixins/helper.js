@@ -1,6 +1,6 @@
 import Vue from "vue";
 
-Vue.mixin({
+const Mixin = {
     methods: {
         // there is not native `map`-function for objects
         // kudos: https://stackoverflow.com/a/14810722/810944
@@ -14,4 +14,9 @@ Vue.mixin({
         objectFilter: (obj, predicate) =>
             Object.fromEntries(Object.entries(obj).filter(predicate))
     }
-})
+}
+
+// needed for access outside of components (eg vuex)
+export {Mixin}
+
+Vue.mixin(Mixin)
