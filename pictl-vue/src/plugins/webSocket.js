@@ -8,6 +8,7 @@ webSocketsService.install = function (Vue, options) {
     let reconnectInterval = options.reconnectInterval || 1000
 
     Vue.prototype.$webSocketsConnect = (path, callback) => {
+        console.log(window.location.protocol + ' -> ' + options.host)
         ws = new WebSocket(`${options.host}/${path}`)
 
         ws.onopen = () => {

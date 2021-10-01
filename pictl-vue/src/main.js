@@ -10,10 +10,8 @@ import './registerServiceWorker'
 
 Vue.config.productionTip = false
 
-let wsHost = process.env.NODE_ENV === 'production'
-    ? (window.location.protocol === 'https'
-        ? `wss://${window.location.hostname}:${window.location.port}`
-        : `ws://${window.location.hostname}:${window.location.port}`)
+let wsHost = window.location.protocol === 'https:'
+    ? `wss://${window.location.hostname}:${window.location.port}`
     : `ws://${window.location.hostname}:${window.location.port}`
 Vue.use(webSocket, {
   store,
