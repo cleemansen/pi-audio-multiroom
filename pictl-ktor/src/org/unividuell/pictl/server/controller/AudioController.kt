@@ -3,6 +3,7 @@ package org.unividuell.pictl.server.controller
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.ktor.application.*
+import io.ktor.features.*
 import io.ktor.http.*
 import io.ktor.http.cio.websocket.*
 import io.ktor.response.*
@@ -41,10 +42,11 @@ fun Route.audioRoutes() {
         webSocket("/ws") {
             if (audioWsConnections.isEmpty()) {
                 audioWsConnections += this
-                logger.info { "the first ws-connection, starting cometd-subscription." }
+                logger.info { "the first ws-connection, starting cometd-subscription. added '${this.call.request.origin.remoteHost}'." }
                 subscribeForPlayersUpdatesInteractor.start()
             } else {
                 audioWsConnections += this
+                logger.info { "next ws-connection, requesting cometd-update. Now ${audioWsConnections.size} connection(s). added '${this.call.request.origin.remoteHost}'." }
                 // request update from server for all connections (including this new connection)
                 requestPlayersUpdatesInteractor.requestUpdate()
             }
@@ -85,7 +87,10 @@ fun Route.audioRoutes() {
             } finally {
                 audioWsConnections -= this
                 if (audioWsConnections.isEmpty()) {
+                    logger.info { "the last ws-connection, stopping cometd-subscription. removed '${this.call.request.origin.remoteHost}'." }
                     subscribeForPlayersUpdatesInteractor.stop()
+                } else {
+                    logger.info { "removing ws-connection '${this.call.request.origin.remoteHost}'." }
                 }
             }
         }
