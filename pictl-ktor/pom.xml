@@ -7,7 +7,7 @@
     <name>pictl-ktor</name>
     <description>pictl-ktor</description>
     <properties>
-        <logback_version>1.2.1</logback_version>
+        <logback_version>1.2.8</logback_version>
         <ktor_version>1.6.2</ktor_version>
         <kotlin.code.style>official</kotlin.code.style>
         <kotlin_version>1.6.0</kotlin_version>
