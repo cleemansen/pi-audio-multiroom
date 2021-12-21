@@ -1,5 +1,7 @@
 .DS_Store
 node_modules
+# patched b/c of https://github.com/Logitech/slimserver/issues/478
+!pictl-vue/node_modules/.pnpm/cometd@7.0.5/node_modules/cometd/cometd.js
 /dist
 
 
