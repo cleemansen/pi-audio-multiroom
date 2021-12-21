@@ -85,7 +85,7 @@ module.exports = {
   devServer: {
     port: 8081,
     proxy: {
-      '.*': {
+      '/ctl-audio/*': {
         target: 'http://localhost:8080',
         ws: true
       }

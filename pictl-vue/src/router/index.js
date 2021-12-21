@@ -1,15 +1,21 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import App from "@/App";
+import CometD from "@/components/CometD";
+import PlayersOverview from "@/components/PlayersOverview";
 
 Vue.use(VueRouter)
 
 const routes = [
   {
+    path: '/cometd',
+    name: 'cometd-playground',
+    component: CometD
+  },
+  {
     path: '/',
     name: 'App',
-    component: App
-  }
+    component: PlayersOverview
+  },
 ]
 
 const router = new VueRouter({
