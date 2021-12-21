@@ -10,7 +10,7 @@
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
-      <module name="pictl-ktor" target="1.8" />
+      <module name="pictl-ktor" target="11" />
       <module name="poc-slimserver-cometd-gzip" target="1.8" />
     </bytecodeTargetLevel>
   </component>
