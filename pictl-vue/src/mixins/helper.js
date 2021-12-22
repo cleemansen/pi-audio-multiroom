@@ -2,7 +2,7 @@ import Vue from "vue";
 
 const Mixin = {
     methods: {
-        // there is not native `map`-function for objects
+        // there is no native `map`-function for objects
         // kudos: https://stackoverflow.com/a/14810722/810944
         objectMap: (obj, fn) =>
             Object.fromEntries(
