@@ -1,0 +1,9 @@
+# this is a reverse proxy to an (local) LMS with CORS setup
+:9002 {
+    header Access-Control-Allow-Origin "http://localhost:3000"
+    header Access-Control-Request-Method GET
+    header Access-Control-Allow-Credentials true
+    header Access-Control-Allow-Headers content-type
+    header Candle 5000
+    reverse_proxy 127.0.0.1:9000
+}
