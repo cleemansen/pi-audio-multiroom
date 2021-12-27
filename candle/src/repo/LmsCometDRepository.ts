@@ -1,55 +1,17 @@
-import {defineStore, Store} from "pinia";
-import {adapt} from 'cometd-nodejs-client';
 import {CometD} from "cometd";
-import {ref} from "vue";
+import {useLmsStore} from "../store/LmsStore";
 
-export interface Player {
-    playerId: string,
-    playerName?: string,
-    title?: string,
-    artist?: string,
-    remoteTitle?: string,
-    artworkUrl?: string,
-    mode?: string,
-    mixerVolume?: number,
-    connected?: boolean,
-    ipAddress?: string,
-    syncController?: string,
-    syncNodes: string[]
-}
+export class LmsCometDRepository {
 
-export const usePlayerStatus = defineStore('playerStatus', {
-    state: () => ({
-        players: [] as Player[],
-        currentTitle: "" as string,
-        cometD: new CandleCometD(),
-    }),
-    // getters: {
-    //     currentTitle: (state) => ref(state.cometD.currentTitle),
-    // },
-    actions: {
-        log(msg: string) {
-          console.debug(msg)
-        },
-        update(currentState: string) {
-            this.currentTitle = currentState
-        }
-    }
-})
-
-class CandleCometD {
     private readonly cometD: CometD
     private connected: boolean = false
     private lmsCometDUrl = "https://lms.unividuell.org" /* "http://localhost:9002" */ + "/cometd"
     private players: []
-    // private store = usePlayerStatus()
 
     constructor() {
-        // adapt()
-
         this.cometD = new CometD();
         this.players = []
-        console.debug = console.log;
+        // console.debug = console.log;
         this.cometD.unregisterTransport('websocket');
 
         this.connect()
@@ -131,6 +93,7 @@ class CandleCometD {
             )
         }
     }
+
     queryServerStatus() {
         if (this.checkConnected()) {
             this.cometD.publish(
@@ -150,12 +113,13 @@ class CandleCometD {
                 `/${this.cometD.getClientId()}/slim/playerstatus/*`,
                 (msg) => {
                     console.log(`/slim/playerstatus/*: ${JSON.stringify(msg)}`)
-                    usePlayerStatus().currentTitle = msg.data.remoteMeta.title
+                    useLmsStore().currentTitle = msg.data.remoteMeta.title
                 },
                 (ack) => console.log(`ACK /slim/playerstatus/*: ${JSON.stringify(ack)}`)
             )
         }
     }
+
     queryPlayerStatus() {
         if (this.checkPlayer()) {
             this.players.forEach((player: any) => {

@@ -27,12 +27,12 @@
 </template>
 <script lang="ts">
 import {defineComponent, ref} from 'vue';
-import {usePlayerStatus} from '../store/PlayerStatus'
+import {useLmsStore} from '../store/LmsStore'
 
 export default defineComponent({
   setup() {
     const loading = ref(true);
-    const store = usePlayerStatus()
+    const store = useLmsStore()
 
     // store.init()
 
