@@ -1,16 +1,15 @@
-import {CometD} from "cometd";
+import {CometD, Message} from "cometd";
 import {useLmsStore} from "../store/LmsStore";
+import {Player} from "../types/Player";
 
 export class LmsCometDRepository {
 
     private readonly cometD: CometD
     private connected: boolean = false
     private lmsCometDUrl = "https://lms.unividuell.org" /* "http://localhost:9002" */ + "/cometd"
-    private players: []
 
     constructor() {
         this.cometD = new CometD();
-        this.players = []
         // console.debug = console.log;
         this.cometD.unregisterTransport('websocket');
 
@@ -57,7 +56,7 @@ export class LmsCometDRepository {
         if (!this.checkConnected()) {
             return false;
         }
-        if (this.players?.length < 1) {
+        if (useLmsStore().players?.length < 1) {
             console.log("no players");
             return false;
         }
@@ -79,12 +78,12 @@ export class LmsCometDRepository {
             this.cometD.subscribe(
                 `/${this.cometD.getClientId()}/slim/serverstatus`,
                 (msg) => {
-                    console.log(`/slim/serverstatus: ${JSON.stringify(msg)}`)
-                    this.players = msg.data.players_loop.map((player: any) => {
+                    console.debug(`/slim/serverstatus:`, msg)
+                    useLmsStore().players = msg.data.players_loop.map((player: any) => {
                         return {
-                            id: player.playerid,
-                            name: player.name
-                        }
+                            playerId: player.playerid,
+                            playerName: player.name
+                        } as Player
                     })
                     this.subscribeToPlayerStatus()
                     this.queryPlayerStatus()
@@ -111,9 +110,9 @@ export class LmsCometDRepository {
         if (this.checkConnected()) {
             this.cometD.subscribe(
                 `/${this.cometD.getClientId()}/slim/playerstatus/*`,
-                (msg) => {
-                    console.log(`/slim/playerstatus/*: ${JSON.stringify(msg)}`)
-                    useLmsStore().currentTitle = msg.data.remoteMeta.title
+                (msg: Message) => {
+                    console.debug(`/slim/playerstatus/*`, msg)
+                    useLmsStore().updatePlayer(msg)
                 },
                 (ack) => console.log(`ACK /slim/playerstatus/*: ${JSON.stringify(ack)}`)
             )
@@ -122,12 +121,12 @@ export class LmsCometDRepository {
 
     queryPlayerStatus() {
         if (this.checkPlayer()) {
-            this.players.forEach((player: any) => {
+            useLmsStore().players.forEach((player: Player) => {
                 this.cometD.publish(
                     "/slim/request",
                     {
-                        request: [`${player.id}`, ["status", 0, 255, "tags:galKLmNrLT", "subscribe:60"]],
-                        response: `/${this.cometD.getClientId()}/slim/playerstatus/${player.id}`
+                        request: [`${player.playerId}`, ["status", 0, 255, "tags:galKLmNrLT", "subscribe:60"]],
+                        response: `/${this.cometD.getClientId()}/slim/playerstatus/${player.playerId}`
                     },
                     (ack) => console.log(`ACK /slim/request (playerstatus): ${JSON.stringify(ack)}`)
                 )

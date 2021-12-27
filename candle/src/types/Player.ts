@@ -12,3 +12,24 @@ export interface Player {
     syncController?: string,
     syncNodes: string[]
 }
+
+export interface PlayerCometD {
+    player_name?: string,
+    sync_master?: string,
+    sync_slaves?: string,
+    current_title?: string,
+    remoteMeta?: RemoteMetaCometD,
+    mode?: string,
+    "mixer volume"?: number,
+    player_connected?: number,
+    player_ip?: string
+}
+
+export interface RemoteMetaCometD {
+    title?: string,
+    artist?: string,
+    remote_title?: string,
+    // GET /plugins/AppGallery/html/images/icon.png HTTP/1.1
+    artwork_url?: string,
+    bitrate?: string
+}
