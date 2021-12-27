@@ -30,10 +30,10 @@ export const useLmsStore = defineStore('playerStatus', {
     },
     getters: {
         currentTitle(): string {
-            if (this.players.length > 0) {
-                return this.players[0].remoteTitle ?? "n/a"
+            if (this.players.length < 1) {
+                return "n/a"
             }
-            return "n/a"
+            return `${this.players[0].artist}: ${this.players[0].title} [${this.players[0].remoteTitle}]`
         }
     }
 })

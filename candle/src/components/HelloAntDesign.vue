@@ -1,6 +1,5 @@
 <template>
   <div style="background-color: #ececec; padding: 20px">
-    <a-row>{{store}}</a-row>
     <a-row :gutter="16" type="flex" justify="center">
       <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="8" style="background-color: #00acc1">
         <a-page-header
