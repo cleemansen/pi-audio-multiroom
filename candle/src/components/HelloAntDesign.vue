@@ -1,5 +1,6 @@
 <template>
   <div style="background-color: #ececec; padding: 20px">
+    <a-row>{{store}}</a-row>
     <a-row :gutter="16" type="flex" justify="center">
       <a-col :xs="24" :sm="24" :md="12" :lg="12" :xl="8" style="background-color: #00acc1">
         <a-page-header
@@ -9,7 +10,7 @@
             sub-title="This is a subtitle">
           <a-row class="content">
             <div style="flex: 1">
-              <h1>Content?</h1>
+              <h1>{{ store.currentTitle }}</h1>
               <p>Hello from the content section!</p>
               <img src="../assets/logo.png" />
             </div>
@@ -26,10 +27,14 @@
 </template>
 <script lang="ts">
 import {defineComponent, ref} from 'vue';
+import {usePlayerStatus} from '../store/PlayerStatus'
 
 export default defineComponent({
   setup() {
     const loading = ref(true);
+    const store = usePlayerStatus()
+
+    // store.init()
 
     const handleClick = () => {
       loading.value = !loading.value;
@@ -38,6 +43,7 @@ export default defineComponent({
     return {
       loading,
       handleClick,
+      store
     };
   },
 });

@@ -1,5 +1,36 @@
-node_modules
 .DS_Store
+
+# patched b/c of https://github.com/Logitech/slimserver/issues/478
+node_modules/*
+# include a file inside the ignored folder (kudos: https://stackoverflow.com/a/16318111)
+!node_modules/.pnpm/
+node_modules/.pnpm/*
+!node_modules/.pnpm/cometd@7.0.5/
+node_modules/.pnpm/cometd@7.0.5/*
+!node_modules/.pnpm/cometd@7.0.5/node_modules/
+node_modules/.pnpm/cometd@7.0.5/node_modules/*
+!node_modules/.pnpm/cometd@7.0.5/node_modules/cometd/
+node_modules/.pnpm/cometd@7.0.5/node_modules/cometd/*
+!node_modules/.pnpm/cometd@7.0.5/node_modules/cometd/cometd.js
+
 dist
 dist-ssr
-*.local
+
+# local env files
+.env.local
+.env.*.local
+
+# Log files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

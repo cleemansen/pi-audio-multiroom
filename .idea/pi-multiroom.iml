@@ -3,6 +3,7 @@
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$" />
+    <content url="file://$MODULE_DIR$/candle/node_modules/.pnpm/cometd@7.0.5" />
     <content url="file://$MODULE_DIR$/pictl-vue/node_modules/.pnpm/cometd@7.0.5" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
