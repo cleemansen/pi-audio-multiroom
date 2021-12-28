@@ -19,7 +19,9 @@
           </va-navbar>
           <va-image :src="player.artworkUrl" />
           <va-card-title></va-card-title>
-          <va-card-content>{{ store.currentTitle }}</va-card-content>
+          <va-card-content>
+            <CurrentTitle :artist="player.artist" :title="player.title" />
+          </va-card-content>
         </va-card>
       </div>
     </div>
@@ -28,8 +30,10 @@
 <script lang="ts">
 import {defineComponent, ref} from 'vue';
 import {useLmsStore} from '../store/LmsStore'
+import CurrentTitle from "./CurrentTitle.vue";
 
 export default defineComponent({
+  components: {CurrentTitle},
   setup() {
     const loading = ref(true);
     const store = useLmsStore()
