@@ -5,7 +5,7 @@
         <va-card>
           <va-app-bar color="secondary">
             <va-button color="#fff" icon="podcasts" flat :rounded="false" :size="16" class="mx-1"/>
-            <span style="color: #fff" flat :rounded="false">Candle of {{ player.playerName }}</span>
+            <span style="color: #fff" flat :rounded="false">Candle of {{ store.playerName(player.playerId) }}</span>
           </va-app-bar>
           <va-navbar color="#fff">
             <template #left>
