@@ -1,7 +1,7 @@
 <template>
   <div class="layout gutter--md">
     <div class="row">
-      <div v-for="player in store.players" class="flex xs12 sm12 md6 lg6 xl6" v-bind:key="player.playerId">
+      <div v-for="player in store.players" class="flex xs12 sm12 md12 lg6 xl6" v-bind:key="player.playerId">
         <va-card>
           <va-app-bar color="secondary">
             <va-button color="#fff" icon="podcasts" flat :rounded="false" :size="16" class="mx-1"/>
