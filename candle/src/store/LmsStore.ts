@@ -14,7 +14,7 @@ export const useLmsStore = defineStore('playerStatus', {
             let playerId = msg.channel.substring(msg.channel.lastIndexOf('/') + 1)
             let playerEvent = mapPlayerEvent(playerId, (msg.data as PlayerCometD))
             this.$patch((state) => {
-                if (playerEvent.playerId === playerEvent.syncController || playerEvent.syncController === null) {
+                if (playerEvent.playerId === playerEvent.syncController || playerEvent.syncController === undefined) {
                     let playerIdx = this.players
                         .findIndex((player: Player) => player.playerId === playerId)
                     if (playerIdx > -1) {
@@ -28,7 +28,7 @@ export const useLmsStore = defineStore('playerStatus', {
                         this.removePlayer(playerEvent.playerId)
                     }
                 }
-                if (playerEvent.syncController !== null && playerEvent.syncController !== playerEvent.playerId) {
+                if (playerEvent.syncController !== undefined && playerEvent.syncController !== playerEvent.playerId) {
                     // synchronized with somebody else => clean-up
                     this.removePlayer(playerEvent.playerId)
                     // but notice UI about this participation
@@ -78,8 +78,8 @@ export const useLmsStore = defineStore('playerStatus', {
 function parseArtworkUrl(lmsArtworkUrl?: string) {
     if (!lmsArtworkUrl) return lmsArtworkUrl
 
-    if (lmsArtworkUrl.startsWith("/imageproxy/") || lmsArtworkUrl.startsWith("/plugins/")) {
-        return `https://lms.unividuell.org` + lmsArtworkUrl
+    if (lmsArtworkUrl.startsWith("/imageproxy/") || lmsArtworkUrl.startsWith("/plugins/") || lmsArtworkUrl.startsWith("html/")) {
+        return `https://lms.unividuell.org` + ((lmsArtworkUrl.startsWith('/') ? '' : '/')) + lmsArtworkUrl
     } else {
         return lmsArtworkUrl
     }
