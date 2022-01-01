@@ -1,7 +1,7 @@
 <template>
   <div>
     <p ref="currentSong" class="display-3 currentSong">
-      <va-icon class="lookupAction" :size="200" color="#1ED760" v-if="lookupAction" v-on:click="lookup" name="link" />
+      <i class="bi bi-spotify lookupAction" v-if="lookupAction" v-on:click="lookup"></i>
       <span v-for="(word, index) in currentSong" :key="index" v-html="word" v-on:click="wordTouch"
             class="songWord"></span>
     </p>
@@ -87,9 +87,10 @@ export default defineComponent({
 
 .lookupAction {
   position: fixed !important;
-  top: 20%;
-  left: 0px;
+  top: 14%;
+  left: -100px;
   z-index: 20;
-
+  color: #1ED760;
+  font-size: 16rem;
 }
 </style>
