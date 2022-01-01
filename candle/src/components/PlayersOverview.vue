@@ -1,28 +1,14 @@
 <template>
-  <div class="layout gutter--md">
+  <div class="container">
     <div class="row">
-      <div v-for="player in store.players" class="flex xs12 sm12 md12 lg6 xl6" v-bind:key="player.playerId">
-        <va-card>
-          <va-app-bar color="secondary">
-            <va-button color="#fff" icon="podcasts" flat :rounded="false" :size="16" class="mx-1"/>
-            <span style="color: #fff" flat :rounded="false">Candle of {{ store.playerName(player.playerId) }}</span>
-          </va-app-bar>
-          <va-navbar color="#fff">
-            <template #left>
-              <va-button icon="menu" color="secondary" />
-            </template>
-            <template #right>
-              <va-button icon="volume_down" color="warning" text-color="primary" />
-              <va-button icon="pause" color="secondary" />
-              <va-button icon="volume_up" color="secondary" />
-            </template>
-          </va-navbar>
-          <va-image :src="player.artworkUrl" />
-          <va-card-title></va-card-title>
-          <va-card-content>
-            <CurrentTitle :artist="player.artist" :title="player.title" />
-          </va-card-content>
-        </va-card>
+      <div v-for="player in store.players" class="col-12 col-sm-12 	col-md-6 col-lg-6 col-xl-6 col-xxl-6" v-bind:key="player.playerId">
+        <div class="card shadow rounded">
+          <div class="card-header">{{ store.playerName(player.playerId) }}</div>
+          <img :src="player.artworkUrl"/>
+          <div class="card-body">
+            <CurrentTitle :artist="player.artist" :title="player.title"/>
+          </div>
+        </div>
       </div>
     </div>
   </div>

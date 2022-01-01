@@ -1,10 +1,9 @@
 import { createApp } from 'vue'
 import { createPinia } from "pinia";
-import { VuesticPlugin } from 'vuestic-ui'
-import 'vuestic-ui/dist/vuestic-ui.css'
+import "bootstrap/dist/css/bootstrap.min.css"
+import "bootstrap"
 import App from './App.vue'
 
 createApp(App)
     .use(createPinia())
-    .use(VuesticPlugin)
     .mount('#app')
