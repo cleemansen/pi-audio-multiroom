@@ -40,7 +40,7 @@ Set in `/usr/local/bin/squeezelite_settings.sh`: `SB_SERVER_IP="127.0.0.1"`
 
 ```
 sudo snap run certbot -d *.unividuell.org --manual --preferred-challenges dns certonly
-# add DNS TXT record to strato (use as key only `_acme-challenge`)
+# add DNS TXT record to strato (use as key only `_acme-challenge` at "TXT und CNAME Records inklusive SPF und DKIM Einstellungen")
 sudo vim /etc/caddy/Caddyfile # edit tls directive to point to gnerated cert- and key-file 
 sudo chown -R caddy:caddy /etc/letsencrypt
 sudo systemctl restart caddy && journalctl -u caddy.service --since "1 minute ago" -f
