@@ -84,11 +84,8 @@ module.exports = {
   },
   devServer: {
     port: 8081,
-    proxy: {
-      '.*': {
-        target: 'http://localhost:8080',
-        ws: true
-      }
-    }
+    // serve and proxying to backend done by caddyserver (see root of project)
+    public: 'https://vue.pictl.localhost',
+    allowedHosts: ['.pictl.localhost'],
   }
 }

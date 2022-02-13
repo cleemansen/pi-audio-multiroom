@@ -1,0 +1,7 @@
+ktor.pictl.localhost {
+    reverse_proxy localhost:8080
+}
+vue.pictl.localhost {
+    reverse_proxy /ctl-audio/* localhost:8080
+    reverse_proxy localhost:8081
+}
