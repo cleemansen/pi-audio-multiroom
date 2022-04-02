@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { LmsCometDRepository } from "../repo/LmsCometDRepository";
+import { LmsCometDRepository } from "@/repo/LmsCometDRepository";
 import type { Player, PlayerCometD } from "@/types/Player";
 import type { Message } from "cometd";
 
@@ -119,7 +119,7 @@ function parseArtworkUrl(lmsArtworkUrl?: string) {
  * @return {Player} the mapped event
  */
 function mapPlayerEvent(playerId: string, playerEvent: PlayerCometD): Player {
-  const player: Player = {
+  return {
     playerId: playerId,
     playerName: playerEvent.player_name,
     title: playerEvent.remoteMeta?.title,
@@ -133,5 +133,4 @@ function mapPlayerEvent(playerId: string, playerEvent: PlayerCometD): Player {
     syncController: playerEvent.sync_master,
     syncNodes: playerEvent.sync_slaves?.split(",") ?? [],
   };
-  return player;
 }
