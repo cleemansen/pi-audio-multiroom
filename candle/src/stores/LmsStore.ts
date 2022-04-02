@@ -1,7 +1,7 @@
 import {defineStore} from "pinia";
 import {LmsCometDRepository} from "../repo/LmsCometDRepository";
-import {Player, PlayerCometD} from "../types/Player";
-import {Message} from "cometd";
+import type { Player, PlayerCometD } from "@/types/Player";
+import type {Message} from "cometd";
 
 export const useLmsStore = defineStore('playerStatus', {
     state: () => ({

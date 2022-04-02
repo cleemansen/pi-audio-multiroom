@@ -15,7 +15,7 @@
 </template>
 <script lang="ts">
 import {defineComponent, ref} from 'vue';
-import {useLmsStore} from '../store/LmsStore'
+import {useLmsStore} from '../stores/LmsStore'
 import CurrentTitle from "./CurrentTitle.vue";
 
 export default defineComponent({

@@ -1,6 +1,7 @@
-import {CometD, Message} from "cometd";
-import {useLmsStore} from "../store/LmsStore";
-import {Player} from "../types/Player";
+import { CometD } from "cometd";
+import type { Message } from "cometd";
+import { useLmsStore } from "@/stores/LmsStore";
+import type {Player} from "@/types/Player";
 
 export class LmsCometDRepository {
 

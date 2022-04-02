@@ -1,6 +1,4 @@
 <script setup lang="ts">
-// This starter template is using Vue 3 <script setup> SFCs
-// Check out https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup
 import PlayersOverview from "./components/PlayersOverview.vue";
 </script>
 
@@ -9,6 +7,8 @@ import PlayersOverview from "./components/PlayersOverview.vue";
 </template>
 
 <style>
+@import './assets/base.css';
+
 #app {
   margin-top: 60px;
 }
