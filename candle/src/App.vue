@@ -1,15 +1,17 @@
-<script setup lang="ts">
-import PlayersOverview from "./components/PlayersOverview.vue";
-</script>
-
 <template>
   <PlayersOverview />
 </template>
 
-<style>
-@import "./assets/base.css";
+<script lang="ts">
+import { defineComponent } from 'vue'
+import PlayersOverview from "./components/PlayersOverview.vue";
 
-#app {
-  margin-top: 60px;
-}
-</style>
+export default defineComponent({
+  name: 'App',
+
+  components: {
+    PlayersOverview,
+  },
+
+})
+</script>
