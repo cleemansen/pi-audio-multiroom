@@ -7,7 +7,7 @@ import PlayersOverview from "./components/PlayersOverview.vue";
 </template>
 
 <style>
-@import './assets/base.css';
+@import "./assets/base.css";
 
 #app {
   margin-top: 60px;

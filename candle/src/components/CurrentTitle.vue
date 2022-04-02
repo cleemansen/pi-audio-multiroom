@@ -1,72 +1,94 @@
 <template>
   <div>
     <p ref="currentSong" class="display-3 currentSong">
-      <va-icon class="lookupAction" :size="200" color="#1ED760" v-if="lookupAction" v-on:click="lookup" name="link" />
-      <span v-for="(word, index) in currentSong" :key="index" v-html="word" v-on:click="wordTouch"
-            class="songWord"></span>
+      <va-icon
+        class="lookupAction"
+        :size="200"
+        color="#1ED760"
+        v-if="lookupAction"
+        v-on:click="lookup"
+        name="link"
+      />
+      <span
+        v-for="(word, index) in currentSong"
+        :key="index"
+        v-html="word"
+        v-on:click="wordTouch"
+        class="songWord"
+      ></span>
     </p>
   </div>
 </template>
 
 <script lang="ts">
-import {defineComponent, ref} from "vue";
-import {isMobile} from 'mobile-device-detect';
+import { defineComponent, ref } from "vue";
+import { isMobile } from "mobile-device-detect";
 
 export default defineComponent({
   props: {
     artist: String,
-    title: String
+    title: String,
   },
   data() {
     return {
-      selection: null as string | null
-    }
+      selection: null as string | null,
+    };
   },
   computed: {
     currentSong() {
-      let currentSong = ""
+      let currentSong = "";
       if (this.artist) {
-        currentSong += this.artist
+        currentSong += this.artist;
       }
       if (this.title) {
         if (currentSong !== "") {
-          currentSong += " — "
+          currentSong += " — ";
         }
-        currentSong += this.title
+        currentSong += this.title;
       }
-      return this.splitter(currentSong)
+      return this.splitter(currentSong);
     },
     lookupAction() {
-      return this.selection !== null && this.selection !== ""
-    }
+      return this.selection !== null && this.selection !== "";
+    },
   },
   methods: {
     splitter(context: string) {
-      return context
+      return (
+        context
           // kudos: https://stackoverflow.com/a/18473490/810944
-          .replace(/([ .,;]+)/g, '$1§sep§').split('§sep§')
+          .replace(/([ .,;]+)/g, "$1§sep§")
+          .split("§sep§")
+      );
     },
     wordTouch(element: any) {
       // kudos: https://stackoverflow.com/a/51921785/810944
-      element.target?.classList?.toggle('selectedSongWord')
-      let selected = (this.$refs.currentSong as Element).querySelectorAll('.selectedSongWord')
+      element.target?.classList?.toggle("selectedSongWord");
+      const selected = (this.$refs.currentSong as Element).querySelectorAll(
+        ".selectedSongWord"
+      );
       // map the node-list: kudos: https://stackoverflow.com/a/32767009/810944
-      this.selection = Array.from(selected, (item: Element) => item.innerHTML).join("")
+      this.selection = Array.from(
+        selected,
+        (item: Element) => item.innerHTML
+      ).join("");
     },
     lookup() {
       if (!this.selection) {
-        return
+        return;
       }
       if (isMobile) {
         // mobile
-        window.open("spotify:search:" + encodeURI(this.selection))
+        window.open("spotify:search:" + encodeURI(this.selection));
       } else {
         // browser
-        window.open("https://open.spotify.com/search/" + encodeURI(this.selection))
+        window.open(
+          "https://open.spotify.com/search/" + encodeURI(this.selection)
+        );
       }
-    }
+    },
   },
-})
+});
 </script>
 
 <style scoped>
@@ -80,7 +102,7 @@ export default defineComponent({
 }
 
 .selectedSongWord {
-  background-color: #1ED760;
+  background-color: #1ed760;
   color: #2941ab;
   cursor: zoom-out;
 }
@@ -90,7 +112,7 @@ export default defineComponent({
   top: 14%;
   left: -100px;
   z-index: 20;
-  color: #1ED760;
+  color: #1ed760;
   font-size: 16rem;
 }
 </style>
