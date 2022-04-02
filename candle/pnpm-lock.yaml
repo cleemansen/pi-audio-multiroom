@@ -4,8 +4,6 @@ specifiers:
   '@popperjs/core': ^2.11.4
   '@vitejs/plugin-vue': ^2.3.1
   '@vue/compiler-sfc': ^3.2.31
-  bootstrap: ^5.1.3
-  bootstrap-icons: ^1.8.1
   cometd: ^7.0.6
   cometd-nodejs-client: ^1.3.0
   mobile-device-detect: ^0.4.3
@@ -18,8 +16,6 @@ specifiers:
 dependencies:
   '@popperjs/core': 2.11.4
   '@vue/compiler-sfc': 3.2.31
-  bootstrap: 5.1.3_@popperjs+core@2.11.4
-  bootstrap-icons: 1.8.1
   cometd: 7.0.6
   cometd-nodejs-client: 1.3.0
   mobile-device-detect: 0.4.3
@@ -260,19 +256,6 @@ packages:
     dependencies:
       '@babel/types': 7.17.0
     dev: true
-
-  /bootstrap-icons/1.8.1:
-    resolution: {integrity: sha512-IXUqislddPJfwq6H+2nTkHyr9epO9h6u1AG0OZCx616w+TgzeoCjfmI3qJMQqt1J586gN2IxzB4M99Ip4sTZ1w==}
-    engines: {node: '>=10'}
-    dev: false
-
-  /bootstrap/5.1.3_@popperjs+core@2.11.4:
-    resolution: {integrity: sha512-fcQztozJ8jToQWXxVuEyXWW+dSo8AiXWKwiSSrKWsRB/Qt+Ewwza+JWoLKiTuQLaEPhdNAJ7+Dosc9DOIqNy7Q==}
-    peerDependencies:
-      '@popperjs/core': ^2.10.2
-    dependencies:
-      '@popperjs/core': 2.11.4
-    dev: false
 
   /call-bind/1.0.2:
     resolution: {integrity: sha512-7O+FbCihrB5WGbFYesctwmTKae6rOiIzmz1icreWJ+0aA7LJfuqhEso2T9ncpcFtzMQtzXf2QGGueWJGTYsqrA==}

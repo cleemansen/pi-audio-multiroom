@@ -1,7 +1,7 @@
 <template>
   <div>
     <p ref="currentSong" class="display-3 currentSong">
-      <i class="bi bi-spotify lookupAction" v-if="lookupAction" v-on:click="lookup"></i>
+      <va-icon class="lookupAction" :size="200" color="#1ED760" v-if="lookupAction" v-on:click="lookup" name="link" />
       <span v-for="(word, index) in currentSong" :key="index" v-html="word" v-on:click="wordTouch"
             class="songWord"></span>
     </p>

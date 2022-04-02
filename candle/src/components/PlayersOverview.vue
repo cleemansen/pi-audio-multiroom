@@ -3,7 +3,7 @@
     <div class="row">
       <div v-for="player in store.players" class="col-12 col-sm-12 	col-md-6 col-lg-6 col-xl-6 col-xxl-6" v-bind:key="player.playerId">
         <div class="card shadow rounded">
-          <div class="card-header"><i class="bi bi-broadcast-pin me-2"></i>{{ store.playerName(player.playerId) }}</div>
+          <div class="card-header">{{ store.playerName(player.playerId) }}</div>
           <img :src="player.artworkUrl"/>
           <div class="card-body">
             <CurrentTitle :artist="player.artist" :title="player.title"/>
