@@ -8,10 +8,10 @@ It is best to start from the [Mutliroom Audio Client](../pi-setup-client/README.
 
 ```
 # install some libs
-sudo apt-get install -y libsox-fmt-all libflac-dev libfaad2 libmad0 libio-socket-ssl-perl
+sudo apt-get install -y libsox-fmt-all libflac-dev libfaad2 libmad0 libio-socket-ssl-perl libcrypt-openssl-rsa-perl
 sudo apt --fix-broken install -y
 # get the latest nightly build (from downloads.slimdevices.com):
-wget -O logitechmediaserver_arm.deb $(wget -q -O - "http://www.mysqueezebox.com/update/?version=8.0.0&revision=1&geturl=1&os=debarm")
+wget -O logitechmediaserver_arm.deb $(wget -q -O - "http://www.mysqueezebox.com/update/?version=8.3.0&revision=1&geturl=1&os=debarm")
 sudo dpkg -i logitechmediaserver_arm.deb
 ```
 
