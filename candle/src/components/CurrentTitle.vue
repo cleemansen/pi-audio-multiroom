@@ -1,14 +1,14 @@
 <template>
   <div>
-    <p ref="currentSong" class="display-3 currentSong">
-      <va-icon
+    <p ref="currentSong" class="text-h3 currentSong text-high-emphasis">
+      <v-icon
         class="lookupAction"
         :size="200"
         color="#1ED760"
         v-if="lookupAction"
         v-on:click="lookup"
-        name="link"
-      />
+        >mdi-spotify</v-icon
+      >
       <span
         v-for="(word, index) in currentSong"
         :key="index"
@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent } from "vue";
 import { isMobile } from "mobile-device-detect";
 
 export default defineComponent({
