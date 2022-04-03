@@ -13,7 +13,6 @@ export class LmsCometDRepository {
   /** Creates the repository */
   constructor() {
     this.cometD = new CometD();
-    // console.debug = console.log;
     this.cometD.unregisterTransport("websocket");
 
     this.connect();
@@ -22,25 +21,25 @@ export class LmsCometDRepository {
   /** connects to the cometd-backend */
   connect() {
     this.cometD.addListener("/meta/connect", (message: any) => {
-      console.log(`/meta/connect: ` + JSON.stringify(message));
+      console.debug(`/meta/connect: ` + JSON.stringify(message));
       if (this.connected !== message.successful) {
         this.connected = message.successful;
-        console.log(this.connected ? "connected" : "connection failed");
+        console.info(this.connected ? "connected" : "connection failed");
         this.subscribeToRequests();
         this.subscribeToServerStatus();
         this.queryServerStatus();
       }
     });
 
-    console.log("cometD is now initialized");
+    console.debug("cometD is now initialized");
 
     this.cometD.configure({
       url: this.lmsCometDUrl,
       useWorkerScheduler: false,
-      logLevel: "debug",
+      logLevel: "warn",
     });
     this.cometD.handshake((ack: string) => {
-      console.log(`/meta/handshake: ` + JSON.stringify(ack));
+      console.debug(`/meta/handshake: ` + JSON.stringify(ack));
     });
   }
 
@@ -50,11 +49,11 @@ export class LmsCometDRepository {
    */
   private checkConnected() {
     if (!this.cometD) {
-      console.log("Not connected");
+      console.debug("Not connected");
       return false;
     }
     if (!this.connected) {
-      console.log("Connection failed");
+      console.warn("Connection failed");
       return false;
     }
     return true;
@@ -69,7 +68,7 @@ export class LmsCometDRepository {
       return false;
     }
     if (useLmsStore().players?.length < 1) {
-      console.log("no players");
+      console.debug("no players");
       return false;
     }
     return true;
@@ -82,8 +81,8 @@ export class LmsCometDRepository {
     if (this.checkConnected()) {
       this.cometD.subscribe(
         `/${this.cometD.getClientId()}/slim/request/*`,
-        (msg) => console.log(`/slim/request/*: ${JSON.stringify(msg)}`),
-        (ack) => console.log(`ACK /slim/request/*: ${JSON.stringify(ack)}`)
+        (msg) => console.debug(`/slim/request/*: ${JSON.stringify(msg)}`),
+        (ack) => console.debug(`ACK /slim/request/*: ${JSON.stringify(ack)}`)
       );
     }
   }
@@ -106,7 +105,7 @@ export class LmsCometDRepository {
           this.subscribeToPlayerStatus();
           this.queryPlayerStatus();
         },
-        (ack) => console.log(`ACK /slim/serverstatus: ${JSON.stringify(ack)}`)
+        (ack) => console.debug(`ACK /slim/serverstatus: ${JSON.stringify(ack)}`)
       );
     }
   }
@@ -123,7 +122,7 @@ export class LmsCometDRepository {
           response: `/${this.cometD.getClientId()}/slim/serverstatus`,
         },
         (ack) =>
-          console.log(
+          console.debug(
             `ACK /slim/request (serverstatus): ${JSON.stringify(ack)}`
           )
       );
@@ -141,7 +140,7 @@ export class LmsCometDRepository {
           console.debug(`/slim/playerstatus/*`, msg);
           useLmsStore().updatePlayer(msg);
         },
-        (ack) => console.log(`ACK /slim/playerstatus/*: ${JSON.stringify(ack)}`)
+        (ack) => console.debug(`ACK /slim/playerstatus/*: ${JSON.stringify(ack)}`)
       );
     }
   }
@@ -164,7 +163,7 @@ export class LmsCometDRepository {
             }`,
           },
           (ack) =>
-            console.log(
+            console.debug(
               `ACK /slim/request (playerstatus): ${JSON.stringify(ack)}`
             )
         );
