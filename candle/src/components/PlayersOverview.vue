@@ -28,7 +28,7 @@
               :icon="playPauseIcon(player)"
               x-large
               @click="togglePlayPause(player)"
-              :loading="!reachedDesiredMode[player.playerId]"
+              :loading="!reachedDesiredMode(player.playerId)"
             >
             </v-btn>
             <v-btn icon="mdi-volume-high" x-large @click="volumeStepUp(player)">
@@ -125,8 +125,6 @@ export default defineComponent({
       }
       return "mdi-heart-broken";
     },
-  },
-  computed: {
     reachedDesiredMode(playerId: string): boolean {
       if (
         this.desiredState.find(

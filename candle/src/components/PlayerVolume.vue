@@ -19,7 +19,7 @@
     v-bind:key="playerId"
     v-model="vol"
     hide-details
-    :color="this.progress ? 'purple' : 'indigo'"
+    :color="stateColor"
     :thumb-label="true"
     elevation="4"
   >
@@ -52,6 +52,14 @@ export default defineComponent({
     progress: {
       get: function () {
         return this.desiredVolume >= 0;
+      },
+      set: function () {
+        // no-op
+      },
+    },
+    stateColor: {
+      get: function () {
+        return this.progress ? "purple" : "indigo";
       },
       set: function () {
         // no-op
