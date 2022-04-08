@@ -25,6 +25,14 @@ export interface PlayerCometD {
   player_ip?: string;
 }
 
+export interface PlayerServerstatusCometD {
+  playerid: string;
+  name: string;
+  power: boolean;
+  connected: boolean;
+  canpoweroff: boolean;
+}
+
 export interface RemoteMetaCometD {
   title?: string;
   artist?: string;

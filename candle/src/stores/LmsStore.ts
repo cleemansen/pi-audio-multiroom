@@ -65,6 +65,14 @@ export const useLmsStore = defineStore("playerStatus", {
         this.syncNodes.push(playerEvent);
       }
     },
+    volumeStepDown(playerId: string, step = 4) {
+      this.cometD.request(playerId, ["mixer", "volume", `-${step}`]);
+      this.cometD.queryPlayerStatus();
+    },
+    volumeStepUp(playerId: string, step = 4) {
+      this.cometD.request(playerId, ["mixer", "volume", `+${step}`]);
+      this.cometD.queryPlayerStatus();
+    },
   },
   getters: {
     currentTitle(): string {

@@ -90,10 +90,10 @@ export default defineComponent({
       console.log(playerId, desiredVolume);
     },
     volumeStepUp(player: Player) {
-      console.debug(player);
+      this.store.volumeStepUp(player.playerId);
     },
     volumeStepDown(player: Player) {
-      console.debug(player);
+      this.store.volumeStepDown(player.playerId);
     },
     togglePlayPause(player: Player) {
       console.debug(player);

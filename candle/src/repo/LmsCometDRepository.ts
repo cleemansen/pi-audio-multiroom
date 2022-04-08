@@ -1,7 +1,7 @@
 import { CometD } from "cometd";
 import type { Message } from "cometd";
 import { useLmsStore } from "@/stores/LmsStore";
-import type { Player } from "@/types/Player";
+import type {Player, PlayerServerstatusCometD} from "@/types/Player";
 
 /** Communicates with the cometd-endpoint */
 export class LmsCometDRepository {
@@ -80,7 +80,7 @@ export class LmsCometDRepository {
   subscribeToRequests() {
     if (this.checkConnected()) {
       this.cometD.subscribe(
-        `/${this.cometD.getClientId()}/slim/request/*`,
+        `/slim/request/*`,
         (msg) => console.debug(`/slim/request/*: ${JSON.stringify(msg)}`),
         (ack) => console.debug(`ACK /slim/request/*: ${JSON.stringify(ack)}`)
       );
@@ -96,7 +96,7 @@ export class LmsCometDRepository {
         `/${this.cometD.getClientId()}/slim/serverstatus`,
         (msg) => {
           console.debug(`/slim/serverstatus:`, msg);
-          useLmsStore().players = msg.data.players_loop.map((player: any) => {
+          useLmsStore().players = msg.data.players_loop.map((player: PlayerServerstatusCometD) => {
             return {
               playerId: player.playerid,
               playerName: player.name,
@@ -169,5 +169,21 @@ export class LmsCometDRepository {
         );
       });
     }
+  }
+
+  /**
+   * Requests the command.
+   * @param {string} playerId targeted player ID
+   * @param {string[]} command the command to request to be executed
+   */
+  request(playerId: string, command: string[]) {
+    this.cometD.publish(
+        `/slim/request`,
+        {
+          response: `/${this.cometD.getClientId()}/request`,
+          request: [playerId, command],
+        },
+        (publishAck) => console.warn('request-ack', publishAck)
+    );
   }
 }
