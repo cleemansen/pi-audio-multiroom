@@ -96,7 +96,7 @@ export default defineComponent({
       this.store.volumeStepDown(player.playerId);
     },
     togglePlayPause(player: Player) {
-      console.debug(player);
+      this.store.togglePlayPause(player.playerId);
     },
     shutdown(player: Player) {
       console.debug(player);

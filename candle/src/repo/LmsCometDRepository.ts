@@ -191,7 +191,13 @@ export class LmsCometDRepository {
         response: response,
         request: [playerId, command],
       },
-      (publishAck) => console.debug(`request-ack`, publishAck)
+      (ack: Message) => {
+        if (ack.successful) {
+          console.debug(`request-ack`, ack);
+        } else {
+          console.warn(`request-ack`, ack);
+        }
+      }
     );
   }
 }
