@@ -65,6 +65,10 @@ export const useLmsStore = defineStore("playerStatus", {
         this.syncNodes.push(playerEvent);
       }
     },
+    volume(playerId: string, desiredVolume: number) {
+      this.cometD.request(playerId, ["mixer", "volume", `${desiredVolume}`]);
+      this.cometD.queryPlayerStatus();
+    },
     volumeStepDown(playerId: string, step = 4) {
       this.cometD.request(playerId, ["mixer", "volume", `-${step}`]);
       this.cometD.queryPlayerStatus();

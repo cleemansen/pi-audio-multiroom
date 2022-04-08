@@ -1,4 +1,5 @@
 <template>
+  <!-- wait for https://github.com/vuetifyjs/vuetify/issues/14936
   <v-progress-linear
     v-bind:key="playerId"
     v-model="vol"
@@ -13,6 +14,16 @@
       </div>
     </template>
   </v-progress-linear>
+  -->
+  <v-slider
+    v-bind:key="playerId"
+    v-model="vol"
+    hide-details
+    :color="this.progress ? 'purple' : 'indigo'"
+    :thumb-label="true"
+    elevation="4"
+  >
+  </v-slider>
 </template>
 
 <script lang="ts">
@@ -36,6 +47,14 @@ export default defineComponent({
       },
       set: function (newValue: number) {
         this.desiredVolume = Math.ceil(newValue);
+      },
+    },
+    progress: {
+      get: function () {
+        return this.desiredVolume >= 0;
+      },
+      set: function () {
+        // no-op
       },
     },
   },

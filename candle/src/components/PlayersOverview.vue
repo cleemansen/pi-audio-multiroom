@@ -87,7 +87,7 @@ export default defineComponent({
   },
   methods: {
     volumeChange(playerId: string, desiredVolume: number) {
-      console.log(playerId, desiredVolume);
+      this.store.volume(playerId, desiredVolume);
     },
     volumeStepUp(player: Player) {
       this.store.volumeStepUp(player.playerId);
