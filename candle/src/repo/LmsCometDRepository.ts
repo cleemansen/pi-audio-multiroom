@@ -1,12 +1,12 @@
 import { CometD } from "cometd";
 import type { Message } from "cometd";
 import { useLmsStore } from "@/stores/LmsStore";
-import type {Player, PlayerServerstatusCometD} from "@/types/Player";
+import type { Player, PlayerServerstatusCometD } from "@/types/Player";
 
 /** Communicates with the cometd-endpoint */
 export class LmsCometDRepository {
   private readonly cometD: CometD;
-  private connected = false;
+  private connected? = false;
   private lmsCometDUrl = "https://lms.unividuell.org/cometd";
 
   /** Creates the repository */
@@ -19,7 +19,7 @@ export class LmsCometDRepository {
 
   /** connects to the cometd-backend */
   connect() {
-    this.cometD.addListener("/meta/connect", (message: any) => {
+    this.cometD.addListener("/meta/connect", (message: Message) => {
       console.debug(`/meta/connect: ` + JSON.stringify(message));
       if (this.connected !== message.successful) {
         this.connected = message.successful;
@@ -37,8 +37,8 @@ export class LmsCometDRepository {
       useWorkerScheduler: false,
       logLevel: "warn",
     });
-    this.cometD.handshake((ack: string) => {
-      console.debug(`/meta/handshake: ` + JSON.stringify(ack));
+    this.cometD.handshake({}, (ack) => {
+      console.debug(`/meta/handshake`, ack);
     });
   }
 
@@ -95,12 +95,14 @@ export class LmsCometDRepository {
         `/slim/serverstatus`,
         (msg) => {
           console.debug(`/slim/serverstatus:`, msg);
-          useLmsStore().players = msg.data.players_loop.map((player: PlayerServerstatusCometD) => {
-            return {
-              playerId: player.playerid,
-              playerName: player.name,
-            } as Player;
-          });
+          useLmsStore().players = msg.data.players_loop.map(
+            (player: PlayerServerstatusCometD) => {
+              return {
+                playerId: player.playerid,
+                playerName: player.name,
+              } as Player;
+            }
+          );
           this.subscribeToPlayerStatus();
           this.queryPlayerStatus();
         },
@@ -114,11 +116,7 @@ export class LmsCometDRepository {
    */
   queryServerStatus() {
     if (this.checkConnected()) {
-      this.request(
-        "",
-        ["serverstatus", 0, 255],
-        `/slim/serverstatus`
-      );
+      this.request("", ["serverstatus", 0, 255], `/slim/serverstatus`);
     }
   }
 

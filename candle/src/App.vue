@@ -3,15 +3,14 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent } from "vue";
 import PlayersOverview from "./components/PlayersOverview.vue";
 
 export default defineComponent({
-  name: 'App',
+  name: "App",
 
   components: {
     PlayersOverview,
   },
-
-})
+});
 </script>

@@ -61,9 +61,11 @@ export default defineComponent({
           .split("§sep§")
       );
     },
-    wordTouch(element: any) {
+    wordTouch(element: Event) {
       // kudos: https://stackoverflow.com/a/51921785/810944
-      element.target?.classList?.toggle("selectedSongWord");
+      (element.target as HTMLInputElement)?.classList?.toggle(
+        "selectedSongWord"
+      );
       const selected = (this.$refs.currentSong as Element).querySelectorAll(
         ".selectedSongWord"
       );
