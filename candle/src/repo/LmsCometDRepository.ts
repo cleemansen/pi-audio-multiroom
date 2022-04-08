@@ -7,8 +7,7 @@ import type {Player, PlayerServerstatusCometD} from "@/types/Player";
 export class LmsCometDRepository {
   private readonly cometD: CometD;
   private connected = false;
-  private lmsCometDUrl =
-    "https://lms.unividuell.org" /* "http://localhost:9002" */ + "/cometd";
+  private lmsCometDUrl = "https://lms.unividuell.org/cometd";
 
   /** Creates the repository */
   constructor() {
@@ -93,7 +92,7 @@ export class LmsCometDRepository {
   subscribeToServerStatus() {
     if (this.checkConnected()) {
       this.cometD.subscribe(
-        `/${this.cometD.getClientId()}/slim/serverstatus`,
+        `/slim/serverstatus`,
         (msg) => {
           console.debug(`/slim/serverstatus:`, msg);
           useLmsStore().players = msg.data.players_loop.map((player: PlayerServerstatusCometD) => {
@@ -105,7 +104,7 @@ export class LmsCometDRepository {
           this.subscribeToPlayerStatus();
           this.queryPlayerStatus();
         },
-        (ack) => console.debug(`ACK /slim/serverstatus: ${JSON.stringify(ack)}`)
+        (ack) => console.debug(`ACK /slim/serverstatus`, ack)
       );
     }
   }
@@ -115,19 +114,14 @@ export class LmsCometDRepository {
    */
   queryServerStatus() {
     if (this.checkConnected()) {
-      this.cometD.publish(
-        "/slim/request",
-        {
-          request: ["", ["serverstatus", 0, 255]],
-          response: `/${this.cometD.getClientId()}/slim/serverstatus`,
-        },
-        (ack) =>
-          console.debug(
-            `ACK /slim/request (serverstatus): ${JSON.stringify(ack)}`
-          )
+      this.request(
+        "",
+        ["serverstatus", 0, 255],
+        `/slim/serverstatus`
       );
     }
   }
+
 
   /**
    * Subscribe for slim-player-status updates
@@ -135,12 +129,12 @@ export class LmsCometDRepository {
   subscribeToPlayerStatus() {
     if (this.checkConnected()) {
       this.cometD.subscribe(
-        `/${this.cometD.getClientId()}/slim/playerstatus/*`,
+        `/slim/playerstatus/*`,
         (msg: Message) => {
           console.debug(`/slim/playerstatus/*`, msg);
           useLmsStore().updatePlayer(msg);
         },
-        (ack) => console.debug(`ACK /slim/playerstatus/*: ${JSON.stringify(ack)}`)
+        (ack) => console.debug(`ACK /slim/playerstatus/*`, ack)
       );
     }
   }
@@ -151,21 +145,20 @@ export class LmsCometDRepository {
   queryPlayerStatus() {
     if (this.checkPlayer()) {
       useLmsStore().players.forEach((player: Player) => {
-        this.cometD.publish(
-          "/slim/request",
-          {
-            request: [
-              `${player.playerId}`,
-              ["status", 0, 255, "tags:galKLmNrLT", "subscribe:60"],
-            ],
-            response: `/${this.cometD.getClientId()}/slim/playerstatus/${
-              player.playerId
-            }`,
-          },
-          (ack) =>
-            console.debug(
-              `ACK /slim/request (playerstatus): ${JSON.stringify(ack)}`
-            )
+        this.request(
+          player.playerId,
+          // g: Genre
+          // a: Artist
+          // l: Album
+          // K: artwork_url
+          // L:  info_link
+          // m: bpm
+          // N: Title of the internet radio station.
+          // T: samplerate Song sample rate (in KHz)
+          // r: bitrate
+          // u: Song file url.
+          ["status", 0, 255, "tags:galKLmNrLT", "subscribe:60"],
+          `/slim/playerstatus/${player.playerId}`
         );
       });
     }
@@ -174,16 +167,21 @@ export class LmsCometDRepository {
   /**
    * Requests the command.
    * @param {string} playerId targeted player ID
-   * @param {string[]} command the command to request to be executed
+   * @param {(string|number)[]} command the command to request to be executed
+   * @param {string} response the response channel
    */
-  request(playerId: string, command: string[]) {
+  request(
+    playerId: string,
+    command: (string|number)[],
+    response = `/${this.cometD.getClientId()}/request`
+  ) {
     this.cometD.publish(
-        `/slim/request`,
-        {
-          response: `/${this.cometD.getClientId()}/request`,
-          request: [playerId, command],
-        },
-        (publishAck) => console.warn('request-ack', publishAck)
+      `/slim/request`,
+      {
+        response: response,
+        request: [playerId, command],
+      },
+      (publishAck) => console.debug(`request-ack`, publishAck)
     );
   }
 }
