@@ -6,4 +6,4 @@
 *.ipr
 *.iws
 /target
-/resources/pictl-vue/
+/resources/candle/
