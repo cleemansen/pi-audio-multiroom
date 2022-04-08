@@ -8,7 +8,7 @@
         v-for="player in store.players"
         v-bind:key="player.playerId"
       >
-        <v-card class="mb-6">
+        <v-card class="mb-6" :loading="shutdownInitialized">
           <v-system-bar>
             <v-icon icon="mdi-cast-audio" class="me-1"></v-icon>
             <span>candle for {{ store.playerName(player.playerId) }}</span>
@@ -78,11 +78,13 @@ export default defineComponent({
     const loading = ref(true);
     const store = useLmsStore();
     const desiredState = [] as Player[];
+    const shutdownInitialized = ref(false);
 
     return {
       loading,
       store,
       desiredState,
+      shutdownInitialized,
     };
   },
   methods: {
@@ -99,7 +101,21 @@ export default defineComponent({
       this.store.togglePlayPause(player.playerId);
     },
     shutdown(player: Player) {
-      console.debug(player);
+      let playerIps = [player.ipAddress];
+      const nodeIps = this.store.syncNodes
+        .map((node: Player) => node.ipAddress)
+        .filter((ip): ip is string => !!ip);
+      if (nodeIps) {
+        playerIps = playerIps.concat(nodeIps);
+      }
+      console.warn(playerIps);
+      this.axios
+        .post("/ctl-hardware/shutdown", { ips: playerIps })
+        .then((response) => {
+          console.debug(`shutdown result for [${nodeIps}]`, response);
+          this.shutdownInitialized = true;
+        })
+        .catch((err) => console.log(`shutdown result for [${nodeIps}]`, err));
     },
     playPauseIcon(player: Player): string {
       if (player.mode === "play") {

@@ -10,6 +10,7 @@ specifiers:
   '@vue/eslint-config-typescript': ^10.0.0
   '@vue/tsconfig': ^0.1.3
   '@vuetify/vite-plugin': ^1.0.0-alpha.0
+  axios: ^0.26.1
   cometd: ^7.0.6
   cometd-nodejs-client: ^1.3.0
   eslint: ^8.5.0
@@ -22,18 +23,21 @@ specifiers:
   typescript: ~4.6.3
   vite: ^2.9.1
   vue: ^3.2.31
+  vue-axios: ^3.4.1
   vue-tsc: ^0.33.9
   vuetify: ^3.0.0-beta.0
   webfontloader: ^1.0.0
 
 dependencies:
   '@mdi/font': 5.9.55
+  axios: 0.26.1
   cometd: 7.0.6
   cometd-nodejs-client: 1.3.0
   mobile-device-detect: 0.4.3
   pinia: 2.0.13_typescript@4.6.3+vue@3.2.31
   roboto-fontface: 0.10.0
   vue: 3.2.31
+  vue-axios: 3.4.1_axios@0.26.1+vue@3.2.31
   vuetify: 3.0.0-beta.0_vue@3.2.31
   webfontloader: 1.6.28
 
@@ -538,6 +542,14 @@ packages:
     resolution: {integrity: sha512-HGyxoOTYUyCM6stUe6EJgnd4EoewAI7zMdfqO+kGjnlZmBDz/cR5pf8r/cR4Wq60sL/p0IkcjUEEPwS3GFrIyw==}
     engines: {node: '>=8'}
     dev: true
+
+  /axios/0.26.1:
+    resolution: {integrity: sha512-fPwcX4EvnSHuInCMItEhAGnaSEXRBjtzh9fOtsE6E1G6p7vl7edEeZe11QHf18+6+9gR5PbKV/sGKNaD8YaMeA==}
+    dependencies:
+      follow-redirects: 1.14.9
+    transitivePeerDependencies:
+      - debug
+    dev: false
 
   /balanced-match/1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
@@ -1120,6 +1132,16 @@ packages:
   /flatted/3.2.5:
     resolution: {integrity: sha512-WIWGi2L3DyTUvUrwRKgGi9TwxQMUEqPOPQBVi71R96jZXJdFskXEmf54BoZaS1kknGODoIGASGEzBUYdyMCBJg==}
     dev: true
+
+  /follow-redirects/1.14.9:
+    resolution: {integrity: sha512-MQDfihBQYMcyy5dhRDJUHcw7lb2Pv/TuE6xP1vyraLukNDHKbDxDNaOE3NbCAdKQApno+GPRyo1YAp89yCjK4w==}
+    engines: {node: '>=4.0'}
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
+    dev: false
 
   /fs.realpath/1.0.0:
     resolution: {integrity: sha1-FQStJSMVjKpA20onh8sBQRmU6k8=}
@@ -1777,6 +1799,16 @@ packages:
   /vscode-uri/3.0.3:
     resolution: {integrity: sha512-EcswR2S8bpR7fD0YPeS7r2xXExrScVMxg4MedACaWHEtx9ftCF/qHG1xGkolzTPcEmjTavCQgbVzHUIdTMzFGA==}
     dev: true
+
+  /vue-axios/3.4.1_axios@0.26.1+vue@3.2.31:
+    resolution: {integrity: sha512-8YZYUOQrBEJktxoQtrM4rr2LfVcDaWfJqv8MqtLlgLlkuBvCYKFSZSo6AXQ4YcCzdgccDqstmuaEh68lcH9xWA==}
+    peerDependencies:
+      axios: '>= 0.20.0'
+      vue: ^3.0.0 || ^2.0.0
+    dependencies:
+      axios: 0.26.1
+      vue: 3.2.31
+    dev: false
 
   /vue-demi/0.12.5_vue@3.2.31:
     resolution: {integrity: sha512-BREuTgTYlUr0zw0EZn3hnhC3I6gPWv+Kwh4MCih6QcAeaTlaIX0DwOVN0wHej7hSvDPecz4jygy/idsgKfW58Q==}
