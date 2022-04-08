@@ -122,7 +122,6 @@ export class LmsCometDRepository {
     }
   }
 
-
   /**
    * Subscribe for slim-player-status updates
    */
@@ -166,13 +165,26 @@ export class LmsCometDRepository {
 
   /**
    * Requests the command.
+   * Backend: https://github.com/Logitech/slimserver/blob/public/8.3/Slim/Web/Cometd.pm#L512
+   * A valid /slim/request message looks like this:
+   * ```
+   * {
+   *   channel  => '/slim/request',
+   *   id       => <unique id>, (optional)
+   *   data     => {
+   *     response => '/slim/<clientId>/request',
+   *     request  => [ '', [ 'menu', 0, 100, ],
+   *     priority => <value>, # optional priority value, is passed-through with the response
+   *   }
+   * }
+   * ```
    * @param {string} playerId targeted player ID
-   * @param {(string|number)[]} command the command to request to be executed
+   * @param {(string | number)[]} command the command to request to be executed
    * @param {string} response the response channel
    */
   request(
     playerId: string,
-    command: (string|number)[],
+    command: (string | number)[],
     response = `/${this.cometD.getClientId()}/request`
   ) {
     this.cometD.publish(
