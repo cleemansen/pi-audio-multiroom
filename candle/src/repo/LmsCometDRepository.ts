@@ -7,7 +7,9 @@ import type { Player, PlayerServerstatusCometD } from "@/types/Player";
 export class LmsCometDRepository {
   private readonly cometD: CometD;
   private connected? = false;
-  private lmsCometDUrl = "https://lms.unividuell.org/cometd";
+  private lmsCometDUrl = import.meta.env.PROD
+    ? "/cometd"
+    : "https://lms.unividuell.org/cometd";
 
   /** Creates the repository */
   constructor() {
