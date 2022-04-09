@@ -143,23 +143,25 @@ export class LmsCometDRepository {
    */
   queryPlayerStatus() {
     if (this.checkPlayer()) {
-      useLmsStore().players.forEach((player: Player) => {
-        this.request(
-          player.playerId,
-          // g: Genre
-          // a: Artist
-          // l: Album
-          // K: artwork_url
-          // L:  info_link
-          // m: bpm
-          // N: Title of the internet radio station.
-          // T: samplerate Song sample rate (in KHz)
-          // r: bitrate
-          // u: Song file url.
-          ["status", 0, 255, "tags:galKLmNrLT", "subscribe:60"],
-          `/slim/playerstatus/${player.playerId}`
-        );
-      });
+      useLmsStore()
+        .players.concat(useLmsStore().syncNodes)
+        .forEach((player: Player) => {
+          this.request(
+            player.playerId,
+            // g: Genre
+            // a: Artist
+            // l: Album
+            // K: artwork_url
+            // L:  info_link
+            // m: bpm
+            // N: Title of the internet radio station.
+            // T: samplerate Song sample rate (in KHz)
+            // r: bitrate
+            // u: Song file url.
+            ["status", 0, 255, "tags:galKLmNrLT", "subscribe:10"],
+            `/candle/playerstatus/${player.playerId}`
+          );
+        });
     }
   }
 
