@@ -1,0 +1,13 @@
+#!/bin/sh
+sleep 30
+
+FILE=/tmp/squeezelite-on-signal
+if test -f "$FILE"; then
+    echo "$FILE exists."
+    touch /tmp/squeezelite-final-shutdown-aborted
+    # abort shutdown as somebody powered ON the player in the meantime
+    exit 1
+fi
+
+shutdown -P now
+touch /tmp/squeezelite-final-shutdown-NOW

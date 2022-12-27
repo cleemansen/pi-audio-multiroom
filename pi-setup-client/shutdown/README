@@ -1,0 +1,11 @@
+# Shutdown Handling
+
+Goal: shutdown the system as the squeezelite player gets the OFF signal by LMS
+
+1. add `-S` option to squeezelite cmd (via `/usr/local/bin/squeezelite_settings.sh`)
+```
+# If you want to use different squeezelite options, not set by this script, use the next line:
+SL_ADDITIONAL_OPTIONS="-S /usr/local/bin/squeezelite-power.sh"
+```
+1. create file `/usr/local/bin/squeezelite-power.sh`
+1. create file ``
