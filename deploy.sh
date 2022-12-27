@@ -20,7 +20,7 @@ target="${1}"
 echo "build frontend"
 frontend_dest="pictl-ktor/resources/candle/"
 rm -rf $frontend_dest && mkdir $frontend_dest
-(cd candle && npx browserslist@latest --update-db && pnpm run build && cp -rf dist/* ../$frontend_dest/)
+(cd candle && pnpm run build && cp -rf dist/* ../$frontend_dest/)
 echo "bundle backend (with bundled frontend)"
 (cd pictl-ktor && ./mvnw clean package --quiet)
 echo "deploy to $target"
