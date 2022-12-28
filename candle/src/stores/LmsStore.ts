@@ -67,19 +67,19 @@ export const useLmsStore = defineStore("lms", {
     },
     togglePlayPause(playerId: string) {
       this.cometD.request(playerId, ["pause"]);
-      this.cometD.queryPlayerStatus();
+      // this.cometD.queryPlayerStatus();
     },
     volume(playerId: string, desiredVolume: number) {
       this.cometD.request(playerId, ["mixer", "volume", `${desiredVolume}`]);
-      this.cometD.queryPlayerStatus();
+      // this.cometD.queryPlayerStatus();
     },
     volumeStepDown(playerId: string, step = 4) {
       this.cometD.request(playerId, ["mixer", "volume", `-${step}`]);
-      this.cometD.queryPlayerStatus();
+      // this.cometD.queryPlayerStatus();
     },
     volumeStepUp(playerId: string, step = 4) {
       this.cometD.request(playerId, ["mixer", "volume", `+${step}`]);
-      this.cometD.queryPlayerStatus();
+      // this.cometD.queryPlayerStatus();
     },
   },
   getters: {

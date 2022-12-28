@@ -25,7 +25,9 @@ export class LmsCometDRepository {
         this.connected = message.successful;
         console.info(this.connected ? "connected" : "connection failed");
         this.subscribeToRequests();
+        this.subscribeToSubscriptions();
         this.subscribeToServerStatus();
+        this.subscribeToPlayerStatus();
         this.queryServerStatus();
       }
     });
@@ -80,8 +82,17 @@ export class LmsCometDRepository {
     if (this.checkConnected()) {
       this.cometD.subscribe(
         `/slim/request/*`,
-        (msg) => console.debug(`/slim/request/*: ${JSON.stringify(msg)}`),
-        (ack) => console.debug(`ACK /slim/request/*: ${JSON.stringify(ack)}`)
+        (msg) => console.debug(`/slim/request/*`, msg),
+        (ack) => console.debug(`ACK /slim/request/*`, ack)
+      );
+    }
+  }
+  subscribeToSubscriptions() {
+    if (this.checkConnected()) {
+      this.cometD.subscribe(
+        `/slim/subscribe/*`,
+        (msg) => console.debug(`/slim/subscribe/*`, msg),
+        (ack) => console.debug(`ACK /slim/subscribe/*`, ack)
       );
     }
   }
@@ -92,9 +103,9 @@ export class LmsCometDRepository {
   subscribeToServerStatus() {
     if (this.checkConnected()) {
       this.cometD.subscribe(
-        `/slim/serverstatus`,
+        `/${this.cometD.getClientId()}/candle/serverstatus`,
         (msg) => {
-          console.debug(`/slim/serverstatus:`, msg);
+          console.debug(`/candle/serverstatus:`, msg);
           useLmsStore().players = msg.data.players_loop.map(
             (player: PlayerServerstatusCometD) => {
               return {
@@ -103,10 +114,10 @@ export class LmsCometDRepository {
               } as Player;
             }
           );
-          this.subscribeToPlayerStatus();
-          this.queryPlayerStatus();
+          // this.subscribeToPlayerStatus();
+          this.subscribeForPlayerStatusUpdate();
         },
-        (ack) => console.debug(`ACK /slim/serverstatus`, ack)
+        (ack) => console.debug(`ACK /candle/serverstatus`, ack)
       );
     }
   }
@@ -116,7 +127,11 @@ export class LmsCometDRepository {
    */
   queryServerStatus() {
     if (this.checkConnected()) {
-      this.request("", ["serverstatus", 0, 255], `/slim/serverstatus`);
+      this.request(
+        "",
+        ["serverstatus", 0, 50],
+        `/${this.cometD.getClientId()}/candle/serverstatus`
+      );
     }
   }
 
@@ -126,12 +141,12 @@ export class LmsCometDRepository {
   subscribeToPlayerStatus() {
     if (this.checkConnected()) {
       this.cometD.subscribe(
-        `/slim/playerstatus/*`,
+        `/${this.cometD.getClientId()}/candle/playerstatus/*`,
         (msg: Message) => {
-          console.debug(`/slim/playerstatus/*`, msg);
+          console.debug(`/candle/playerstatus/*`, msg);
           useLmsStore().updatePlayer(msg);
         },
-        (ack) => console.debug(`ACK /slim/playerstatus/*`, ack)
+        (ack) => console.debug(`ACK /candle/playerstatus/*`, ack)
       );
     }
   }
@@ -139,12 +154,12 @@ export class LmsCometDRepository {
   /**
    * Query latest slim-player-status
    */
-  queryPlayerStatus() {
+  subscribeForPlayerStatusUpdate() {
     if (this.checkPlayer()) {
       useLmsStore()
         .players.concat(useLmsStore().syncNodes)
         .forEach((player: Player) => {
-          this.request(
+          this.publish(
             player.playerId,
             // g: Genre
             // a: Artist
@@ -156,15 +171,29 @@ export class LmsCometDRepository {
             // T: samplerate Song sample rate (in KHz)
             // r: bitrate
             // u: Song file url.
-            ["status", 0, 255, "tags:galKLmNrLT", "subscribe:10"],
-            `/candle/playerstatus/${player.playerId}`
+            ["status", 0, 255, "tags:galKLmNrLT", "subscribe:100"],
+            "/slim/subscribe",
+            `/${this.cometD.getClientId()}/candle/playerstatus/${player.playerId}`
           );
         });
     }
   }
 
+  request(
+      playerId: string,
+      command: (string | number)[],
+      response = "/slim/request"
+  ) {
+    this.publish(
+        playerId,
+        command,
+        "/slim/request",
+        response
+    );
+  }
+
   /**
-   * Requests the command.
+   * Publish the command.
    * Backend: https://github.com/Logitech/slimserver/blob/public/8.3/Slim/Web/Cometd.pm#L512
    * A valid /slim/request message looks like this:
    * ```
@@ -180,15 +209,17 @@ export class LmsCometDRepository {
    * ```
    * @param {string} playerId targeted player ID
    * @param {(string | number)[]} command the command to request to be executed
+   * @param {string} channel the channel targeted by this request
    * @param {string} response the response channel
    */
-  request(
+  private publish(
     playerId: string,
     command: (string | number)[],
-    response = `/${this.cometD.getClientId()}/request`
+    channel: string,
+    response: string
   ) {
     this.cometD.publish(
-      `/slim/request`,
+      channel,
       {
         response: response,
         request: [playerId, command],
