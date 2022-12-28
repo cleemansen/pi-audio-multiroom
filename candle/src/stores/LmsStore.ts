@@ -119,7 +119,7 @@ function parseArtworkUrl(lmsArtworkUrl?: string) {
     lmsArtworkUrl.startsWith("html/")
   ) {
     return (
-      `https://lms.unividuell.org` +
+      `http://thin.unividuell.org:9000` +
       (lmsArtworkUrl.startsWith("/") ? "" : "/") +
       lmsArtworkUrl
     );
