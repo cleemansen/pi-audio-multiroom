@@ -1,46 +1,45 @@
 # candle
 
-This template should help get you started developing with Vue 3 in Vite.
+## CORS
 
-## Recommended IDE Setup
-
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.vscode-typescript-vue-plugin).
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=johnsoncodehk.vscode-typescript-vue-plugin) to make the TypeScript language service aware of `.vue` types.
-
-If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has also implemented a [Take Over Mode](https://github.com/johnsoncodehk/volar/discussions/471#discussioncomment-1361669) that is more performant. You can enable it by the following steps:
-
-1. Disable the built-in TypeScript Extension
-    1) Run `Extensions: Show Built-in Extensions` from VSCode's command palette
-    2) Find `TypeScript and JavaScript Language Features`, right click and select `Disable (Workspace)`
-2. Reload the VSCode window by running `Developer: Reload Window` from the command palette.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
-
-## Project Setup
-
-```sh
-pppnpm install
 ```
+(cors) {
+  # kudos: https://kalnytskyi.com/posts/setup-cors-caddy-2/
+  @cors_preflight method OPTIONS
+  @cors header Origin {args.0}
 
-### Compile and Hot-Reload for Development
+  handle @cors_preflight {
+    header Access-Control-Allow-Origin "{args.0}"
+    header Access-Control-Allow-Methods "GET, POST, PUT, PATCH, DELETE"
+    header Access-Control-Allow-Headers "Content-Type"
+    header Access-Control-Max-Age "3600"
+    header Access-Control-Allow-Credentials "true"
+    respond "" 204
+  }
 
-```sh
-npm run dev
-```
+  handle @cors {
+    header Access-Control-Allow-Origin "{args.0}"
+    header Access-Control-Expose-Headers "Link"
+    header Access-Control-Allow-Credentials "true"
+  }
+}
 
-### Type-Check, Compile and Minify for Production
 
-```sh
-npm run build
-```
+:9001 {
+  import cors http://thin.unividuell.org:9002
+  reverse_proxy lms:9000
+  log {
+    output file /var/log/caddy/9001-access.log
+    format console
+  }
+}
 
-### Lint with [ESLint](https://eslint.org/)
-
-```sh
-pnpm run lint
+:9011 {
+  import cors http://localhost:3000
+  reverse_proxy lms:9000
+  log {
+    output file /var/log/caddy/9011-access.log
+    format console
+  }
+}
 ```
