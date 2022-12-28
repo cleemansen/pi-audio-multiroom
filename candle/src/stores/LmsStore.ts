@@ -3,7 +3,7 @@ import { LmsCometDRepository } from "@/repo/LmsCometDRepository";
 import type { Player, PlayerCometD } from "@/types/Player";
 import type { Message } from "cometd";
 
-export const useLmsStore = defineStore("playerStatus", {
+export const useLmsStore = defineStore("lms", {
   state: () => ({
     players: [] as Player[],
     syncNodes: [] as Player[],
