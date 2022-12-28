@@ -9,13 +9,9 @@
         v-bind:key="player.playerId"
       >
         <v-card class="mb-6" :loading="shutdownInitialized">
-          <v-system-bar>
-            <v-icon icon="mdi-cast-audio" class="me-1"></v-icon>
-            <span>candle for {{ store.playerName(player.playerId) }}</span>
-            <v-spacer></v-spacer>
-          </v-system-bar>
           <v-toolbar color="white" class="elevation-2">
             <v-app-bar-nav-icon></v-app-bar-nav-icon>
+            <v-toolbar-title>{{ store.playerName(player.playerId) }}</v-toolbar-title>
             <v-spacer />
 
             <v-btn
@@ -34,7 +30,6 @@
             <v-btn icon="mdi-volume-high" x-large @click="volumeStepUp(player)">
             </v-btn>
 
-            <v-spacer />
             <v-btn icon="mdi-power" @click="shutdown(player)"> </v-btn>
           </v-toolbar>
           <v-row>
