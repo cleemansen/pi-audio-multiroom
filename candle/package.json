@@ -1,12 +1,11 @@
 {
   "name": "candle",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc --noEmit && vite build",
-    "preview": "vite preview --port 5050",
-    "typecheck": "vue-tsc --noEmit",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "eslint --ext .js,.vue --ignore-path .gitignore --fix src"
   },
   "dependencies": {
     "@mdi/font": "5.9.55",
@@ -18,7 +17,7 @@
     "roboto-fontface": "*",
     "vue": "^3.2.31",
     "vue-axios": "^3.4.1",
-    "vuetify": "^3.0.0-beta.0",
+    "vuetify": "^3.0.6",
     "webfontloader": "^1.6.28"
   },
   "devDependencies": {
