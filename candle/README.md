@@ -24,7 +24,7 @@ See [Vite Configuration Reference](https://vitejs.dev/config/).
 ## Project Setup
 
 ```sh
-npm install
+pppnpm install
 ```
 
 ### Compile and Hot-Reload for Development
@@ -42,5 +42,5 @@ npm run build
 ### Lint with [ESLint](https://eslint.org/)
 
 ```sh
-npm run lint
+pnpm run lint
 ```
