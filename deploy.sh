@@ -18,13 +18,13 @@ die () {
 target="${1}"
 
 echo "build frontend"
-frontend_dest="pictl-ktor/resources/pictl-vue/"
-rm -rf $frontend_dest
-(cd pictl-vue && npx browserslist@latest --update-db && ./node_modules/.bin/vue-cli-service build --dest ../$frontend_dest)
+frontend_dest="pictl-ktor/resources/candle/"
+rm -rf $frontend_dest && mkdir $frontend_dest
+(cd candle && pnpm run build && cp -rf dist/* ../$frontend_dest/)
 echo "bundle backend (with bundled frontend)"
-(cd pictl-ktor && ./mvnw clean package)
+(cd pictl-ktor && ./mvnw clean package --quiet)
 echo "deploy to $target"
-(cd pictl-ktor && scp target/pictl-ktor-1.0.0-jar-with-dependencies.jar pi@"${target}":pictl.jar)
+(cd pictl-ktor && scp target/pictl-ktor-2.0.0-jar-with-dependencies.jar pi@"${target}":pictl.jar)
 echo "restart pictl on $target"
 ssh pi@"${target}" 'sudo systemctl restart pictl'
 echo 'deployed :)'

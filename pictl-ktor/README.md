@@ -10,9 +10,21 @@ less /proc/cpuinfo
 ```
 
 #### ARMv7 (eg Raspberry Pi 3)
-
 ```
-sudo apt-get install openjdk-11-jre
+dpkg -l -> third column -> armhf
+```
+https://webtechie.be/post/2020-08-27-azul-zulu-java-11-and-gluon-javafx-11-on-armv6-raspberry-pi/
+```
+$ cd /usr/lib/jvm
+$ sudo wget https://cdn.azul.com/zulu-embedded/bin/zulu11.54.25-ca-jdk11.0.14.1-linux_aarch32hf.tar.gz
+$ sudo tar -xzvf zulu[..]-linux_aarch32hf.tar.gz
+$ sudo rm zulu[..].tar.gz
+
+$ sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/zulu[..]-linux_aarch32hf/bin/java 1
+$ sudo update-alternatives --install /usr/bin/javac javac /usr/lib/jvm/zulu[..]-linux_aarch32hf/bin/javac 1
+
+$ sudo update-alternatives --config java
+$ sudo update-alternatives --config javac
 ```
 
 #### ARMv6 (eg Raspberry Pi Zero)
@@ -28,7 +40,7 @@ sudo wget https://cdn.azul.com/zulu-embedded/bin/zulu11.45.27-ca-jdk11.0.10-linu
 
 ```
 # on build machine
-# rebuild pictl-vue if neccessary! 
+# rebuild candle if neccessary! 
 ./mvnw package
 scp target/pictl-ktor-1.0.0-jar-with-dependencies.jar pi@lab.local:pictl.jar
 scp pictl.service pi@lab.local:~/

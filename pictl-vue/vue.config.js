@@ -82,6 +82,8 @@ module.exports = {
       ],
     },
   },
+  // if you plan to serve this frontend by the LMS (pi@white:/usr/share/squeezeboxserver/HTML/Default/html)
+  // publicPath: "/html/pictl-vue/",
   devServer: {
     port: 8081,
     // serve and proxying to backend done by caddyserver (see root of project)
