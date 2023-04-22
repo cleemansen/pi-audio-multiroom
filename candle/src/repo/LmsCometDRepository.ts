@@ -1,13 +1,13 @@
 import { CometD } from "cometd";
 import type { Message } from "cometd";
-import { useLmsStore } from "@/stores/LmsStore";
-import type { Player, PlayerServerstatusCometD } from "@/types/Player";
+import { useLmsStore } from "../stores/LmsStore";
+import type { Player, PlayerServerstatusCometD } from "../types/Player";
 
 /** Communicates with the cometd-endpoint */
 export class LmsCometDRepository {
   private readonly cometD: CometD;
   private connected? = false;
-  private lmsCometDUrl = import.meta.env.VITE_COMETD_ENDPOINT
+  private lmsCometDUrl = import.meta.env.VITE_COMETD_ENDPOINT;
 
   /** Creates the repository */
   constructor() {
@@ -87,6 +87,10 @@ export class LmsCometDRepository {
       );
     }
   }
+
+  /**
+   * Subscribe to `/slim/subscribe/*`
+   */
   subscribeToSubscriptions() {
     if (this.checkConnected()) {
       this.cometD.subscribe(
@@ -173,23 +177,26 @@ export class LmsCometDRepository {
             // u: Song file url.
             ["status", 0, 255, "tags:galKLmNrLT", "subscribe:100"],
             "/slim/subscribe",
-            `/${this.cometD.getClientId()}/candle/playerstatus/${player.playerId}`
+            `/${this.cometD.getClientId()}/candle/playerstatus/${
+              player.playerId
+            }`
           );
         });
     }
   }
 
+  /**
+   * Do a request to the cometD backend.
+   * @param {string} playerId
+   * @param {(string|number) []} command
+   * @param {string} response
+   */
   request(
-      playerId: string,
-      command: (string | number)[],
-      response = "/slim/request"
+    playerId: string,
+    command: (string | number)[],
+    response = "/slim/request"
   ) {
-    this.publish(
-        playerId,
-        command,
-        "/slim/request",
-        response
-    );
+    this.publish(playerId, command, "/slim/request", response);
   }
 
   /**

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <p ref="currentSong" class="text-h3 currentSong text-high-emphasis">
+    <p ref="currentSongElement" class="text-h3 currentSong text-high-emphasis">
       <v-icon
         class="lookupAction"
         :size="200"
@@ -20,77 +20,67 @@
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
+<script setup lang="ts">
+/* eslint-disable require-jsdoc */
+import { computed, ref } from "vue";
 import { isMobile } from "mobile-device-detect";
 
-export default defineComponent({
-  props: {
-    artist: String,
-    title: String,
-  },
-  data() {
-    return {
-      selection: null as string | null,
-    };
-  },
-  computed: {
-    currentSong() {
-      let currentSong = "";
-      if (this.artist) {
-        currentSong += this.artist;
-      }
-      if (this.title) {
-        if (currentSong !== "") {
-          currentSong += " — ";
-        }
-        currentSong += this.title;
-      }
-      return this.splitter(currentSong);
-    },
-    lookupAction() {
-      return this.selection !== null && this.selection !== "";
-    },
-  },
-  methods: {
-    splitter(context: string) {
-      return (
-        context
-          // kudos: https://stackoverflow.com/a/18473490/810944
-          .replace(/([ .,;]+)/g, "$1§sep§")
-          .split("§sep§")
-      );
-    },
-    wordTouch(element: Event) {
-      // kudos: https://stackoverflow.com/a/51921785/810944
-      (element.target as HTMLInputElement)?.classList?.toggle(
-        "selectedSongWord"
-      );
-      const selected = (this.$refs.currentSong as Element).querySelectorAll(
-        ".selectedSongWord"
-      );
-      // map the node-list: kudos: https://stackoverflow.com/a/32767009/810944
-      this.selection = Array.from(
-        selected,
-        (item: Element) => item.innerHTML
-      ).join("");
-    },
-    lookup() {
-      if (!this.selection) {
-        return;
-      }
-      if (isMobile) {
-        // mobile
-        window.open("spotify:search:" + encodeURI(this.selection));
-      } else {
-        // browser
-        window.open(
-          "https://open.spotify.com/search/" + encodeURI(this.selection)
-        );
-      }
-    },
-  },
+const props = defineProps({
+  artist: String,
+  title: String,
 });
+const currentSongElement = ref<Element | null>(null);
+const selection = ref<string | null>(null);
+const currentSong = computed(() => {
+  let currentSong = "";
+  if (props.artist) {
+    currentSong += props.artist;
+  }
+  if (props.title) {
+    if (currentSong !== "") {
+      currentSong += " — ";
+    }
+    currentSong += props.title;
+  }
+  return splitter(currentSong);
+});
+const lookupAction = computed(() => {
+  return selection.value !== null && selection.value !== "";
+});
+function splitter(context: string) {
+  return (
+    context
+      // kudos: https://stackoverflow.com/a/18473490/810944
+      .replace(/([ .,;]+)/g, "$1§sep§")
+      .split("§sep§")
+  );
+}
+function wordTouch(element: Event) {
+  // kudos: https://stackoverflow.com/a/51921785/810944
+  (element.target as HTMLInputElement)?.classList?.toggle("selectedSongWord");
+  const selected = (currentSongElement.value as Element).querySelectorAll(
+    ".selectedSongWord"
+  );
+  // map the node-list: kudos: https://stackoverflow.com/a/32767009/810944
+  selection.value = Array.from(
+    selected,
+    (item: Element) => item.innerHTML
+  ).join("");
+}
+function lookup() {
+  if (!selection.value) {
+    return;
+  }
+  if (isMobile) {
+    // mobile
+    window.open("spotify:search:" + encodeURI(selection.value!));
+  } else {
+    // browser
+    window.open(
+      "https://open.spotify.com/search/" + encodeURI(selection.value!)
+    );
+  }
+}
 </script>
 
 <style scoped>
