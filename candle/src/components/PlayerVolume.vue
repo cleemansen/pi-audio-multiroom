@@ -25,13 +25,16 @@ const props = defineProps({
 });
 const emit = defineEmits(["desired-volume"]);
 
-const desiredVolume = ref(-1);
+const progress = ref(false);
+const desiredVolume = ref<number>(props.mixerVolume);
 
 const vol = computed({
-  get: () => props.mixerVolume,
-  set: (newValue: number) => (desiredVolume.value = Math.ceil(newValue)),
+  get: () => desiredVolume.value,
+  set: (newValue: number) => {
+    progress.value = true;
+    desiredVolume.value = Math.ceil(newValue);
+  },
 });
-const progress = computed(() => desiredVolume.value >= 0);
 const stateColor = computed(() => (progress.value ? "purple" : "indigo"));
 
 watch(desiredVolume, (val: number) => {
@@ -43,7 +46,7 @@ watch(
   () => props.mixerVolume,
   (val: number) => {
     if (desiredVolume.value === val) {
-      desiredVolume.value = -1;
+      progress.value = false;
     }
   }
 );
