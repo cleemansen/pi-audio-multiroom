@@ -6,15 +6,16 @@
   </v-app>
 </template>
 
-<script lang="ts">
-import { defineComponent } from "vue";
+<script setup lang="ts">
 import PlayersOverview from "./components/PlayersOverview.vue";
+import { useTheme } from "vuetify";
 
-export default defineComponent({
-  name: "App",
+const theme = useTheme();
 
-  components: {
-    PlayersOverview,
-  },
-});
+window
+  .matchMedia("(prefers-color-scheme: dark)")
+  .addEventListener("change", (e) => {
+    // kudos: https://stackoverflow.com/a/57795518/810944
+    theme.global.name.value = e.matches ? "darkTheme" : "lightTheme";
+  });
 </script>

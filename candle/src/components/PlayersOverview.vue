@@ -8,7 +8,7 @@
         v-bind:key="player.playerId"
       >
         <v-card class="mb-6" :loading="shutdownInitialized">
-          <v-toolbar color="white" class="elevation-2">
+          <v-toolbar class="elevation-2">
             <v-app-bar-nav-icon></v-app-bar-nav-icon>
             <v-toolbar-title>{{ store.playerName(player.playerId) }}</v-toolbar-title>
 
