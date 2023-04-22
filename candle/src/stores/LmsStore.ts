@@ -110,8 +110,10 @@ export const useLmsStore = defineStore("lms", {
  * @param {string} lmsArtworkUrl the URL of the artwork, returned by slim
  * @return {string} resolvable artwork-url
  */
-function parseArtworkUrl(lmsArtworkUrl?: string) {
-  if (!lmsArtworkUrl) return lmsArtworkUrl;
+function parseArtworkUrl(
+  lmsArtworkUrl: string | null | undefined
+): string | null {
+  if (!lmsArtworkUrl) return null;
 
   if (
     lmsArtworkUrl.startsWith("/imageproxy/") ||
@@ -148,5 +150,5 @@ function mapPlayerEvent(playerId: string, playerEvent: PlayerCometD): Player {
     ipAddress: playerEvent.player_ip,
     syncController: playerEvent.sync_master,
     syncNodes: playerEvent.sync_slaves?.split(",") ?? [],
-  };
+  } as Player;
 }
