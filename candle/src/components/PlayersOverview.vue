@@ -3,7 +3,6 @@
     <v-row>
       <v-col
         cols="12"
-        sm="6"
         md="6"
         v-for="player in store.players"
         v-bind:key="player.playerId"
@@ -12,7 +11,6 @@
           <v-toolbar color="white" class="elevation-2">
             <v-app-bar-nav-icon></v-app-bar-nav-icon>
             <v-toolbar-title>{{ store.playerName(player.playerId) }}</v-toolbar-title>
-            <v-spacer />
 
             <v-btn
               icon="mdi-volume-medium"
