@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/pi-multiroom.iml" filepath="$PROJECT_DIR$/.idea/pi-multiroom.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/multiroom.iml" filepath="$PROJECT_DIR$/.idea/multiroom.iml" />
       <module fileurl="file://$PROJECT_DIR$/pictl-ktor/pictl-ktor.iml" filepath="$PROJECT_DIR$/pictl-ktor/pictl-ktor.iml" />
     </modules>
   </component>
