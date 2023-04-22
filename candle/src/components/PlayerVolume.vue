@@ -7,6 +7,11 @@
     :thumb-label="true"
     elevation="4"
   >
+    <template v-slot:append
+      ><div style="width: 50px" class="text-caption text-end">
+        {{ playerName }}
+      </div></template
+    >
   </v-slider>
 </template>
 
@@ -26,18 +31,8 @@ const vol = computed({
   get: () => props.mixerVolume,
   set: (newValue: number) => (desiredVolume.value = Math.ceil(newValue)),
 });
-const progress = computed({
-  get: () => desiredVolume.value >= 0,
-  set: () => {
-    // no-op
-  },
-});
-const stateColor = computed({
-  get: () => (progress.value ? "purple" : "indigo"),
-  set: () => {
-    // no-op
-  },
-});
+const progress = computed(() => desiredVolume.value >= 0);
+const stateColor = computed(() => (progress.value ? "purple" : "indigo"));
 
 watch(desiredVolume, (val: number) => {
   if (val) {
