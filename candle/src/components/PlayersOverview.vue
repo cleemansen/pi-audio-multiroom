@@ -10,7 +10,9 @@
         <v-card class="mb-6" :loading="shutdownInitialized">
           <v-toolbar class="elevation-2">
             <v-app-bar-nav-icon></v-app-bar-nav-icon>
-            <v-toolbar-title>{{ store.playerName(player.playerId) }}</v-toolbar-title>
+            <v-toolbar-title>{{
+              store.playerName(player.playerId)
+            }}</v-toolbar-title>
 
             <v-btn
               icon="mdi-volume-medium"
@@ -58,91 +60,79 @@
     </v-row>
   </v-container>
 </template>
-<script lang="ts">
-import { defineComponent, ref } from "vue";
+<script setup lang="ts">
+/* eslint-disable require-jsdoc */
+import { ref } from "vue";
 import { useLmsStore } from "../stores/LmsStore";
 import CurrentTitle from "./CurrentTitle.vue";
 import PlayerVolume from "../components/PlayerVolume.vue";
 import type { Player } from "../types/Player";
+import axios from "axios";
 
-export default defineComponent({
-  components: { CurrentTitle, PlayerVolume },
-  setup() {
-    const loading = ref(true);
-    const store = useLmsStore();
-    const desiredState = [] as Player[];
-    const shutdownInitialized = ref(false);
+const store = useLmsStore();
+const desiredState = ref<Player[]>([]);
+const shutdownInitialized = ref(false);
 
-    return {
-      loading,
-      store,
-      desiredState,
-      shutdownInitialized,
-    };
-  },
-  methods: {
-    volumeChange(playerId: string, desiredVolume: number) {
-      this.store.volume(playerId, desiredVolume);
-    },
-    volumeStepUp(player: Player) {
-      this.store.volumeStepUp(player.playerId);
-    },
-    volumeStepDown(player: Player) {
-      this.store.volumeStepDown(player.playerId);
-    },
-    togglePlayPause(player: Player) {
-      this.store.togglePlayPause(player.playerId);
-    },
-    shutdown(player: Player) {
-      let playerIps = [player.ipAddress];
-      const nodeIps = this.store.syncNodes
-        .map((node: Player) => node.ipAddress)
-        .filter((ip): ip is string => !!ip);
-      if (nodeIps) {
-        playerIps = playerIps.concat(nodeIps);
-      }
-      console.warn(playerIps);
-      this.axios
-        .post("/ctl-hardware/shutdown", { ips: playerIps })
-        .then((response) => {
-          console.debug(`shutdown result for [${nodeIps}]`, response);
-          this.shutdownInitialized = true;
-        })
-        .catch((err) => console.log(`shutdown result for [${nodeIps}]`, err));
-    },
-    playPauseIcon(player: Player): string {
-      if (player.mode === "play") {
-        return "mdi-pause";
-      } else if (player.mode === "pause" || player.mode === "stop") {
-        return "mdi-play";
-      }
-      return "mdi-heart-broken";
-    },
-    reachedDesiredMode(playerId: string): boolean {
-      if (
-        this.desiredState.find(
-          (desiredStatePlayer) => desiredStatePlayer.playerId == playerId
-        )?.mode == null
-      ) {
-        // we are not waiting for a desired mode
-        return true;
-      }
+function volumeChange(playerId: string, desiredVolume: number) {
+  store.volume(playerId, desiredVolume);
+}
+function volumeStepUp(player: Player) {
+  store.volumeStepUp(player.playerId);
+}
+function volumeStepDown(player: Player) {
+  store.volumeStepDown(player.playerId);
+}
+function togglePlayPause(player: Player) {
+  store.togglePlayPause(player.playerId);
+}
+function shutdown(player: Player) {
+  let playerIps = [player.ipAddress];
+  const nodeIps = store.syncNodes
+    .map((node: Player) => node.ipAddress)
+    .filter((ip): ip is string => !!ip);
+  if (nodeIps) {
+    playerIps = playerIps.concat(nodeIps);
+  }
+  console.warn(playerIps);
+  axios
+    .post("/ctl-hardware/shutdown", { ips: playerIps })
+    .then((response) => {
+      console.debug(`shutdown result for [${nodeIps}]`, response);
+      shutdownInitialized.value = true;
+    })
+    .catch((err) => console.log(`shutdown result for [${nodeIps}]`, err));
+}
+function playPauseIcon(player: Player): string {
+  if (player.mode === "play") {
+    return "mdi-pause";
+  } else if (player.mode === "pause" || player.mode === "stop") {
+    return "mdi-play";
+  }
+  return "mdi-heart-broken";
+}
+function reachedDesiredMode(playerId: string): boolean {
+  if (
+    desiredState.value.find(
+      (desiredStatePlayer) => desiredStatePlayer.playerId == playerId
+    )?.mode == null
+  ) {
+    // we are not waiting for a desired mode
+    return true;
+  }
 
-      const storedPlayer = this.store.players?.find(
-        (player) => player.playerId === playerId
-      );
-      if (storedPlayer?.mode === undefined) {
-        // we are not waiting for a desired mode
-        return true;
-      }
-      return (
-        this.desiredState.find(
-          (desiredStatePlayer) => desiredStatePlayer.playerId == playerId
-        )?.mode === storedPlayer.mode
-      );
-    },
-  },
-});
+  const storedPlayer = store.players?.find(
+    (player) => player.playerId === playerId
+  );
+  if (storedPlayer?.mode === undefined) {
+    // we are not waiting for a desired mode
+    return true;
+  }
+  return (
+    desiredState.value.find(
+      (desiredStatePlayer) => desiredStatePlayer.playerId == playerId
+    )?.mode === storedPlayer.mode
+  );
+}
 </script>
 
 <style>
