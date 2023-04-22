@@ -49,7 +49,7 @@
               />
             </v-col>
           </v-row>
-          <v-img :src="player.artworkUrl"> </v-img>
+          <v-img v-if="player.artworkUrl" :src="player.artworkUrl"> </v-img>
           <v-card-text class="text-black">
             <CurrentTitle :artist="player.artist" :title="player.title" />
           </v-card-text>
@@ -60,10 +60,10 @@
 </template>
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import { useLmsStore } from "@/stores/LmsStore";
+import { useLmsStore } from "../stores/LmsStore";
 import CurrentTitle from "./CurrentTitle.vue";
-import PlayerVolume from "@/components/PlayerVolume.vue";
-import type { Player } from "@/types/Player";
+import PlayerVolume from "../components/PlayerVolume.vue";
+import type { Player } from "../types/Player";
 
 export default defineComponent({
   components: { CurrentTitle, PlayerVolume },

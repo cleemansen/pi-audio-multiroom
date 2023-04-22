@@ -4,7 +4,7 @@ export interface Player {
   title?: string;
   artist?: string;
   remoteTitle?: string;
-  artworkUrl?: string;
+  artworkUrl: string | null;
   mode?: string;
   mixerVolume?: number;
   connected?: boolean;
