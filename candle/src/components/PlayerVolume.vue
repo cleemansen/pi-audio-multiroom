@@ -6,6 +6,7 @@
     :color="stateColor"
     :thumb-label="true"
     elevation="4"
+    class="px-2"
   >
     <template v-slot:append
       ><div style="width: 50px" class="text-caption text-end">
@@ -25,28 +26,29 @@ const props = defineProps({
 });
 const emit = defineEmits(["desired-volume"]);
 
-const progress = ref(false);
-const desiredVolume = ref<number>(props.mixerVolume);
-
+const desiredVolume = ref(-1);
 const vol = computed({
-  get: () => desiredVolume.value,
+  get: () => {
+    if (desiredVolume.value > -1) {
+      return desiredVolume.value;
+    }
+    return props.mixerVolume;
+  },
   set: (newValue: number) => {
-    progress.value = true;
-    desiredVolume.value = Math.ceil(newValue);
+    desiredVolume.value = newValue;
+    emit("desired-volume", props.playerId, newValue);
   },
 });
-const stateColor = computed(() => (progress.value ? "purple" : "indigo"));
+const stateColor = computed(() =>
+  desiredVolume.value > -1 ? "purple" : "indigo"
+);
 
-watch(desiredVolume, (val: number) => {
-  if (val) {
-    emit("desired-volume", props.playerId, val);
-  }
-});
 watch(
   () => props.mixerVolume,
   (val: number) => {
-    if (desiredVolume.value === val) {
-      progress.value = false;
+    console.info(`mixer-vol update: ${val} (desired is ${desiredVolume.value})`)
+    if (Math.ceil(desiredVolume.value) === Math.ceil(val)) {
+      desiredVolume.value = -1;
     }
   }
 );
