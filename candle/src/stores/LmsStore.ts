@@ -170,7 +170,7 @@ function parseArtworkUrl(
     lmsArtworkUrl.startsWith("html/")
   ) {
     return (
-      `http://thin.unividuell.org:9000` +
+      import.meta.env.VITE_LMS_HOST +
       (lmsArtworkUrl.startsWith("/") ? "" : "/") +
       lmsArtworkUrl
     );
