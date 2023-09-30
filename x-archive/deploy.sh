@@ -12,7 +12,7 @@ die () {
     exit 1
 }
 # exit when not exactly 1 argument is given
-[ "$#" -eq 1 ] || die "1 argument required, $# provided. Set the hostname of the target (like white.unividuell.org)"
+[ "$#" -eq 1 ] || die "1 argument required, $# provided. Set the hostname of the target (like 192.168.0.110)"
 
 
 target="${1}"
@@ -20,7 +20,7 @@ target="${1}"
 echo "build frontend"
 frontend_dest="pictl-ktor/resources/candle/"
 rm -rf $frontend_dest && mkdir $frontend_dest
-(cd candle && pnpm run build && cp -rf dist/* ../$frontend_dest/)
+(cd ../candle && pnpm run build && cp -rf dist/* ../x-archive/$frontend_dest/)
 echo "bundle backend (with bundled frontend)"
 (cd pictl-ktor && ./mvnw clean package --quiet)
 echo "deploy to $target"
