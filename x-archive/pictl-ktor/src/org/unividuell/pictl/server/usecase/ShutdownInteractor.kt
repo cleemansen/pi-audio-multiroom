@@ -15,6 +15,7 @@ class ShutdownInteractor : KoinComponent {
 
     interface DataSource {
         fun shutdown(delay: Duration): Timer
+        fun beep(frequency: Int, durationSeconds: Float = 0.2f)
     }
 
     private val logger = KotlinLogging.logger { }
@@ -53,6 +54,7 @@ class ShutdownInteractor : KoinComponent {
             this.cancel()
             shutdownTimer = null
             logger.info("shutdown aborted!")
+            dataSource.beep(frequency = 200, durationSeconds = 2F)
             return
         }
         shutdownTimer = dataSource.shutdown(delay = delay ?: shutdownDelayFallback)

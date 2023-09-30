@@ -32,6 +32,12 @@ class HardwareRepository : KoinComponent, ShutdownInteractor.DataSource {
                 logger.info("shutdown scheduled...")
                 this.cancel()
             } else {
+                if (remaining.seconds > 10 && remaining.seconds.mod(2) == 0) {
+                    beep(frequency = 800)
+                }
+                if (remaining.seconds <= 10) {
+                    beep(frequency = 1250)
+                }
                 remaining = remaining.minus(period)
                 logger.info("shutdown in $remaining")
             }
@@ -39,17 +45,35 @@ class HardwareRepository : KoinComponent, ShutdownInteractor.DataSource {
     }
 
     private fun shutdownNow() {
-        val processBuilder = ProcessBuilder()
-        if (application.isProd) {
-            processBuilder.command("sudo", "shutdown", "-P", "now")
-        } else {
-            // shutdown -k simulates the command, good for testing?
-            processBuilder.command("echo", "do nothing, we are not on PROD")
+        CoroutineScope(Dispatchers.IO).launch {
+            val processBuilder = ProcessBuilder()
+            if (application.isProd) {
+                processBuilder.command("sudo", "shutdown", "-P", "now")
+            } else {
+                // shutdown -k simulates the command, good for testing?
+                processBuilder.command("echo", "do nothing, we are not on PROD")
 
+            }
+            val process = processBuilder.start()
+            processIO.inheritIO(src = process.inputStream, isError = false)
+            processIO.inheritIO(src = process.errorStream, isError = true)
         }
-        val process = processBuilder.start()
-        processIO.inheritIO(src = process.inputStream, isError = false)
-        processIO.inheritIO(src = process.errorStream, isError = true)
+    }
+
+    override fun beep(frequency: Int, durationSeconds: Float) {
+        CoroutineScope(Dispatchers.IO).launch {
+            val processBuilder = ProcessBuilder()
+            if (application.isProd) {
+                processBuilder.command("timeout", "${durationSeconds}s", "speaker-test", "--test", "sine", "--frequency", "$frequency", "--nloops", "1", "--scale", "140", "--channels", "1")
+            } else {
+                // shutdown -k simulates the command, good for testing?
+                processBuilder.command("echo", "do nothing, we are not on PROD")
+
+            }
+            val process = processBuilder.start()
+            processIO.inheritIO(src = process.inputStream, isError = false)
+            processIO.inheritIO(src = process.errorStream, isError = true)
+        }
     }
 
 }
