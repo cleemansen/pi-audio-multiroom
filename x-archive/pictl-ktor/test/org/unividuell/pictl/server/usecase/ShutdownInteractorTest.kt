@@ -96,4 +96,13 @@ internal class ShutdownInteractorTest : InteractorTestBase() {
         // verify
         verify { mockDataSource.shutdownAsync(delay = Duration.ofMinutes(5)) }
     }
+
+    @Test
+    internal fun `it should abort the shutdown`() {
+        sut.shutdownMe(delay = Duration.ofMinutes(0))
+        // execute
+        sut.shutdownMe(delay = Duration.ofSeconds(15))
+        // verify
+        verify(exactly = 1) { mockDataSource.shutdownAsync(delay = Duration.ofMinutes(0)) }
+    }
 }

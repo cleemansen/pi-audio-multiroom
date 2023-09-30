@@ -5,6 +5,8 @@ import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancel
 import mu.KotlinLogging
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -14,7 +16,7 @@ import java.time.Duration
 class ShutdownInteractor : KoinComponent {
 
     interface DataSource {
-        fun shutdownAsync(delay: Duration): Deferred<Unit>
+        fun shutdownAsync(delay: Duration): Job
     }
 
     private val logger = KotlinLogging.logger { }
@@ -26,6 +28,8 @@ class ShutdownInteractor : KoinComponent {
     private val application: Application by inject()
 
     private val shutdownDelayFallback = Duration.ofSeconds(10)
+
+    private var shutdownJob: Job? = null
 
     // we assume that ALL pi-ctl nodes runs on the same port!
     private val piCtlPort: Int = application.environment.config.property("ktor.deployment.port").getString().toInt()
@@ -47,6 +51,11 @@ class ShutdownInteractor : KoinComponent {
     }
 
     fun shutdownMe(delay: Duration? = null) {
-        dataSource.shutdownAsync(delay = delay ?: shutdownDelayFallback)
+        shutdownJob?.run {
+            cancel("shutdown aborted!")
+            logger.info("shutdown aborted!")
+            return
+        }
+        shutdownJob = dataSource.shutdownAsync(delay = delay ?: shutdownDelayFallback)
     }
 }

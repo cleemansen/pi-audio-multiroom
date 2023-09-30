@@ -1,9 +1,7 @@
 package org.unividuell.pictl.server.repository
 
 import io.ktor.application.*
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.async
+import kotlinx.coroutines.*
 import mu.KotlinLogging
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -20,8 +18,10 @@ class HardwareRepository : KoinComponent, ShutdownInteractor.DataSource {
 
     private val processIO: ProcessIO by inject()
 
-    override fun shutdownAsync(delay: Duration): Deferred<Unit> {
-        return GlobalScope.async { // launch a new coroutine in background and continue
+    private val scope: CoroutineDispatcher = Dispatchers.IO
+
+    override fun shutdownAsync(delay: Duration): Job {
+        return CoroutineScope(scope).launch { // launch a new coroutine in background and continue
             var remaining = delay
             val period = Duration.ofSeconds(1)
             timer(
