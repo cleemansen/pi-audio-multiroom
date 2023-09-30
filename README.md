@@ -28,3 +28,8 @@ Step-by-step instructions to set up the player, running on Raspberry PIs. For de
 see [pi-setup-client](pi-setup-client) and [pi-setup-server](pi-setup-server). The project is powered
 by [Logitech Media Server](https://github.com/Logitech/slimserver)
 and [Squeezelite](https://github.com/ralph-irving/squeezelite).
+
+## Hardware control
+
+Project `pict-ktor` was archived (`x-archive`). `candle` now communicates directly w/ LMS via `cometD`. But `pict-ktor` is still running on some devices for *remote shutdown*.
+

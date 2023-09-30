@@ -1,6 +1,12 @@
 # Shutdown Handling
 
-Goal: shutdown the system (aka the pi) as the squeezelite player gets the OFF signal by LMS
+Goal: shutdown the system (aka the pi) ~~as the squeezelite player gets the OFF signal by LMS~~ via REST API
+
+## pictl-ktor
+
+`pictl-ktor` provides shutdown endpoint (with abortion support) [2023-09-30].
+
+## Shutdown via squeezelite (deprecated!)
 
 1. add `-S` option to squeezelite cmd (via `/usr/local/bin/squeezelite_settings.sh`)
     ```
