@@ -4,19 +4,17 @@ import io.ktor.application.*
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.cancel
 import mu.KotlinLogging
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.net.InetSocketAddress
 import java.time.Duration
+import java.util.*
 
 class ShutdownInteractor : KoinComponent {
 
     interface DataSource {
-        fun shutdownAsync(delay: Duration): Job
+        fun shutdown(delay: Duration): Timer
     }
 
     private val logger = KotlinLogging.logger { }
@@ -29,7 +27,7 @@ class ShutdownInteractor : KoinComponent {
 
     private val shutdownDelayFallback = Duration.ofSeconds(10)
 
-    private var shutdownJob: Job? = null
+    private var shutdownTimer: Timer? = null
 
     // we assume that ALL pi-ctl nodes runs on the same port!
     private val piCtlPort: Int = application.environment.config.property("ktor.deployment.port").getString().toInt()
@@ -51,11 +49,12 @@ class ShutdownInteractor : KoinComponent {
     }
 
     fun shutdownMe(delay: Duration? = null) {
-        shutdownJob?.run {
-            cancel("shutdown aborted!")
+        shutdownTimer?.run {
+            this.cancel()
+            shutdownTimer = null
             logger.info("shutdown aborted!")
             return
         }
-        shutdownJob = dataSource.shutdownAsync(delay = delay ?: shutdownDelayFallback)
+        shutdownTimer = dataSource.shutdown(delay = delay ?: shutdownDelayFallback)
     }
 }

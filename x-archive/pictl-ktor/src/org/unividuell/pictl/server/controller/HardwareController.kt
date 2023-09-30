@@ -5,7 +5,9 @@ import io.ktor.html.*
 import io.ktor.request.*
 import io.ktor.response.*
 import io.ktor.routing.*
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.html.*
 import org.koin.ktor.ext.inject
@@ -46,7 +48,9 @@ fun Routing.hardwareRoutes() {
                 application.log.warn("ignore not parsable duration for delay: $delayParam")
                 null
             }
-            shutdownInteractor.shutdownMe(delay = delay)
+            CoroutineScope(Dispatchers.IO).launch {
+                shutdownInteractor.shutdownMe(delay = delay)
+            }
             call.respondText {
                 "ok"
             }

@@ -8,6 +8,7 @@ import org.koin.core.component.inject
 import org.unividuell.pictl.server.isProd
 import org.unividuell.pictl.server.usecase.ShutdownInteractor
 import java.time.Duration
+import java.util.*
 import kotlin.concurrent.timer
 
 class HardwareRepository : KoinComponent, ShutdownInteractor.DataSource {
@@ -18,25 +19,21 @@ class HardwareRepository : KoinComponent, ShutdownInteractor.DataSource {
 
     private val processIO: ProcessIO by inject()
 
-    private val scope: CoroutineDispatcher = Dispatchers.IO
-
-    override fun shutdownAsync(delay: Duration): Job {
-        return CoroutineScope(scope).launch { // launch a new coroutine in background and continue
-            var remaining = delay
-            val period = Duration.ofSeconds(1)
-            timer(
-                name = "shutdown",
-                period = period.toMillis()
-            ) {
-                if (remaining.isZero || remaining.isNegative) {
-                    logger.info("shutdown now!")
-                    shutdownNow()
-                    logger.info("shutdown scheduled...")
-                    this.cancel()
-                } else {
-                    remaining = remaining.minus(period)
-                    logger.info("shutdown in $remaining")
-                }
+    override fun shutdown(delay: Duration): Timer {
+        var remaining = delay
+        val period = Duration.ofSeconds(1)
+        return timer(
+            name = "shutdown",
+            period = period.toMillis(),
+        ) {
+            if (remaining.isZero || remaining.isNegative) {
+                logger.info("shutdown now!")
+                shutdownNow()
+                logger.info("shutdown scheduled...")
+                this.cancel()
+            } else {
+                remaining = remaining.minus(period)
+                logger.info("shutdown in $remaining")
             }
         }
     }

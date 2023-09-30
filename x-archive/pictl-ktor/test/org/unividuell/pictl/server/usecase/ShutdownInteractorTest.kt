@@ -86,7 +86,7 @@ internal class ShutdownInteractorTest : InteractorTestBase() {
         // execute
         sut.shutdownMe()
         // verify
-        verify { mockDataSource.shutdownAsync(delay = Duration.ofSeconds(10)) }
+        verify { mockDataSource.shutdown(delay = Duration.ofSeconds(10)) }
     }
 
     @Test
@@ -94,7 +94,7 @@ internal class ShutdownInteractorTest : InteractorTestBase() {
         // execute
         sut.shutdownMe(delay = Duration.ofMinutes(5))
         // verify
-        verify { mockDataSource.shutdownAsync(delay = Duration.ofMinutes(5)) }
+        verify { mockDataSource.shutdown(delay = Duration.ofMinutes(5)) }
     }
 
     @Test
@@ -103,6 +103,6 @@ internal class ShutdownInteractorTest : InteractorTestBase() {
         // execute
         sut.shutdownMe(delay = Duration.ofSeconds(15))
         // verify
-        verify(exactly = 1) { mockDataSource.shutdownAsync(delay = Duration.ofMinutes(0)) }
+        verify(exactly = 1) { mockDataSource.shutdown(delay = Duration.ofMinutes(0)) }
     }
 }
