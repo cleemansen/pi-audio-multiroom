@@ -44,7 +44,14 @@ export const useHomeAssistantClient = () => {
       console.error(`Unknown error: ${err}`);
       return;
     }
-    return await createConnection({ auth: auth.value });
+    try {
+      return await createConnection({ auth: auth.value });
+    } catch (e) {
+      console.error("Cannot create connection:", e);
+      console.info("Clearing local tokens..");
+      localStorage.hassTokens = null;
+      return undefined;
+    }
   }
 
   function clearUrl() {
