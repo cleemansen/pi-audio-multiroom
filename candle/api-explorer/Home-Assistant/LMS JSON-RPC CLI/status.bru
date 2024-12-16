@@ -1,0 +1,22 @@
+meta {
+  name: status
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{HOST}}/jsonrpc.js
+  body: json
+  auth: none
+}
+
+headers {
+  : 
+}
+
+body:json {
+  {
+    "method": "slim.request",
+    "params": ["{{SQUEEZELITE_LITE_ID}}", ["status","-"]]
+  }
+}

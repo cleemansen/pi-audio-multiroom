@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "candle",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
