@@ -20,6 +20,9 @@ importers:
       cometd-nodejs-client:
         specifier: ^1.5.0
         version: 1.5.0
+      home-assistant-js-websocket:
+        specifier: ^9.4.0
+        version: 9.4.0
       mobile-device-detect:
         specifier: ^0.4.3
         version: 0.4.3
@@ -758,6 +761,9 @@ packages:
   he@1.2.0:
     resolution: {integrity: sha512-F/1DnUGPopORZi0ni+CvrCgHQ5FyEAHRLSApuYWMmrbSwoN2Mn/7k+Gl38gJnR7yyDZk6WLXwiGod1JOWNDKGw==}
     hasBin: true
+
+  home-assistant-js-websocket@9.4.0:
+    resolution: {integrity: sha512-312TuI63IfKf8G+iWvKmPYIdxWMNojwVk03o9OSpQFFDjSCNAYdCUfuPCFs73SuJ1Xpd4D1Eo11CB33MGMqZ+Q==}
 
   http-proxy-agent@7.0.2:
     resolution: {integrity: sha512-T1gkAiYYDWYx3V5Bmyu7HcfcvL7mUrTWiM6yOfa3PIphViJ/gFPbvidQ+veqSOHci/PxBcDabeUNCzpOODJZig==}
@@ -1921,6 +1927,8 @@ snapshots:
   has-flag@4.0.0: {}
 
   he@1.2.0: {}
+
+  home-assistant-js-websocket@9.4.0: {}
 
   http-proxy-agent@7.0.2:
     dependencies:
