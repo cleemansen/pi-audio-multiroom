@@ -2,6 +2,7 @@ import {
   getAuth,
   createConnection,
   subscribeEntities,
+  HassEntities,
 } from "home-assistant-js-websocket";
 import { Connection } from "home-assistant-js-websocket/dist/connection";
 import { Auth, AuthData } from "home-assistant-js-websocket/dist/auth";
@@ -10,6 +11,7 @@ import { onMounted, ref } from "vue";
 export const useHomeAssistantClient = () => {
   const connection = ref<Connection>();
   const auth = ref<Auth>();
+  const mediaPlayers = ref();
 
   onMounted(async () => {
     connection.value = await connect();
@@ -62,12 +64,30 @@ export const useHomeAssistantClient = () => {
   }
 
   function subscribeHomeAssistantEntities(connection: Connection) {
-    subscribeEntities(connection, (ent) => console.log(ent));
+    subscribeEntities(connection, (entities) =>
+      entitySubscriptionCallback(entities)
+    );
   }
+
+  const entitySubscriptionCallback = (entities: HassEntities) => {
+    console.log(entities);
+    const _mediaPlayers = Object.keys(entities)
+      .filter((key) => entities[key].attributes.app_id === "music_assistant")
+      .reduce((obj, key) => {
+        obj[key] = entities[key];
+        return obj;
+      }, {});
+    // console.log(_mediaPlayers);
+    mediaPlayers.value = _mediaPlayers;
+    // for (const entityId in _mediaPlayers) {
+    //   console.log(entityId);
+    // }
+  };
 
   return {
     auth,
     connection,
+    mediaPlayers,
     connect,
     subscribeHomeAssistantEntities,
   };
