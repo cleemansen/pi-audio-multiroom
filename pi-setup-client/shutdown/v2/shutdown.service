@@ -11,5 +11,8 @@ Restart=always
 RestartSec=5
 Environment="PATH=/home/clemens/shutdown/venv/bin"
 
+StandardOutput=append:/var/log/shutdown.log
+StandardError=append:/var/log/shutdown.log
+
 [Install]
 WantedBy=multi-user.target

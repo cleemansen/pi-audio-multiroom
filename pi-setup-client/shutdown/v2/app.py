@@ -1,13 +1,23 @@
+import logging
 import subprocess
 
 import isodate
 from werkzeug.serving import run_simple
 from flask import Flask, request
 
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        # logging.FileHandler(log_file),  # Logs in Datei schreiben
+        logging.StreamHandler()
+    ]
+)
 app = Flask(__name__)
 
 @app.route('/')
 def index():
+    logging.info("happy logging")
     return "happy"
 
 @app.post('/ctl-hardware/shutdown/me')

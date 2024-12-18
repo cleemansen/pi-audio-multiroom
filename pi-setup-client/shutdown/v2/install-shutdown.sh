@@ -3,6 +3,7 @@
 set -x
 
 mkdir -p ~/shutdown
+sudo touch /var/log/shutdown.log && sudo chown clemens:clemens /var/log/shutdown.log
 cd ~/shutdown
 tar -xzvf /tmp/shutdown.tar.gz -C ~/shutdown
 python -m venv venv
