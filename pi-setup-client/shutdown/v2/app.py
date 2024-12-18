@@ -18,6 +18,7 @@ app = Flask(__name__)
 @app.route('/')
 def index():
     logging.info("happy logging")
+    beep(800)
     return "happy"
 
 @app.post('/ctl-hardware/shutdown/me')
@@ -28,8 +29,19 @@ def shutdown_me():
     delay = isodate.parse_duration(delay_param)
 
     # subprocess.call(['shutdown', '-h', delay.seconds])
-    subprocess.call(["timeout", "0.2s", "speaker-test", "--test", "sine", "--frequency", "800", "--nloops", "1", "--scale", "140", "--channels", "1"])
+
     return "shutting down in %s seconds" % delay.total_seconds()
+
+def beep(frequency: int):
+    subprocess.call([
+        "timeout", "0.2s",
+        "speaker-test",
+            "--test", "sine",
+            "--frequency", frequency,
+            "--nloops", "1",
+            "--scale", "140",
+            "--channels", "1"
+    ])
 
 if __name__ == '__main__':
     run_simple('0.0.0.0', 8080, app)
