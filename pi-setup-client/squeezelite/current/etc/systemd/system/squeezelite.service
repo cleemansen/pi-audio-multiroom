@@ -1,8 +1,11 @@
 [Unit]
-Description=Squeezelite LMS player
+Description=Squeezelite player
 After=network.target
 
 [Service]
+# wait up to 30s unit the /device/sound/pmc-card2-device0-playback exists
+# this is a workaround as in [Unit] After/Requires=dev-snd-pcmC2D0p.device does not work :/
+ExecStartPre=/bin/bash -c 'for i in {1..30}; do [ -e /dev/snd/pcmC2D0p ] && exit 0 || sleep 1; done; exit 1'
 ExecStart=/usr/local/bin/squeezelite -o default -n orange -m 24:05:0f:95:46:70 -s 192.168.0.100 -f /var/log/squeezelite.log -d all=info -P /run/squeezelite.pid
 PIDFile=/run/squeezelite.pid
 Restart=always
