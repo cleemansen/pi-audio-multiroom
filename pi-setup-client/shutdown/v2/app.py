@@ -60,7 +60,7 @@ def beep(frequency: int):
 
 def shutdown():
     logging.warning("shutting down NOW")
-    subprocess.call(['/usr/sbin/shutdown', '-P', "now"])
+    subprocess.call(["/usr/bin/sudo", '/usr/sbin/shutdown', '-P', "now"])
 
 if __name__ == '__main__':
     run_simple('0.0.0.0', 8080, app)
