@@ -39,17 +39,19 @@ def start_timer(duration_s):
     while time.time() - start_time < duration_s:
         logging.info("remaining %s s", remaining_s)
         if remaining_s > 10 and remaining_s % 2 == 0:
-            beep(800)
-        if remaining_s <= 10:
-            beep(1250)
+            beep(frequency=800)
+        if remaining_s <= 2:
+            beep(frequency=1400, duration_s=1.9)
+        elif remaining_s <= 10:
+            beep(frequency=1250)
         time.sleep(1)
         remaining_s -= 1
 
 
-def beep(frequency: int):
+def beep(duration_s: float = 0.2, frequency: int = 800):
     logging.info("beep frequency=%d" % frequency)
     subprocess.call([
-        "/usr/bin/timeout", "0.2s",
+        "/usr/bin/timeout", f"{duration_s}s",
         "/usr/bin/speaker-test",
             "--test", "sine",
             "--frequency", str(frequency),
