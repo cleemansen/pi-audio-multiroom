@@ -1,0 +1,15 @@
+meta {
+  name: shutdown
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{HOST}}/ctl-hardware/shutdown/me?delay=PT18S
+  body: none
+  auth: none
+}
+
+params:query {
+  delay: PT18S
+}
