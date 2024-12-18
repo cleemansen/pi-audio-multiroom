@@ -1,7 +1,10 @@
 #!/bin/zsh
 
-# print out every line as it executes
+# echo each command
 set -x
+# abort script on failing commands
+set -e
+
 
 pip freeze > requirements.txt
 tar -czvf shutdown.tar.gz app.py requirements.txt shutdown.service
