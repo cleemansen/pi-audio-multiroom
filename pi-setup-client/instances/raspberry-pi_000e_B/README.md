@@ -2,6 +2,28 @@
 
 Q4 2012 / 512MB
 
+# 2024-12
+
+- Use Raspberry Pi Imager to create SC card (32 bit!). Tested w/ `bookworm`
+- Set settings:
+  - User: clemens / pw
+  - ssh key from mbp-m1m
+  - wifi credentials
+- => it just works :)
+
+- visit `raspi-config` (nothing to do)
+- [get rid of warning `-bash: warning: setlocale: LC_ALL: cannot change locale (en_US.UTF-8)`](https://raspberrypi.stackexchange.com/a/51563/79233)
+- update all by `sudo apt-get update && sudo apt-get upgrade`
+- `scp pi-setup-client/instances/surround/asound.conf clemens@192.168.0.110:/tmp/asound.conf` (on mbp) and `sudo mv /tmp/asound.conf /etc/` on RPI
+- `scp squeezelite.service clemens@192.168.0.110:/tmp` and `sudo mv /tmp/squeezelite.service /etc/systemd/system/`
+- `sudo systemctl enable squeezelite.service`
+- `sudo touch /run/squeezelite.pid` and `sudo chown clemens /run/squeezelite.pid`
+- `sudo touch /var/log/squeezelite.log` and `sudo chown clemens /var/log/squeezelite.log`
+
+---
+
+# ~2021
+
 ## WiFi
 
 Default `wpa_supplicant` seems not to work. [Fix it by using the `wext` driver](https://unix.stackexchange.com/a/400113)
