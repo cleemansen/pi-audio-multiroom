@@ -43,14 +43,14 @@
                 :mixer-volume="player.mixerVolume"
                 v-on:desired-volume="volumeChange"
               />
-              <!--              <PlayerVolume-->
-              <!--                v-for="node in store.syncNodes"-->
-              <!--                v-bind:key="node.playerId"-->
-              <!--                :player-id="node.playerId"-->
-              <!--                :player-name="node.playerName"-->
-              <!--                :mixer-volume="node.mixerVolume"-->
-              <!--                v-on:desired-volume="volumeChange"-->
-              <!--              />-->
+              <PlayerVolume
+                v-for="node in groupFollowersOnly.get(player.active_queue)"
+                v-bind:key="node.playerId"
+                :player-id="node.playerId"
+                :player-name="node.playerName"
+                :mixer-volume="node.mixerVolume"
+                v-on:desired-volume="volumeChange"
+              />
             </v-col>
           </v-row>
           <v-img v-if="player.artworkUrl" :src="player.artworkUrl"> </v-img>
@@ -73,8 +73,16 @@ import PlayerVolume from "../components/PlayerVolume.vue";
 import { CandlePlayer, PlayerMode } from "../types/CandlePlayer";
 import { useHomeAssistantClient } from "../composables/HomeAssistantClient";
 
-const { candlePlayers, volume, volumeStepUp, volumeStepDown, togglePlayPause } =
-  useHomeAssistantClient();
+const {
+  candlePlayers,
+  groups,
+  groupLeadersOnly,
+  groupFollowersOnly,
+  volume,
+  volumeStepUp,
+  volumeStepDown,
+  togglePlayPause,
+} = useHomeAssistantClient();
 const desiredState = ref<CandlePlayer[]>([]);
 const shutdownInitialized = ref(false);
 

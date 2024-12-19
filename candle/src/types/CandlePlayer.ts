@@ -18,6 +18,7 @@ export interface CandlePlayer {
 export interface CandleLmsPlayer extends CandlePlayer {
   ipAddress: string;
 }
-export interface CandleHomaAssistantPlayer extends CandlePlayer {
+export interface CandleHomeAssistantPlayer extends CandlePlayer {
   album: string;
+  active_queue: string;
 }

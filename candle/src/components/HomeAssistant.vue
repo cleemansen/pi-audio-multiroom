@@ -2,7 +2,7 @@
 import { useHomeAssistantClient } from "@/composables/HomeAssistantClient";
 import { computed } from "vue";
 
-const { homeAssistantMediaPlayers, groups, groupsLeaderOnly, players } =
+const { homeAssistantMediaPlayers, groups, groupLeadersOnly, players } =
   useHomeAssistantClient();
 </script>
 

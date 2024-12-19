@@ -9,7 +9,7 @@ import {
 import { Connection } from "home-assistant-js-websocket/dist/connection";
 import { Auth, AuthData } from "home-assistant-js-websocket/dist/auth";
 import { computed, onMounted, ref } from "vue";
-import { CandleHomaAssistantPlayer } from "../types/CandlePlayer";
+import { CandleHomeAssistantPlayer, PlayerMode } from "../types/CandlePlayer";
 
 export interface HomeAssistantMediaPlayerGroupMember {
   id: string;
@@ -63,7 +63,7 @@ export const useHomeAssistantClient = () => {
   });
   // groups only containing their leader
   // also containing single players which form a group with themselves
-  const groupsLeaderOnly = computed(() => {
+  const groupLeadersOnly = computed(() => {
     const result = new Map<string, HomeAssistantMediaPlayer>();
     for (const [key, value] of groups.value) {
       const groupLeader =
@@ -78,25 +78,51 @@ export const useHomeAssistantClient = () => {
     }
     return result;
   });
+
+  const groupFollowersOnly = computed(() => {
+    const result = new Map<string, CandleHomeAssistantPlayer[]>();
+    for (const [key, value] of groups.value) {
+      result.set(
+        key,
+        value
+          .filter((p) => p.attributes.mass_player_type !== "group")
+          .map((follower) => mapToCandle(follower))
+      );
+    }
+    return result;
+  });
   // the players
   const players = computed(() => {
-    return Array.from(groupsLeaderOnly.value).map(([_, value]) => value);
+    return Array.from(groupLeadersOnly.value).map(([_, value]) => value);
   });
-  const candlePlayers = computed<CandleHomaAssistantPlayer[]>(() => {
-    return players.value.map(
-      (p) =>
-        ({
-          playerId: p.entity_id,
-          playerName: p.attributes.friendly_name,
-          artist: p.attributes.media_artist,
-          title: p.attributes.media_title,
-          album: p.attributes.media_album_name,
-          mixerVolume: p.attributes.volume_level * 100,
-          artworkUrl: p.attributes.entity_picture,
-          mode: p.state,
-        } as CandleHomaAssistantPlayer)
-    );
+  const candlePlayers = computed<CandleHomeAssistantPlayer[]>(() => {
+    return players.value.map((p) => mapToCandle(p));
   });
+
+  function mapToCandle(
+    player: HomeAssistantMediaPlayer
+  ): CandleHomeAssistantPlayer {
+    return {
+      playerId: player.entity_id,
+      playerName: playerName(player),
+      artist: player.attributes.media_artist,
+      title: player.attributes.media_title,
+      album: player.attributes.media_album_name,
+      mixerVolume: player.attributes.volume_level * 100,
+      artworkUrl: player.attributes.entity_picture,
+      mode: player.state as PlayerMode,
+      active_queue: player.attributes.active_queue,
+    };
+  }
+
+  function playerName(player: HomeAssistantMediaPlayer) {
+    if ((player.attributes.friendly_name.match(/:/g) || []).length >= 5) {
+      // do not return s/t like `squeezeplay: 24:05:0f:95:46:70`
+      return player.entity_id.replace("media_player.", "");
+    } else {
+      return player.attributes.friendly_name;
+    }
+  }
 
   onMounted(async () => {
     connection.value = await connect();
@@ -216,7 +242,8 @@ export const useHomeAssistantClient = () => {
     connection,
     homeAssistantMediaPlayers,
     groups,
-    groupsLeaderOnly,
+    groupLeadersOnly,
+    groupFollowersOnly,
     players,
     candlePlayers,
     volume,
