@@ -82,12 +82,14 @@ export const useHomeAssistantClient = () => {
   const groupFollowersOnly = computed(() => {
     const result = new Map<string, CandleHomeAssistantPlayer[]>();
     for (const [key, value] of groups.value) {
-      result.set(
-        key,
-        value
-          .filter((p) => p.attributes.mass_player_type !== "group")
-          .map((follower) => mapToCandle(follower))
-      );
+      if (value.length > 1) {
+        result.set(
+          key,
+          value
+            .filter((p) => p.attributes.mass_player_type !== "group")
+            .map((follower) => mapToCandle(follower))
+        );
+      }
     }
     return result;
   });
