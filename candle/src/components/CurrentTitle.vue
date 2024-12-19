@@ -25,10 +25,12 @@
 import { computed, ref } from "vue";
 import { isMobile } from "mobile-device-detect";
 
-const props = defineProps({
-  artist: String,
-  title: String,
-});
+export interface Props {
+  artist: string;
+  title: string;
+  album: string | null;
+}
+const props = defineProps<Props>();
 const currentSongElement = ref<Element | null>(null);
 const selection = ref<string | null>(null);
 const currentSong = computed(() => {
@@ -41,6 +43,12 @@ const currentSong = computed(() => {
       currentSong += " — ";
     }
     currentSong += props.title;
+  }
+  if (props.album) {
+    if (currentSong !== "") {
+      currentSong += " ";
+    }
+    currentSong += `[${props.album}]`;
   }
   return splitter(currentSong);
 });
