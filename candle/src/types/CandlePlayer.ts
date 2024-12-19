@@ -10,15 +10,15 @@ export interface CandlePlayer {
   playerId: string;
   playerName: string;
   mixerVolume: number;
-  artworkUrl: string;
-  artist: string;
-  title: string;
+  artworkUrl: string | undefined | null;
+  artist: string | undefined | null;
+  title: string | undefined | null;
   mode: PlayerMode;
 }
 export interface CandleLmsPlayer extends CandlePlayer {
   ipAddress: string;
 }
 export interface CandleHomeAssistantPlayer extends CandlePlayer {
-  album: string;
+  album: string | undefined | null;
   active_queue: string;
 }

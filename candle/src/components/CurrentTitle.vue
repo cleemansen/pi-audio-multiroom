@@ -26,9 +26,9 @@ import { computed, ref } from "vue";
 import { isMobile } from "mobile-device-detect";
 
 export interface Props {
-  artist: string;
-  title: string;
-  album: string | null;
+  artist: string | null | undefined;
+  title: string | null | undefined;
+  album: string | null | undefined;
 }
 const props = defineProps<Props>();
 const currentSongElement = ref<Element | null>(null);
