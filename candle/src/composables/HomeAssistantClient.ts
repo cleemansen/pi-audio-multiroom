@@ -8,10 +8,49 @@ import { Connection } from "home-assistant-js-websocket/dist/connection";
 import { Auth, AuthData } from "home-assistant-js-websocket/dist/auth";
 import { onMounted, ref } from "vue";
 
+export interface HomeAssistantMediaPlayerGroupMember {
+  id: string;
+}
+
+export interface HomeAssistantMediaPlayerAttributes {
+  active_queue: string;
+  app_id: string;
+  device_class: string;
+  entity_picture: string;
+  entity_picture_local: string;
+  friendly_name: string;
+  group_members: Array<HomeAssistantMediaPlayerGroupMember>;
+  icon: string;
+  is_volume_muted: boolean;
+  mass_player_type: string;
+  media_album_name: string;
+  media_artist: string;
+  media_content_id: string;
+  media_content_type: string;
+  media_duration: number;
+  media_position: number;
+  media_position_updated_at: string;
+  media_title: string;
+  repeat: string;
+  shuffle: boolean;
+  supported_features: number;
+  volume_level: number;
+}
+
+export interface HomeAssistantMediaPlayer {
+  attributes: Record<string, HomeAssistantMediaPlayerAttributes>;
+  context: Record<string, any>;
+  entity_id: string;
+  last_changed: string;
+  last_updated: string;
+  state: string;
+}
+
 export const useHomeAssistantClient = () => {
   const connection = ref<Connection>();
   const auth = ref<Auth>();
-  const mediaPlayers = ref();
+  const homeAssistantMediaPlayers =
+    ref<Record<string, HomeAssistantMediaPlayer>>();
 
   onMounted(async () => {
     connection.value = await connect();
@@ -78,7 +117,7 @@ export const useHomeAssistantClient = () => {
         return obj;
       }, {});
     // console.log(_mediaPlayers);
-    mediaPlayers.value = _mediaPlayers;
+    homeAssistantMediaPlayers.value = _mediaPlayers;
     // for (const entityId in _mediaPlayers) {
     //   console.log(entityId);
     // }
@@ -87,7 +126,7 @@ export const useHomeAssistantClient = () => {
   return {
     auth,
     connection,
-    mediaPlayers,
+    homeAssistantMediaPlayers,
     connect,
     subscribeHomeAssistantEntities,
   };
