@@ -1,7 +1,7 @@
 import { CometD } from "cometd";
 import type { Message } from "cometd";
 import { useLmsStore } from "../stores/LmsStore";
-import type { Player, PlayerServerstatusCometD } from "../types/Player";
+import type { LmsPlayer, PlayerServerstatusCometD } from "../types/LmsPlayer";
 
 /** Communicates with the cometd-endpoint */
 export class LmsCometDRepository {
@@ -115,7 +115,7 @@ export class LmsCometDRepository {
               return {
                 playerId: player.playerid,
                 playerName: player.name,
-              } as Player;
+              } as LmsPlayer;
             }
           );
           // this.subscribeToPlayerStatus();
@@ -162,7 +162,7 @@ export class LmsCometDRepository {
     if (this.checkPlayer()) {
       useLmsStore()
         .players.concat(useLmsStore().syncNodes)
-        .forEach((player: Player) => {
+        .forEach((player: LmsPlayer) => {
           this.publish(
             player.playerId,
             // g: Genre

@@ -1,12 +1,12 @@
 import { defineStore } from "pinia";
 import { LmsCometDRepository } from "../repo/LmsCometDRepository";
-import type { Player, PlayerCometD } from "../types/Player";
+import type { LmsPlayer, PlayerCometD } from "../types/LmsPlayer";
 import type { Message } from "cometd";
 import { computed, ref } from "vue";
 
 export const useLmsStore = defineStore("lms", () => {
-  const players = ref<Player[]>([]);
-  const syncNodes = ref<Player[]>([]);
+  const players = ref<LmsPlayer[]>([]);
+  const syncNodes = ref<LmsPlayer[]>([]);
   const cometD = new LmsCometDRepository();
 
   const currentTitle = computed((): string => {
@@ -29,7 +29,7 @@ export const useLmsStore = defineStore("lms", () => {
       playerEvent.syncController === undefined
     ) {
       const playerIdx = players.value.findIndex(
-        (player: Player) => player.playerId === playerId
+        (player: LmsPlayer) => player.playerId === playerId
       );
       if (playerIdx > -1) {
         players.value[playerIdx] = playerEvent;
@@ -64,7 +64,7 @@ export const useLmsStore = defineStore("lms", () => {
    */
   function removePlayer(playerId: string) {
     const playerIdx = players.value.findIndex(
-      (player: Player) => player.playerId === playerId
+      (player: LmsPlayer) => player.playerId === playerId
     );
     if (playerIdx > -1) {
       players.value.splice(playerIdx, 1);
@@ -73,11 +73,11 @@ export const useLmsStore = defineStore("lms", () => {
 
   /**
    * Updates a node that is synchronised
-   * @param {Player} playerEvent the event of the player
+   * @param {LmsPlayer} playerEvent the event of the player
    */
-  function updateSyncNodes(playerEvent: Player) {
+  function updateSyncNodes(playerEvent: LmsPlayer) {
     const playerIdx = syncNodes.value.findIndex(
-      (player: Player) => player.playerId === playerEvent.playerId
+      (player: LmsPlayer) => player.playerId === playerEvent.playerId
     );
     if (playerIdx > -1) {
       syncNodes.value[playerIdx] = playerEvent;
@@ -132,7 +132,7 @@ export const useLmsStore = defineStore("lms", () => {
   function playerName(playerId: string): string {
     const buffer = [] as string[];
     buffer.push(
-      players.value.find((player: Player) => player.playerId === playerId)
+      players.value.find((player: LmsPlayer) => player.playerId === playerId)
         ?.playerName ?? "n/a"
     );
     syncNodes.value.forEach((syncNode) =>
@@ -183,9 +183,12 @@ function parseArtworkUrl(
  * Maps a slim player event to our domain model
  * @param {string} playerId the ID of the player
  * @param {PlayerCometD} playerEvent the event from slim via cometd
- * @return {Player} the mapped event
+ * @return {LmsPlayer} the mapped event
  */
-function mapPlayerEvent(playerId: string, playerEvent: PlayerCometD): Player {
+function mapPlayerEvent(
+  playerId: string,
+  playerEvent: PlayerCometD
+): LmsPlayer {
   return {
     playerId: playerId,
     playerName: playerEvent.player_name,
@@ -199,5 +202,5 @@ function mapPlayerEvent(playerId: string, playerEvent: PlayerCometD): Player {
     ipAddress: playerEvent.player_ip,
     syncController: playerEvent.sync_master,
     syncNodes: playerEvent.sync_slaves?.split(",") ?? [],
-  } as Player;
+  } as LmsPlayer;
 }

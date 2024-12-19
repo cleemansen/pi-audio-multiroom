@@ -66,29 +66,29 @@ import { ref } from "vue";
 import { useLmsStore } from "../stores/LmsStore";
 import CurrentTitle from "./CurrentTitle.vue";
 import PlayerVolume from "../components/PlayerVolume.vue";
-import type { Player } from "../types/Player";
+import type { LmsPlayer } from "../types/LmsPlayer";
 import axios from "axios";
 
 const store = useLmsStore();
-const desiredState = ref<Player[]>([]);
+const desiredState = ref<LmsPlayer[]>([]);
 const shutdownInitialized = ref(false);
 
 function volumeChange(playerId: string, desiredVolume: number) {
   store.volume(playerId, desiredVolume);
 }
-function volumeStepUp(player: Player) {
+function volumeStepUp(player: LmsPlayer) {
   store.volumeStepUp(player.playerId);
 }
-function volumeStepDown(player: Player) {
+function volumeStepDown(player: LmsPlayer) {
   store.volumeStepDown(player.playerId);
 }
-function togglePlayPause(player: Player) {
+function togglePlayPause(player: LmsPlayer) {
   store.togglePlayPause(player.playerId);
 }
-function shutdown(player: Player) {
+function shutdown(player: LmsPlayer) {
   let playerIps = [player.ipAddress];
   const nodeIps = store.syncNodes
-    .map((node: Player) => node.ipAddress)
+    .map((node: LmsPlayer) => node.ipAddress)
     .filter((ip): ip is string => !!ip);
   if (nodeIps) {
     playerIps = playerIps.concat(nodeIps);
@@ -102,7 +102,7 @@ function shutdown(player: Player) {
     })
     .catch((err) => console.log(`shutdown result for [${nodeIps}]`, err));
 }
-function playPauseIcon(player: Player): string {
+function playPauseIcon(player: LmsPlayer): string {
   if (player.mode === "play") {
     return "mdi-pause";
   } else if (player.mode === "pause" || player.mode === "stop") {
