@@ -40,16 +40,20 @@
                 :key="player.playerId"
                 :player-id="player.playerId"
                 :player-name="player.playerName"
-                :mixer-volume="player.mixerVolume"
-                v-on:desired-volume="volumeChange"
+                :model-value="player.mixerVolume"
+                @update:model-value="
+                  ($event: number) => volumeChange(player.playerId, $event)
+                "
               />
               <PlayerVolume
                 v-for="node in groupFollowersOnly.get(player.active_queue)"
                 v-bind:key="node.playerId"
                 :player-id="node.playerId"
                 :player-name="node.playerName"
-                :mixer-volume="node.mixerVolume"
-                v-on:desired-volume="volumeChange"
+                :model-value="node.mixerVolume"
+                @update:model-value="
+                  ($event: number) => volumeChange(node.playerId, $event)
+                "
               />
             </v-col>
           </v-row>

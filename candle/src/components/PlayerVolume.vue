@@ -1,7 +1,7 @@
 <template>
   <v-slider
     v-bind:key="playerId"
-    v-model="vol"
+    v-model="model"
     hide-details
     :color="stateColor"
     :thumb-label="true"
@@ -17,43 +17,20 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, ref } from "vue";
 
 export interface Props {
   playerId: string;
   playerName: string | null;
-  mixerVolume: number | null;
 }
-const props = defineProps<Props>();
-const emit = defineEmits(["desired-volume"]);
+defineProps<Props>();
 
+const model = defineModel<number>({ required: true });
+
+// not in use anymore - HA does response very quickly and w/ good quality :)
 const desiredVolume = ref(-1);
-const vol = computed({
-  get: () => {
-    if (desiredVolume.value > -1) {
-      return desiredVolume.value;
-    }
-    return props.mixerVolume ?? -1;
-  },
-  set: (newValue: number) => {
-    desiredVolume.value = newValue;
-    emit("desired-volume", props.playerId, newValue);
-  },
-});
 const stateColor = computed(() =>
   desiredVolume.value > -1 ? "purple" : "indigo"
-);
-
-watch(
-  () => props.mixerVolume,
-  (val: number) => {
-    console.info(
-      `mixer-vol update: ${val} (desired is ${desiredVolume.value})`
-    );
-    if (Math.abs(desiredVolume.value - val) < 1) {
-      desiredVolume.value = -1;
-    }
-  }
 );
 </script>
 
