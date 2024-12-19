@@ -1,12 +1,13 @@
 import {
-  getAuth,
   createConnection,
-  subscribeEntities,
+  getAuth,
   HassEntities,
+  HassEntity,
+  subscribeEntities,
 } from "home-assistant-js-websocket";
 import { Connection } from "home-assistant-js-websocket/dist/connection";
 import { Auth, AuthData } from "home-assistant-js-websocket/dist/auth";
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 
 export interface HomeAssistantMediaPlayerGroupMember {
   id: string;
@@ -37,20 +38,48 @@ export interface HomeAssistantMediaPlayerAttributes {
   volume_level: number;
 }
 
-export interface HomeAssistantMediaPlayer {
-  attributes: Record<string, HomeAssistantMediaPlayerAttributes>;
-  context: Record<string, any>;
-  entity_id: string;
-  last_changed: string;
-  last_updated: string;
-  state: string;
-}
+export type HomeAssistantMediaPlayer = HassEntity & {
+  attributes: HomeAssistantMediaPlayerAttributes;
+};
 
 export const useHomeAssistantClient = () => {
   const connection = ref<Connection>();
   const auth = ref<Auth>();
-  const homeAssistantMediaPlayers =
-    ref<Record<string, HomeAssistantMediaPlayer>>();
+  // all media players returned by HA
+  const homeAssistantMediaPlayers = ref<HomeAssistantMediaPlayer[]>([]);
+  // groups of media players grouped by same `active_queue`
+  const groups = computed(() => {
+    const byActiveQueue = new Map<string, Array<HomeAssistantMediaPlayer>>();
+    homeAssistantMediaPlayers.value.forEach((player) => {
+      if (byActiveQueue.has(player.attributes.active_queue)) {
+        byActiveQueue.get(player.attributes.active_queue)?.push(player);
+      } else {
+        byActiveQueue.set(player.attributes.active_queue, [player]);
+      }
+    });
+    return byActiveQueue;
+  });
+  // groups only containing their leader
+  // also containing single players which form a group with themselves
+  const groupsLeaderOnly = computed(() => {
+    const result = new Map<string, HomeAssistantMediaPlayer>();
+    for (const [key, value] of groups.value) {
+      const groupLeader =
+        value.length === 1
+          ? value[0]
+          : value.find(
+              (player) => player.attributes.mass_player_type === "group"
+            );
+      if (groupLeader) {
+        result.set(key, groupLeader);
+      }
+    }
+    return result;
+  });
+  // the players
+  const players = computed(() => {
+    return Array.from(groupsLeaderOnly.value).map(([_, value]) => value);
+  });
 
   onMounted(async () => {
     connection.value = await connect();
@@ -110,23 +139,18 @@ export const useHomeAssistantClient = () => {
 
   const entitySubscriptionCallback = (entities: HassEntities) => {
     console.log(entities);
-    const _mediaPlayers = Object.keys(entities)
-      .filter((key) => entities[key].attributes.app_id === "music_assistant")
-      .reduce((obj, key) => {
-        obj[key] = entities[key];
-        return obj;
-      }, {});
-    // console.log(_mediaPlayers);
-    homeAssistantMediaPlayers.value = _mediaPlayers;
-    // for (const entityId in _mediaPlayers) {
-    //   console.log(entityId);
-    // }
+    homeAssistantMediaPlayers.value = Object.entries(entities)
+      .filter(([, value]) => value.attributes.app_id === "music_assistant")
+      .map(([, value]) => value as HomeAssistantMediaPlayer);
   };
 
   return {
     auth,
     connection,
     homeAssistantMediaPlayers,
+    groups,
+    groupsLeaderOnly,
+    players,
     connect,
     subscribeHomeAssistantEntities,
   };
