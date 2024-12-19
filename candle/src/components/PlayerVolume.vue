@@ -19,11 +19,12 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 
-const props = defineProps({
-  playerId: String,
-  playerName: String,
-  mixerVolume: Number,
-});
+export interface Props {
+  playerId: string;
+  playerName: string | null;
+  mixerVolume: number | null;
+}
+const props = defineProps<Props>();
 const emit = defineEmits(["desired-volume"]);
 
 const desiredVolume = ref(-1);
@@ -32,7 +33,7 @@ const vol = computed({
     if (desiredVolume.value > -1) {
       return desiredVolume.value;
     }
-    return props.mixerVolume;
+    return props.mixerVolume ?? -1;
   },
   set: (newValue: number) => {
     desiredVolume.value = newValue;
@@ -46,7 +47,9 @@ const stateColor = computed(() =>
 watch(
   () => props.mixerVolume,
   (val: number) => {
-    console.info(`mixer-vol update: ${val} (desired is ${desiredVolume.value})`)
+    console.info(
+      `mixer-vol update: ${val} (desired is ${desiredVolume.value})`
+    );
     if (Math.ceil(desiredVolume.value) === Math.ceil(val)) {
       desiredVolume.value = -1;
     }
