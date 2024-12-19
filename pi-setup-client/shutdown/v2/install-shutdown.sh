@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# echo each command
-set -x
-# abort script on failing commands
-set -e
+set -x # print out every line as it executes
+set -o errexit   # abort on nonzero exitstatus
+set -o nounset   # abort on unbound variable
+set -o pipefail  # don't hide errors within pipes
 
 mkdir -p ~/shutdown
 sudo touch /var/log/shutdown.log && sudo chown clemens:clemens /var/log/shutdown.log
