@@ -3,9 +3,13 @@ import { LmsCometDRepository } from "../repo/LmsCometDRepository";
 import type { LmsPlayer, PlayerCometD } from "../types/LmsPlayer";
 import type { Message } from "cometd";
 import { computed, ref } from "vue";
+import { CandleLmsPlayer } from "../types/CandlePlayer";
 
 export const useLmsStore = defineStore("lms", () => {
   const players = ref<LmsPlayer[]>([]);
+  const candlePlayers = computed<CandleLmsPlayer[]>(() =>
+    players.value.map((p) => p as CandleLmsPlayer)
+  );
   const syncNodes = ref<LmsPlayer[]>([]);
   const cometD = new LmsCometDRepository();
 
@@ -142,7 +146,7 @@ export const useLmsStore = defineStore("lms", () => {
   }
 
   return {
-    players,
+    candlePlayers,
     syncNodes,
     updatePlayer,
     togglePlayPause,

@@ -4,7 +4,7 @@
       <v-col
         cols="12"
         md="6"
-        v-for="player in store.players"
+        v-for="player in store.candlePlayers"
         v-bind:key="player.playerId"
       >
         <v-card class="mb-6" :loading="shutdownInitialized">
@@ -68,6 +68,7 @@ import CurrentTitle from "./CurrentTitle.vue";
 import PlayerVolume from "../components/PlayerVolume.vue";
 import type { LmsPlayer } from "../types/LmsPlayer";
 import axios from "axios";
+import { CandleLmsPlayer, PlayerMode } from "../types/CandlePlayer";
 
 const store = useLmsStore();
 const desiredState = ref<LmsPlayer[]>([]);
@@ -76,16 +77,16 @@ const shutdownInitialized = ref(false);
 function volumeChange(playerId: string, desiredVolume: number) {
   store.volume(playerId, desiredVolume);
 }
-function volumeStepUp(player: LmsPlayer) {
+function volumeStepUp(player: CandleLmsPlayer) {
   store.volumeStepUp(player.playerId);
 }
-function volumeStepDown(player: LmsPlayer) {
+function volumeStepDown(player: CandleLmsPlayer) {
   store.volumeStepDown(player.playerId);
 }
-function togglePlayPause(player: LmsPlayer) {
+function togglePlayPause(player: CandleLmsPlayer) {
   store.togglePlayPause(player.playerId);
 }
-function shutdown(player: LmsPlayer) {
+function shutdown(player: CandleLmsPlayer) {
   let playerIps = [player.ipAddress];
   const nodeIps = store.syncNodes
     .map((node: LmsPlayer) => node.ipAddress)
@@ -102,10 +103,13 @@ function shutdown(player: LmsPlayer) {
     })
     .catch((err) => console.log(`shutdown result for [${nodeIps}]`, err));
 }
-function playPauseIcon(player: LmsPlayer): string {
-  if (player.mode === "play") {
+function playPauseIcon(player: CandleLmsPlayer): string {
+  if (player.mode === PlayerMode.PLAY) {
     return "mdi-pause";
-  } else if (player.mode === "pause" || player.mode === "stop") {
+  } else if (
+    player.mode === PlayerMode.PAUSE ||
+    player.mode === PlayerMode.STOP
+  ) {
     return "mdi-play";
   }
   return "mdi-heart-broken";
@@ -120,7 +124,7 @@ function reachedDesiredMode(playerId: string): boolean {
     return true;
   }
 
-  const storedPlayer = store.players?.find(
+  const storedPlayer = store.candlePlayers?.find(
     (player) => player.playerId === playerId
   );
   if (storedPlayer?.mode === undefined) {
