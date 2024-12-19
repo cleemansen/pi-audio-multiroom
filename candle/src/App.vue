@@ -1,8 +1,7 @@
 <template>
   <v-app>
     <v-main>
-      <!--      <PlayersOverview />-->
-      <HomeAssistant />
+      <PlayersOverview />
     </v-main>
   </v-app>
 </template>
@@ -10,7 +9,6 @@
 <script setup lang="ts">
 import PlayersOverview from "./components/PlayersOverview.vue";
 import { useTheme } from "vuetify";
-import HomeAssistant from "@/components/HomeAssistant.vue";
 
 const theme = useTheme();
 

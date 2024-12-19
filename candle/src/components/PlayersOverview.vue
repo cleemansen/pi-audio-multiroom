@@ -4,33 +4,35 @@
       <v-col
         cols="12"
         md="6"
-        v-for="player in store.candlePlayers"
+        v-for="player in candlePlayers"
         v-bind:key="player.playerId"
       >
         <v-card class="mb-6" :loading="shutdownInitialized">
           <v-toolbar class="elevation-2">
             <v-app-bar-nav-icon></v-app-bar-nav-icon>
-            <v-toolbar-title>{{
-              store.playerName(player.playerId)
-            }}</v-toolbar-title>
+            <v-toolbar-title>{{ player.playerName }}</v-toolbar-title>
 
             <v-btn
               icon="mdi-volume-medium"
               x-large
-              @click="volumeStepDown(player)"
+              @click="volumeStepDown(player.playerId)"
             >
             </v-btn>
             <v-btn
-              :icon="playPauseIcon(player)"
+              :icon="playPauseIcon(player.mode)"
               x-large
-              @click="togglePlayPause(player)"
+              @click="togglePlayPause(player.playerId)"
               :loading="!reachedDesiredMode(player.playerId)"
             >
             </v-btn>
-            <v-btn icon="mdi-volume-high" x-large @click="volumeStepUp(player)">
+            <v-btn
+              icon="mdi-volume-high"
+              x-large
+              @click="volumeStepUp(player.playerId)"
+            >
             </v-btn>
 
-            <v-btn icon="mdi-power" @click="shutdown(player)"> </v-btn>
+            <!--            <v-btn icon="mdi-power" @click="shutdown(player)"> </v-btn>-->
           </v-toolbar>
           <v-row>
             <v-col cols="12" class="pb-4">
@@ -41,19 +43,23 @@
                 :mixer-volume="player.mixerVolume"
                 v-on:desired-volume="volumeChange"
               />
-              <PlayerVolume
-                v-for="node in store.syncNodes"
-                v-bind:key="node.playerId"
-                :player-id="node.playerId"
-                :player-name="node.playerName"
-                :mixer-volume="node.mixerVolume"
-                v-on:desired-volume="volumeChange"
-              />
+              <!--              <PlayerVolume-->
+              <!--                v-for="node in store.syncNodes"-->
+              <!--                v-bind:key="node.playerId"-->
+              <!--                :player-id="node.playerId"-->
+              <!--                :player-name="node.playerName"-->
+              <!--                :mixer-volume="node.mixerVolume"-->
+              <!--                v-on:desired-volume="volumeChange"-->
+              <!--              />-->
             </v-col>
           </v-row>
           <v-img v-if="player.artworkUrl" :src="player.artworkUrl"> </v-img>
           <v-card-text class="text-black">
-            <CurrentTitle :artist="player.artist" :title="player.title" />
+            <CurrentTitle
+              :artist="player.artist"
+              :title="player.title"
+              :album="player.album"
+            />
           </v-card-text>
         </v-card>
       </v-col>
@@ -61,54 +67,28 @@
   </v-container>
 </template>
 <script setup lang="ts">
-/* eslint-disable require-jsdoc */
 import { ref } from "vue";
-import { useLmsStore } from "../stores/LmsStore";
 import CurrentTitle from "./CurrentTitle.vue";
 import PlayerVolume from "../components/PlayerVolume.vue";
-import type { LmsPlayer } from "../types/LmsPlayer";
-import axios from "axios";
-import { CandleLmsPlayer, PlayerMode } from "../types/CandlePlayer";
+import { CandlePlayer, PlayerMode } from "../types/CandlePlayer";
+import { useHomeAssistantClient } from "../composables/HomeAssistantClient";
 
-const store = useLmsStore();
-const desiredState = ref<LmsPlayer[]>([]);
+const { candlePlayers, volume, volumeStepUp, volumeStepDown, togglePlayPause } =
+  useHomeAssistantClient();
+const desiredState = ref<CandlePlayer[]>([]);
 const shutdownInitialized = ref(false);
 
 function volumeChange(playerId: string, desiredVolume: number) {
-  store.volume(playerId, desiredVolume);
+  volume(playerId, desiredVolume);
 }
-function volumeStepUp(player: CandleLmsPlayer) {
-  store.volumeStepUp(player.playerId);
-}
-function volumeStepDown(player: CandleLmsPlayer) {
-  store.volumeStepDown(player.playerId);
-}
-function togglePlayPause(player: CandleLmsPlayer) {
-  store.togglePlayPause(player.playerId);
-}
-function shutdown(player: CandleLmsPlayer) {
-  let playerIps = [player.ipAddress];
-  const nodeIps = store.syncNodes
-    .map((node: LmsPlayer) => node.ipAddress)
-    .filter((ip): ip is string => !!ip);
-  if (nodeIps) {
-    playerIps = playerIps.concat(nodeIps);
-  }
-  console.warn(playerIps);
-  axios
-    .post("/ctl-hardware/shutdown", { ips: playerIps })
-    .then((response) => {
-      console.debug(`shutdown result for [${nodeIps}]`, response);
-      shutdownInitialized.value = true;
-    })
-    .catch((err) => console.log(`shutdown result for [${nodeIps}]`, err));
-}
-function playPauseIcon(player: CandleLmsPlayer): string {
-  if (player.mode === PlayerMode.PLAY) {
+function playPauseIcon(mode: PlayerMode): string {
+  if (mode === PlayerMode.PLAY || mode === PlayerMode.PLAYING) {
     return "mdi-pause";
   } else if (
-    player.mode === PlayerMode.PAUSE ||
-    player.mode === PlayerMode.STOP
+    mode === PlayerMode.PAUSE ||
+    mode === PlayerMode.PAUSED ||
+    mode === PlayerMode.STOP ||
+    mode === PlayerMode.IDLE
   ) {
     return "mdi-play";
   }
@@ -124,8 +104,8 @@ function reachedDesiredMode(playerId: string): boolean {
     return true;
   }
 
-  const storedPlayer = store.candlePlayers?.find(
-    (player) => player.playerId === playerId
+  const storedPlayer = candlePlayers.value.find(
+    (player: CandlePlayer) => player.playerId === playerId
   );
   if (storedPlayer?.mode === undefined) {
     // we are not waiting for a desired mode

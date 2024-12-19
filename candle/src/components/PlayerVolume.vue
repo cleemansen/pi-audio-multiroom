@@ -50,7 +50,7 @@ watch(
     console.info(
       `mixer-vol update: ${val} (desired is ${desiredVolume.value})`
     );
-    if (Math.ceil(desiredVolume.value) === Math.ceil(val)) {
+    if (Math.abs(desiredVolume.value - val) < 1) {
       desiredVolume.value = -1;
     }
   }

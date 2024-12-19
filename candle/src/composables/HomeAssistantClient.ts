@@ -3,11 +3,13 @@ import {
   getAuth,
   HassEntities,
   HassEntity,
+  MessageBase,
   subscribeEntities,
 } from "home-assistant-js-websocket";
 import { Connection } from "home-assistant-js-websocket/dist/connection";
 import { Auth, AuthData } from "home-assistant-js-websocket/dist/auth";
 import { computed, onMounted, ref } from "vue";
+import { CandleHomaAssistantPlayer } from "../types/CandlePlayer";
 
 export interface HomeAssistantMediaPlayerGroupMember {
   id: string;
@@ -80,6 +82,21 @@ export const useHomeAssistantClient = () => {
   const players = computed(() => {
     return Array.from(groupsLeaderOnly.value).map(([_, value]) => value);
   });
+  const candlePlayers = computed<CandleHomaAssistantPlayer[]>(() => {
+    return players.value.map(
+      (p) =>
+        ({
+          playerId: p.entity_id,
+          playerName: p.attributes.friendly_name,
+          artist: p.attributes.media_artist,
+          title: p.attributes.media_title,
+          album: p.attributes.media_album_name,
+          mixerVolume: p.attributes.volume_level * 100,
+          artworkUrl: p.attributes.entity_picture,
+          mode: p.state,
+        } as CandleHomaAssistantPlayer)
+    );
+  });
 
   onMounted(async () => {
     connection.value = await connect();
@@ -89,12 +106,64 @@ export const useHomeAssistantClient = () => {
     }
   });
 
+  function volume(playerId: string, desiredVolume: number) {
+    const message: MessageBase = {
+      type: "call_service",
+      domain: "media_player",
+      service: "volume_set",
+      return_response: false,
+      service_data: {
+        entity_id: playerId,
+        volume_level: desiredVolume / 100,
+      },
+    };
+    connection.value?.sendMessage(message);
+  }
+
+  function volumeStepUp(playerId: string) {
+    const message: MessageBase = {
+      type: "call_service",
+      domain: "media_player",
+      service: "volume_up",
+      return_response: false,
+      service_data: {
+        entity_id: playerId,
+      },
+    };
+    connection.value?.sendMessage(message);
+  }
+
+  function volumeStepDown(playerId: string) {
+    const message: MessageBase = {
+      type: "call_service",
+      domain: "media_player",
+      service: "volume_down",
+      return_response: false,
+      service_data: {
+        entity_id: playerId,
+      },
+    };
+    connection.value?.sendMessage(message);
+  }
+
+  function togglePlayPause(playerId: string) {
+    const message: MessageBase = {
+      type: "call_service",
+      domain: "media_player",
+      service: "media_play_pause",
+      return_response: false,
+      service_data: {
+        entity_id: playerId,
+      },
+    };
+    connection.value?.sendMessage(message);
+  }
+
   async function connect() {
     const hassUrl = import.meta.env.VITE_HASS_HOST;
     const authOptions = {
       hassUrl,
       async loadTokens(): Promise<AuthData | null | undefined> {
-        console.log("load");
         try {
           return JSON.parse(localStorage.hassTokens);
         } catch (err) {
@@ -103,7 +172,6 @@ export const useHomeAssistantClient = () => {
         }
       },
       saveTokens: (tokens: AuthData | null) => {
-        console.log("save", tokens);
         localStorage.hassTokens = JSON.stringify(tokens);
       },
     };
@@ -138,7 +206,6 @@ export const useHomeAssistantClient = () => {
   }
 
   const entitySubscriptionCallback = (entities: HassEntities) => {
-    console.log(entities);
     homeAssistantMediaPlayers.value = Object.entries(entities)
       .filter(([, value]) => value.attributes.app_id === "music_assistant")
       .map(([, value]) => value as HomeAssistantMediaPlayer);
@@ -151,6 +218,11 @@ export const useHomeAssistantClient = () => {
     groups,
     groupsLeaderOnly,
     players,
+    candlePlayers,
+    volume,
+    volumeStepUp,
+    volumeStepDown,
+    togglePlayPause,
     connect,
     subscribeHomeAssistantEntities,
   };

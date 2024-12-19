@@ -1,7 +1,10 @@
 export enum PlayerMode {
   PLAY = "play",
+  PLAYING = "playing",
   PAUSE = "pause",
+  PAUSED = "paused",
   STOP = "stop",
+  IDLE = "idle",
 }
 export interface CandlePlayer {
   playerId: string;
@@ -14,4 +17,7 @@ export interface CandlePlayer {
 }
 export interface CandleLmsPlayer extends CandlePlayer {
   ipAddress: string;
+}
+export interface CandleHomaAssistantPlayer extends CandlePlayer {
+  album: string;
 }
