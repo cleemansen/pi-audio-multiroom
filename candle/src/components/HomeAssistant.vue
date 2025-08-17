@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { useHomeAssistantClient } from "@/composables/HomeAssistantClient";
 
-const { players } =
-  useHomeAssistantClient();
+const { players } = useHomeAssistantClient();
 </script>
 
 <template>

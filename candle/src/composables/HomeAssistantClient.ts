@@ -70,7 +70,7 @@ export const useHomeAssistantClient = () => {
         value.length === 1
           ? value[0]
           : value.find(
-              (player) => player.attributes.mass_player_type === "group"
+              (player) => player.attributes.mass_player_type === "group",
             );
       if (groupLeader) {
         result.set(key, groupLeader);
@@ -87,7 +87,7 @@ export const useHomeAssistantClient = () => {
           key,
           value
             .filter((p) => p.attributes.mass_player_type !== "group")
-            .map((follower) => mapToCandle(follower))
+            .map((follower) => mapToCandle(follower)),
         );
       }
     }
@@ -102,7 +102,7 @@ export const useHomeAssistantClient = () => {
   });
 
   function mapToCandle(
-    player: HomeAssistantMediaPlayer
+    player: HomeAssistantMediaPlayer,
   ): CandleHomeAssistantPlayer {
     return {
       playerId: player.entity_id,
@@ -229,7 +229,7 @@ export const useHomeAssistantClient = () => {
 
   function subscribeHomeAssistantEntities(connection: Connection) {
     subscribeEntities(connection, (entities) =>
-      entitySubscriptionCallback(entities)
+      entitySubscriptionCallback(entities),
     );
   }
 

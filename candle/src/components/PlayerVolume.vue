@@ -30,7 +30,7 @@ const model = defineModel<number>({ required: true });
 // not in use anymore - HA does response very quickly and w/ good quality :)
 const desiredVolume = ref(-1);
 const stateColor = computed(() =>
-  desiredVolume.value > -1 ? "purple" : "indigo"
+  desiredVolume.value > -1 ? "purple" : "indigo",
 );
 </script>
 

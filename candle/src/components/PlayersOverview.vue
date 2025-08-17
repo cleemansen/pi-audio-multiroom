@@ -107,7 +107,7 @@ function playPauseIcon(mode: PlayerMode): string {
 function reachedDesiredMode(playerId: string): boolean {
   if (
     desiredState.value.find(
-      (desiredStatePlayer) => desiredStatePlayer.playerId == playerId
+      (desiredStatePlayer) => desiredStatePlayer.playerId == playerId,
     )?.mode == null
   ) {
     // we are not waiting for a desired mode
@@ -115,7 +115,7 @@ function reachedDesiredMode(playerId: string): boolean {
   }
 
   const storedPlayer = candlePlayers.value.find(
-    (player: CandlePlayer) => player.playerId === playerId
+    (player: CandlePlayer) => player.playerId === playerId,
   );
   if (storedPlayer?.mode === undefined) {
     // we are not waiting for a desired mode
@@ -123,7 +123,7 @@ function reachedDesiredMode(playerId: string): boolean {
   }
   return (
     desiredState.value.find(
-      (desiredStatePlayer) => desiredStatePlayer.playerId == playerId
+      (desiredStatePlayer) => desiredStatePlayer.playerId == playerId,
     )?.mode === storedPlayer.mode
   );
 }

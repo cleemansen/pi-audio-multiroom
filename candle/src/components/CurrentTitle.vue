@@ -68,12 +68,12 @@ function wordTouch(element: Event) {
   // kudos: https://stackoverflow.com/a/51921785/810944
   (element.target as HTMLInputElement)?.classList?.toggle("selectedSongWord");
   const selected = (currentSongElement.value as Element).querySelectorAll(
-    ".selectedSongWord"
+    ".selectedSongWord",
   );
   // map the node-list: kudos: https://stackoverflow.com/a/32767009/810944
   selection.value = Array.from(
     selected,
-    (item: Element) => item.innerHTML
+    (item: Element) => item.innerHTML,
   ).join("");
 }
 function lookup() {
@@ -86,7 +86,7 @@ function lookup() {
   } else {
     // browser
     window.open(
-      "https://open.spotify.com/search/" + encodeURI(selection.value!)
+      "https://open.spotify.com/search/" + encodeURI(selection.value!),
     );
   }
 }

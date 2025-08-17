@@ -8,7 +8,7 @@ import { CandleLmsPlayer } from "../types/CandlePlayer";
 export const useLmsStore = defineStore("lms", () => {
   const players = ref<LmsPlayer[]>([]);
   const candlePlayers = computed<CandleLmsPlayer[]>(() =>
-    players.value.map((p) => p as CandleLmsPlayer)
+    players.value.map((p) => p as CandleLmsPlayer),
   );
   const syncNodes = ref<LmsPlayer[]>([]);
   const cometD = new LmsCometDRepository();
@@ -33,7 +33,7 @@ export const useLmsStore = defineStore("lms", () => {
       playerEvent.syncController === undefined
     ) {
       const playerIdx = players.value.findIndex(
-        (player: LmsPlayer) => player.playerId === playerId
+        (player: LmsPlayer) => player.playerId === playerId,
       );
       if (playerIdx > -1) {
         players.value[playerIdx] = playerEvent;
@@ -43,7 +43,7 @@ export const useLmsStore = defineStore("lms", () => {
 
       if (
         syncNodes.value.some(
-          (syncPlayer) => syncPlayer.playerId === playerEvent.playerId
+          (syncPlayer) => syncPlayer.playerId === playerEvent.playerId,
         )
       ) {
         // not a node anymore
@@ -68,7 +68,7 @@ export const useLmsStore = defineStore("lms", () => {
    */
   function removePlayer(playerId: string) {
     const playerIdx = players.value.findIndex(
-      (player: LmsPlayer) => player.playerId === playerId
+      (player: LmsPlayer) => player.playerId === playerId,
     );
     if (playerIdx > -1) {
       players.value.splice(playerIdx, 1);
@@ -81,7 +81,7 @@ export const useLmsStore = defineStore("lms", () => {
    */
   function updateSyncNodes(playerEvent: LmsPlayer) {
     const playerIdx = syncNodes.value.findIndex(
-      (player: LmsPlayer) => player.playerId === playerEvent.playerId
+      (player: LmsPlayer) => player.playerId === playerEvent.playerId,
     );
     if (playerIdx > -1) {
       syncNodes.value[playerIdx] = playerEvent;
@@ -137,10 +137,10 @@ export const useLmsStore = defineStore("lms", () => {
     const buffer = [] as string[];
     buffer.push(
       players.value.find((player: LmsPlayer) => player.playerId === playerId)
-        ?.playerName ?? "n/a"
+        ?.playerName ?? "n/a",
     );
     syncNodes.value.forEach((syncNode) =>
-      buffer.push(syncNode.playerName ?? "n/a")
+      buffer.push(syncNode.playerName ?? "n/a"),
     );
     return buffer.join(" & ") as string;
   }
@@ -164,7 +164,7 @@ export const useLmsStore = defineStore("lms", () => {
  * @return {string} resolvable artwork-url
  */
 function parseArtworkUrl(
-  lmsArtworkUrl: string | null | undefined
+  lmsArtworkUrl: string | null | undefined,
 ): string | null {
   if (!lmsArtworkUrl) return null;
 
@@ -191,7 +191,7 @@ function parseArtworkUrl(
  */
 function mapPlayerEvent(
   playerId: string,
-  playerEvent: PlayerCometD
+  playerEvent: PlayerCometD,
 ): LmsPlayer {
   return {
     playerId: playerId,

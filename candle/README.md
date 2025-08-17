@@ -11,7 +11,7 @@ docker buildx \
     .
 ```
 
-Docker package registry [login/auth](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-with-a-personal-access-token-classic) 
+Docker package registry [login/auth](https://docs.github.com/en/packages/working-with-a-github-packages-registry/working-with-the-container-registry#authenticating-with-a-personal-access-token-classic)
 
 ## CORS
 
