@@ -2,10 +2,10 @@
   <v-container>
     <v-row>
       <v-col
+        v-for="player in candlePlayers"
+        :key="player.playerId"
         cols="12"
         md="6"
-        v-for="player in candlePlayers"
-        v-bind:key="player.playerId"
       >
         <v-card class="mb-6" :loading="shutdownInitialized">
           <v-toolbar class="elevation-2">
@@ -21,8 +21,8 @@
             <v-btn
               :icon="playPauseIcon(player.mode)"
               x-large
-              @click="togglePlayPause(player.playerId)"
               :loading="!reachedDesiredMode(player.playerId)"
+              @click="togglePlayPause(player.playerId)"
             >
             </v-btn>
             <v-btn
@@ -47,7 +47,7 @@
               />
               <PlayerVolume
                 v-for="node in groupFollowersOnly.get(player.active_queue)"
-                v-bind:key="node.playerId"
+                :key="node.playerId"
                 :player-id="node.playerId"
                 :player-name="node.playerName"
                 :model-value="node.mixerVolume"
@@ -79,8 +79,6 @@ import { useHomeAssistantClient } from "../composables/HomeAssistantClient";
 
 const {
   candlePlayers,
-  groups,
-  groupLeadersOnly,
   groupFollowersOnly,
   volume,
   volumeStepUp,

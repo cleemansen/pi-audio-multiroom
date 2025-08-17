@@ -95,7 +95,7 @@ export const useHomeAssistantClient = () => {
   });
   // the players
   const players = computed(() => {
-    return Array.from(groupLeadersOnly.value).map(([_, value]) => value);
+    return Array.from(groupLeadersOnly.value).map(([, value]) => value);
   });
   const candlePlayers = computed<CandleHomeAssistantPlayer[]>(() => {
     return players.value.map((p) => mapToCandle(p));

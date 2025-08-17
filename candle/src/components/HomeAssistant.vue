@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { useHomeAssistantClient } from "@/composables/HomeAssistantClient";
-import { computed } from "vue";
 
-const { homeAssistantMediaPlayers, groups, groupLeadersOnly, players } =
+const { players } =
   useHomeAssistantClient();
 </script>
 

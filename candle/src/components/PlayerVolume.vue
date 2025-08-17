@@ -1,6 +1,6 @@
 <template>
   <v-slider
-    v-bind:key="playerId"
+    :key="playerId"
     v-model="model"
     hide-details
     :color="stateColor"
@@ -8,7 +8,7 @@
     elevation="4"
     class="px-2"
   >
-    <template v-slot:append
+    <template #append
       ><div style="width: 50px" class="text-caption text-end">
         {{ playerName }}
       </div></template

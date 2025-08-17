@@ -2,26 +2,27 @@
   <div>
     <p ref="currentSongElement" class="text-h3 currentSong text-high-emphasis">
       <v-icon
+        v-if="lookupAction"
         class="lookupAction"
         :size="200"
         color="#1ED760"
-        v-if="lookupAction"
-        v-on:click="lookup"
+        @click="lookup"
         >mdi-spotify</v-icon
       >
+      <!-- eslint-disable vue/no-v-html -->
       <span
         v-for="(word, index) in currentSong"
         :key="index"
-        v-html="word"
-        v-on:click="wordTouch"
         class="songWord"
+        @click="wordTouch"
+        v-html="word"
       ></span>
+      <!-- eslint-enable -->
     </p>
   </div>
 </template>
 
 <script setup lang="ts">
-/* eslint-disable require-jsdoc */
 import { computed, ref } from "vue";
 import { isMobile } from "mobile-device-detect";
 
