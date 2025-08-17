@@ -2,7 +2,7 @@ import { fileURLToPath, URL } from "url";
 
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
-import vuetify from "vite-plugin-vuetify";
+import vuetify, { transformAssetUrls } from "vite-plugin-vuetify";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -10,7 +10,9 @@ export default defineConfig({
     port: 3000,
   },
   plugins: [
-    vue(),
+    vue({
+      template: { transformAssetUrls },
+    }),
     // https://github.com/vuetifyjs/vuetify-loader/tree/next/packages/vite-plugin
     vuetify({
       autoImport: true,
@@ -21,5 +23,6 @@ export default defineConfig({
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
     },
+    extensions: [".js", ".json", ".jsx", ".mjs", ".ts", ".tsx", ".vue"],
   },
 });
