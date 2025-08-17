@@ -25,3 +25,8 @@ coverage
 *.njsproj
 *.sln
 *.sw?
+
+# PWA generated files
+registerSW.js
+sw.js
+workbox-*.js

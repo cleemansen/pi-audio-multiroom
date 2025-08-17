@@ -1,0 +1,49 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="40%" r="80%">
+      <stop offset="0%" stop-color="#141A2C"/>
+      <stop offset="100%" stop-color="#0B1220"/>
+    </radialGradient>
+
+    <linearGradient id="flameGrad" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#FFD166"/>
+      <stop offset="50%" stop-color="#FCA311"/>
+      <stop offset="100%" stop-color="#E85D04"/>
+    </linearGradient>
+
+    <filter id="flameGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="18" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Flammenform aus der ersten Version -->
+    <path id="flameShape" d="M512 180
+               C 620 260, 660 380, 580 480
+               C 540 532, 520 575, 512 640
+               C 504 575, 484 532, 444 480
+               C 364 380, 404 260, 512 180 Z"
+          fill="url(#flameGrad)"/>
+  </defs>
+
+  <!-- Hintergrund -->
+  <rect x="64" y="64" width="896" height="896" rx="208" fill="url(#bgGrad)"/>
+
+  <!-- Drei Flammen: stark versetzt und unterschiedlich groß -->
+  <!-- Links: klein, deutlich tiefer und weiter links -->
+  <use href="#flameShape"
+       transform="translate(-260,230) translate(512,512) scale(0.70) translate(-512,-512)"
+       filter="url(#flameGlow)"/>
+
+  <!-- Mitte: am größten, leicht nach oben versetzt -->
+  <use href="#flameShape"
+       transform="translate(-10,-6) translate(512,512) scale(1.32) translate(-512,-512)"
+       filter="url(#flameGlow)"/>
+
+  <!-- Rechts: mittelgroß, leicht nach unten versetzt -->
+  <use href="#flameShape"
+       transform="translate(260,90) translate(512,512) scale(0.95) translate(-512,-512)"
+       filter="url(#flameGlow)"/>
+</svg>
