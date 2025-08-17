@@ -21,4 +21,5 @@ export interface CandleLmsPlayer extends CandlePlayer {
 export interface CandleHomeAssistantPlayer extends CandlePlayer {
   album: string | undefined | null;
   active_queue: string;
+  followers: CandleHomeAssistantPlayer[];
 }

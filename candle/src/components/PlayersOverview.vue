@@ -37,16 +37,7 @@
           <v-row>
             <v-col cols="12" class="pb-4">
               <PlayerVolume
-                :key="player.playerId"
-                :player-id="player.playerId"
-                :player-name="player.playerName"
-                :model-value="player.mixerVolume"
-                @update:model-value="
-                  ($event: number) => volumeChange(player.playerId, $event)
-                "
-              />
-              <PlayerVolume
-                v-for="node in groupFollowersOnly.get(player.active_queue)"
+                v-for="node in player.followers"
                 :key="node.playerId"
                 :player-id="node.playerId"
                 :player-name="node.playerName"
@@ -77,14 +68,8 @@ import PlayerVolume from "../components/PlayerVolume.vue";
 import { CandlePlayer, PlayerMode } from "../types/CandlePlayer";
 import { useHomeAssistantClient } from "../composables/HomeAssistantClient";
 
-const {
-  candlePlayers,
-  groupFollowersOnly,
-  volume,
-  volumeStepUp,
-  volumeStepDown,
-  togglePlayPause,
-} = useHomeAssistantClient();
+const { candlePlayers, volume, volumeStepUp, volumeStepDown, togglePlayPause } =
+  useHomeAssistantClient();
 const desiredState = ref<CandlePlayer[]>([]);
 const shutdownInitialized = ref(false);
 

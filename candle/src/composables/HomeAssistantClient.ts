@@ -50,7 +50,7 @@ export const useHomeAssistantClient = () => {
   // all media players returned by HA
   const homeAssistantMediaPlayers = ref<HomeAssistantMediaPlayer[]>([]);
   // groups of media players grouped by same `active_queue`
-  const groups = computed(() => {
+  const groupsBtActiveQueueId = computed(() => {
     const byActiveQueue = new Map<string, Array<HomeAssistantMediaPlayer>>();
     homeAssistantMediaPlayers.value.forEach((player) => {
       if (byActiveQueue.has(player.attributes.active_queue)) {
@@ -61,52 +61,38 @@ export const useHomeAssistantClient = () => {
     });
     return byActiveQueue;
   });
-  // groups only containing their leader
-  // also containing single players which form a group with themselves
-  const groupLeadersOnly = computed(() => {
-    const result = new Map<string, HomeAssistantMediaPlayer>();
-    for (const [key, value] of groups.value) {
-      const groupLeader =
-        value.length === 1
-          ? value[0]
-          : value.find(
-              (player) => player.attributes.mass_player_type === "group",
-            );
-      if (groupLeader) {
-        result.set(key, groupLeader);
-      }
-    }
-    return result;
-  });
 
-  const groupFollowersOnly = computed(() => {
-    const result = new Map<string, CandleHomeAssistantPlayer[]>();
-    for (const [key, value] of groups.value) {
-      if (value.length > 1) {
-        result.set(
-          key,
-          value
-            .filter((p) => p.attributes.mass_player_type !== "group")
-            .map((follower) => mapToCandle(follower)),
-        );
-      }
-    }
-    return result;
-  });
-  // the players
-  const players = computed(() => {
-    return Array.from(groupLeadersOnly.value).map(([, value]) => value);
-  });
   const candlePlayers = computed<CandleHomeAssistantPlayer[]>(() => {
-    return players.value.map((p) => mapToCandle(p));
+    const electedLeaderInGroup = new Map<string, HomeAssistantMediaPlayer>();
+    for (const [queueId, player] of groupsBtActiveQueueId.value) {
+      // all players in a group share the same attributes we are interested in (like album name etc.),
+      // so simply take the first player in each group to access this information
+      const firstInGroup = player[0];
+      electedLeaderInGroup.set(queueId, firstInGroup);
+    }
+    return Array.from(electedLeaderInGroup).map(([queueId, leader]) => {
+      const combinedName =
+        groupsBtActiveQueueId.value
+          .get(queueId)
+          ?.map((player) => playerName(player))
+          ?.join(" & ") ?? "n/a";
+      return mapToCandle(
+        leader,
+        combinedName,
+        // followers are all players in the group - including the leader (needed for eg the separate volume control)
+        groupsBtActiveQueueId.value.get(queueId) ?? [],
+      );
+    });
   });
 
   function mapToCandle(
     player: HomeAssistantMediaPlayer,
+    name: string,
+    followers: HomeAssistantMediaPlayer[],
   ): CandleHomeAssistantPlayer {
     return {
       playerId: player.entity_id,
-      playerName: playerName(player),
+      playerName: name,
       artist: player.attributes.media_artist,
       title: player.attributes.media_title,
       album: player.attributes.media_album_name,
@@ -114,6 +100,9 @@ export const useHomeAssistantClient = () => {
       artworkUrl: player.attributes.entity_picture,
       mode: player.state as PlayerMode,
       active_queue: player.attributes.active_queue,
+      followers: followers.map((follower) =>
+        mapToCandle(follower, playerName(follower), []),
+      ),
     };
   }
 
@@ -243,10 +232,6 @@ export const useHomeAssistantClient = () => {
     auth,
     connection,
     homeAssistantMediaPlayers,
-    groups,
-    groupLeadersOnly,
-    groupFollowersOnly,
-    players,
     candlePlayers,
     volume,
     volumeStepUp,
