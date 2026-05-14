@@ -20,9 +20,13 @@ coverage
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
-.idea
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# PWA generated files
+registerSW.js
+sw.js
+workbox-*.js

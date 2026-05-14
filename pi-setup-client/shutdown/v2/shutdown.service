@@ -1,0 +1,18 @@
+[Unit]
+Description=shutdown host
+After=network.target
+
+[Service]
+User=clemens
+Group=clemens
+WorkingDirectory=/home/clemens/shutdown
+ExecStart=/home/clemens/shutdown/venv/bin/python /home/clemens/shutdown/app.py
+Restart=always
+RestartSec=5
+Environment="PATH=/home/clemens/shutdown/venv/bin"
+
+StandardOutput=append:/var/log/shutdown.log
+StandardError=append:/var/log/shutdown.log
+
+[Install]
+WantedBy=multi-user.target

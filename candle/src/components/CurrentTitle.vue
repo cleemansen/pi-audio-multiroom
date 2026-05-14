@@ -2,33 +2,36 @@
   <div>
     <p ref="currentSongElement" class="text-h3 currentSong text-high-emphasis">
       <v-icon
+        v-if="lookupAction"
         class="lookupAction"
         :size="200"
         color="#1ED760"
-        v-if="lookupAction"
-        v-on:click="lookup"
+        @click="lookup"
         >mdi-spotify</v-icon
       >
+      <!-- eslint-disable vue/no-v-html -->
       <span
         v-for="(word, index) in currentSong"
         :key="index"
-        v-html="word"
-        v-on:click="wordTouch"
         class="songWord"
+        @click="wordTouch"
+        v-html="word"
       ></span>
+      <!-- eslint-enable -->
     </p>
   </div>
 </template>
 
 <script setup lang="ts">
-/* eslint-disable require-jsdoc */
 import { computed, ref } from "vue";
 import { isMobile } from "mobile-device-detect";
 
-const props = defineProps({
-  artist: String,
-  title: String,
-});
+export interface Props {
+  artist: string | null | undefined;
+  title: string | null | undefined;
+  album: string | null | undefined;
+}
+const props = defineProps<Props>();
 const currentSongElement = ref<Element | null>(null);
 const selection = ref<string | null>(null);
 const currentSong = computed(() => {
@@ -41,6 +44,12 @@ const currentSong = computed(() => {
       currentSong += " — ";
     }
     currentSong += props.title;
+  }
+  if (props.album) {
+    if (currentSong !== "") {
+      currentSong += " ";
+    }
+    currentSong += `[${props.album}]`;
   }
   return splitter(currentSong);
 });
@@ -59,12 +68,12 @@ function wordTouch(element: Event) {
   // kudos: https://stackoverflow.com/a/51921785/810944
   (element.target as HTMLInputElement)?.classList?.toggle("selectedSongWord");
   const selected = (currentSongElement.value as Element).querySelectorAll(
-    ".selectedSongWord"
+    ".selectedSongWord",
   );
   // map the node-list: kudos: https://stackoverflow.com/a/32767009/810944
   selection.value = Array.from(
     selected,
-    (item: Element) => item.innerHTML
+    (item: Element) => item.innerHTML,
   ).join("");
 }
 function lookup() {
@@ -77,7 +86,7 @@ function lookup() {
   } else {
     // browser
     window.open(
-      "https://open.spotify.com/search/" + encodeURI(selection.value!)
+      "https://open.spotify.com/search/" + encodeURI(selection.value!),
     );
   }
 }

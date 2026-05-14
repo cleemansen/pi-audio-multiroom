@@ -1,4 +1,4 @@
-export interface Player {
+export interface LmsPlayer {
   playerId: string;
   playerName: string | null;
   title: string | null;

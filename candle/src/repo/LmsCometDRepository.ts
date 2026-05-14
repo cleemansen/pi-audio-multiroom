@@ -1,7 +1,7 @@
 import { CometD } from "cometd";
 import type { Message } from "cometd";
 import { useLmsStore } from "../stores/LmsStore";
-import type { Player, PlayerServerstatusCometD } from "../types/Player";
+import type { LmsPlayer, PlayerServerstatusCometD } from "../types/LmsPlayer";
 
 /** Communicates with the cometd-endpoint */
 export class LmsCometDRepository {
@@ -83,7 +83,7 @@ export class LmsCometDRepository {
       this.cometD.subscribe(
         `/slim/request/*`,
         (msg) => console.debug(`/slim/request/*`, msg),
-        (ack) => console.debug(`ACK /slim/request/*`, ack)
+        (ack) => console.debug(`ACK /slim/request/*`, ack),
       );
     }
   }
@@ -96,7 +96,7 @@ export class LmsCometDRepository {
       this.cometD.subscribe(
         `/slim/subscribe/*`,
         (msg) => console.debug(`/slim/subscribe/*`, msg),
-        (ack) => console.debug(`ACK /slim/subscribe/*`, ack)
+        (ack) => console.debug(`ACK /slim/subscribe/*`, ack),
       );
     }
   }
@@ -115,13 +115,13 @@ export class LmsCometDRepository {
               return {
                 playerId: player.playerid,
                 playerName: player.name,
-              } as Player;
-            }
+              } as LmsPlayer;
+            },
           );
           // this.subscribeToPlayerStatus();
           this.subscribeForPlayerStatusUpdate();
         },
-        (ack) => console.debug(`ACK /candle/serverstatus`, ack)
+        (ack) => console.debug(`ACK /candle/serverstatus`, ack),
       );
     }
   }
@@ -134,7 +134,7 @@ export class LmsCometDRepository {
       this.request(
         "",
         ["serverstatus", 0, 50],
-        `/${this.cometD.getClientId()}/candle/serverstatus`
+        `/${this.cometD.getClientId()}/candle/serverstatus`,
       );
     }
   }
@@ -150,7 +150,7 @@ export class LmsCometDRepository {
           console.debug(`/candle/playerstatus/*`, msg);
           useLmsStore().updatePlayer(msg);
         },
-        (ack) => console.debug(`ACK /candle/playerstatus/*`, ack)
+        (ack) => console.debug(`ACK /candle/playerstatus/*`, ack),
       );
     }
   }
@@ -162,7 +162,7 @@ export class LmsCometDRepository {
     if (this.checkPlayer()) {
       useLmsStore()
         .players.concat(useLmsStore().syncNodes)
-        .forEach((player: Player) => {
+        .forEach((player: LmsPlayer) => {
           this.publish(
             player.playerId,
             // g: Genre
@@ -179,7 +179,7 @@ export class LmsCometDRepository {
             "/slim/subscribe",
             `/${this.cometD.getClientId()}/candle/playerstatus/${
               player.playerId
-            }`
+            }`,
           );
         });
     }
@@ -194,7 +194,7 @@ export class LmsCometDRepository {
   request(
     playerId: string,
     command: (string | number)[],
-    response = "/slim/request"
+    response = "/slim/request",
   ) {
     this.publish(playerId, command, "/slim/request", response);
   }
@@ -223,7 +223,7 @@ export class LmsCometDRepository {
     playerId: string,
     command: (string | number)[],
     channel: string,
-    response: string
+    response: string,
   ) {
     this.cometD.publish(
       channel,
@@ -237,7 +237,7 @@ export class LmsCometDRepository {
         } else {
           console.warn(`request-ack`, ack);
         }
-      }
+      },
     );
   }
 }
