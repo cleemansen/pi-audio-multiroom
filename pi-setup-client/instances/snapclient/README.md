@@ -46,8 +46,10 @@ Snapclients eingebauter Default `-s default` öffnet die Karte empirisch **nicht
 nur 2 Kanäle an, der Upmix wird umgangen.
 
 `plug:upmix` zwingt snapclient deterministisch auf das `pcm.upmix` (Route 2 → 6)
-aus der `asound.conf`. Der `plug:`-Wrapper davor sorgt zusätzlich für die
-Rate-Konvertierung von 48 kHz (snapclient) auf 44,1 kHz (Karte/dmixer).
+aus der `asound.conf`. Der `plug:`-Wrapper davor ist die Sicherheits-Stufe für
+Rate/Format-Anpassung — bei unserer Konfig (dmixer fix auf 48 kHz, snapclient
+nativ 48 kHz) ist Resampling im Normalfall ein No-Op, aber `plug:` schadet nicht
+und schützt vor Rate-Mismatch, falls sich der Server-Stream mal ändert.
 
 ## Verifikation / Debugging
 
@@ -64,15 +66,18 @@ access: MMAP_INTERLEAVED
 format: S16_LE
 subformat: STD
 channels: 6
-rate: 44100 (44100/1)
+rate: 48000 (48000/1)
 period_size: 2048
 buffer_size: 8192
 ```
 
-Entscheidend ist **`channels: 6`** — das beweist, dass der Stream durch den
-Upmix-Route-Block läuft. Steht da `channels: 2`, geht snapclient an `asound.conf`
-vorbei (z. B. weil `SNAPCLIENT_OPTS` doch wieder `-s default` oder `-s hw:…`
-enthält).
+Entscheidend sind zwei Werte:
+
+- **`channels: 6`** — beweist, dass der Stream durch den Upmix-Route-Block läuft.
+  Steht da `channels: 2`, geht snapclient an `asound.conf` vorbei (z. B. weil
+  `SNAPCLIENT_OPTS` doch wieder `-s default` oder `-s hw:…` enthält).
+- **`rate: 48000`** — bestätigt, dass dmixer wie in der `asound.conf` festgelegt
+  auf 48 kHz läuft (matched snapclients native Rate, kein Resampling auf dem Pi).
 
 Weitere nützliche Checks:
 
